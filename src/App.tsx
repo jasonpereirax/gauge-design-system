@@ -1,470 +1,299 @@
-import { useEffect, useMemo, useState } from 'react'
-import './App.css'
+import React, { useState } from "react"
+import BottomSheet from "./components/BottomSheet/BottomSheet"
 
-const API_URL = 'http://localhost:5174'
-const DEMO_EMAIL = 'demo@gauge.local'
+type Tokens = { colors: string[]; typography: Array<{fontFamily:string|null;fontSize:number;fontWeight:string|null}>; borderRadius: string[]; shadows: string[] }
 
-type Organization = {
-  id: string
+interface ComponentDocProps {
   name: string
-  slug: string
+  description: string
+  figmaUrl: string
+  width: number
+  height: number
+  reactCode: string
+  tailwindCode: string
+  aiCode?: string
+  tokens: Tokens
 }
 
-type Project = {
-  id: string
-  name: string
-  slug: string
-  visibility: 'public' | 'private'
-  default_version?: string | null
-  has_password?: number
-}
+type CodeTab = "react" | "tailwind" | "ai"
 
-type Version = {
-  id: string
-  version: string
-  status: string
-  artifact_url?: string | null
-  created_at: string
-}
+function ComponentDoc({ name, description, figmaUrl, width, height, reactCode, tailwindCode, aiCode, tokens }: ComponentDocProps) {
+  const [activeTab, setActiveTab] = useState<CodeTab>("tailwind")
+  const [copied, setCopied] = useState(false)
 
-async function api<T>(path: string, token: string, options: RequestInit = {}): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      'x-auth-token': token,
-      ...(options.headers || {})
-    }
-  })
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}))
-    throw new Error(body.error || 'request_failed')
+  const currentCode = activeTab === "ai" ? (aiCode || "") : activeTab === "react" ? reactCode : tailwindCode
+
+  const copy = () => {
+    navigator.clipboard.writeText(currentCode)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
-  return res.json()
-}
-
-function formatDate(value: string) {
-  return new Date(value).toLocaleString()
-}
-
-function Dashboard({
-  orgs,
-  projects,
-  activeOrgId,
-  onSelectOrg,
-  onCreateProject
-}: {
-  orgs: Organization[]
-  projects: Project[]
-  activeOrgId: string
-  onSelectOrg: (orgId: string) => void
-  onCreateProject: (name: string) => void
-}) {
-  const [name, setName] = useState('')
 
   return (
-    <section className="panel">
-      <div className="panel-header">
-        <div>
-          <h2>Workspace</h2>
-          <p className="muted">Gerencie os Design Systems por organizacao.</p>
+    <div className="space-y-8">
+      <div className="border-b pb-6">
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">{name}</h1>
+            <p className="text-muted-foreground mt-2 text-lg">{description}</p>
+          </div>
+          {figmaUrl && (
+            <a href={figmaUrl} target="_blank" rel="noopener noreferrer"
+               className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground border rounded-md px-3 py-1.5 transition-colors">
+              <svg width="12" height="16" viewBox="0 0 12 16" fill="currentColor"><path d="M6 8a2 2 0 1 1 4 0 2 2 0 0 1-4 0z"/><path fillRule="evenodd" d="M0 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2 2 2 0 0 1 0 4 2 2 0 0 1-2 2H4a2 2 0 0 1-2-2 2 2 0 0 1-2-2V2zm2 8a2 2 0 0 0 2 2h2a2 2 0 0 0 0-4H4a2 2 0 0 0-2 2zm4-6a2 2 0 0 0 2 2V2H6v2zm0 4a2 2 0 0 0-2 2h2v-2zm0-4V2H2v2a2 2 0 0 0 2 2h2zm-4 4a2 2 0 0 0 2 2H4a2 2 0 0 0-2-2z"/></svg>
+              Figma
+            </a>
+          )}
         </div>
-        <div className="select-wrap">
-          <label>Organizacao</label>
-          <select value={activeOrgId} onChange={(event) => onSelectOrg(event.target.value)}>
-            {orgs.map((org) => (
-              <option key={org.id} value={org.id}>{org.name}</option>
+        <div className="flex gap-3 mt-4 text-sm text-muted-foreground">
+          <span>{width}×{height}px</span>
+          {tokens.colors.length > 0 && <span>• {tokens.colors.length} cores</span>}
+          {tokens.borderRadius.length > 0 && <span>• border-radius: {tokens.borderRadius[0]}</span>}
+        </div>
+      </div>
+
+      {tokens.colors.length > 0 && (
+        <div>
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">Tokens de cor</h3>
+          <div className="flex flex-wrap gap-2">
+            {tokens.colors.map(color => (
+              <div key={color} className="flex items-center gap-2 border rounded-md px-2 py-1 text-xs font-mono">
+                <div className="w-4 h-4 rounded-sm border" style={{ background: color }} />
+                {color}
+              </div>
             ))}
-          </select>
-        </div>
-      </div>
-
-      <div className="panel-body">
-        <div className="create-bar">
-          <input
-            value={name}
-            placeholder="Nome do Design System"
-            onChange={(event) => setName(event.target.value)}
-          />
-          <button
-            onClick={() => {
-              if (!name.trim()) return
-              onCreateProject(name.trim())
-              setName('')
-            }}
-          >
-            Criar DS
-          </button>
-        </div>
-
-        <div className="grid">
-          {projects.map((project) => (
-            <article key={project.id} className="card">
-              <div>
-                <h3>{project.name}</h3>
-                <p className="muted">/{project.slug}</p>
-              </div>
-              <div className="card-meta">
-                <span className={`badge ${project.visibility}`}>{project.visibility}</span>
-                <span className="muted">Default: {project.default_version || 'sem versao'}</span>
-              </div>
-            </article>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
-function VersionsPanel({
-  project,
-  versions,
-  onDeploy,
-  onSetDefault,
-  publicBaseUrl
-}: {
-  project: Project | null
-  versions: Version[]
-  onDeploy: (version: string) => void
-  onSetDefault: (versionId: string) => void
-  publicBaseUrl: string
-}) {
-  const [version, setVersion] = useState('v1.0.0')
-
-  if (!project) {
-    return (
-      <section className="panel">
-        <div className="panel-header">
-          <h2>Deploys</h2>
-        </div>
-        <p className="muted">Selecione um projeto para ver versoes.</p>
-      </section>
-    )
-  }
-
-  return (
-    <section className="panel">
-      <div className="panel-header">
-        <div>
-          <h2>Deploys</h2>
-          <p className="muted">{project.name}</p>
-        </div>
-        <div className="create-bar">
-          <input value={version} onChange={(event) => setVersion(event.target.value)} />
-          <button onClick={() => onDeploy(version)}>Criar versao</button>
-        </div>
-      </div>
-
-      <div className="panel-body">
-        <div className="list">
-          {versions.map((item) => (
-            <div key={item.id} className="list-row">
-              <div>
-                <strong>{item.version}</strong>
-                <div className="muted">{formatDate(item.created_at)}</div>
-              </div>
-              <div className="list-meta">
-                <span className={`badge ${item.status}`}>{item.status}</span>
-                <button onClick={() => onSetDefault(item.id)}>Definir default</button>
-                <a className="link" href={`${publicBaseUrl}/v/${item.version}`} target="_blank" rel="noreferrer">
-                  Abrir
-                </a>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
-function AccessPanel({
-  project,
-  onSetPassword,
-  onToggleVisibility
-}: {
-  project: Project | null
-  onSetPassword: (password: string) => void
-  onToggleVisibility: (visibility: 'public' | 'private') => void
-}) {
-  const [password, setPassword] = useState('')
-
-  return (
-    <section className="panel">
-      <div className="panel-header">
-        <h2>Acessos</h2>
-      </div>
-      {project ? (
-        <div className="panel-body">
-          <p className="muted">Configure convites, senha e whitelist para {project.name}.</p>
-          <div className="access-grid">
-            <div className="card">
-              <h3>Convites</h3>
-              <p className="muted">Envie convites por e-mail.</p>
-              <button disabled>Adicionar convite</button>
-            </div>
-            <div className="card">
-              <h3>Senha</h3>
-              <p className="muted">Habilite senha unica por projeto.</p>
-              <input
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                placeholder="Senha simples"
-                type="password"
-              />
-              <button
-                onClick={() => {
-                  if (password.trim().length < 4) return
-                  onSetPassword(password.trim())
-                  setPassword('')
-                }}
-              >
-                Salvar senha
-              </button>
-              <div className="muted">
-                {project.has_password ? 'Senha ativa' : 'Sem senha'}
-              </div>
-            </div>
-            <div className="card">
-              <h3>Whitelist</h3>
-              <p className="muted">Restrinja por dominio.</p>
-              <button disabled>Adicionar dominio</button>
-            </div>
-            <div className="card">
-              <h3>Visibilidade</h3>
-              <p className="muted">Defina publico ou privado.</p>
-              <button onClick={() => onToggleVisibility(project.visibility === 'public' ? 'private' : 'public')}>
-                Tornar {project.visibility === 'public' ? 'privado' : 'publico'}
-              </button>
-            </div>
           </div>
         </div>
-      ) : (
-        <p className="muted">Selecione um projeto.</p>
       )}
-    </section>
+
+      <div>
+        <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">Código</h3>
+        <div className="rounded-xl border overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/40">
+            <div className="flex gap-1">
+              {(["tailwind","react","ai"] as CodeTab[]).filter(t => t !== "ai" || aiCode).map(tab => (
+                <button key={tab} onClick={() => setActiveTab(tab)}
+                  className={`px-3 py-1 text-xs rounded-md font-medium transition-colors ${activeTab === tab ? "bg-background shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+                  {tab === "ai" ? "✨ AI" : tab === "react" ? "React" : "Tailwind"}
+                </button>
+              ))}
+            </div>
+            <button onClick={copy} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+              {copied ? "✓ Copiado!" : "Copiar"}
+            </button>
+          </div>
+          <pre className="p-4 text-sm overflow-x-auto bg-background max-h-96">
+            <code className="text-foreground font-mono text-xs leading-relaxed">{currentCode}</code>
+          </pre>
+        </div>
+      </div>
+    </div>
   )
 }
+
+const navItems = [
+  { id: "BottomSheet", label: "Bottom Sheet" }
+]
 
 export default function App() {
-  const [token, setToken] = useState('')
-  const [orgs, setOrgs] = useState<Organization[]>([])
-  const [projects, setProjects] = useState<Project[]>([])
-  const [activeOrgId, setActiveOrgId] = useState('')
-  const [activeProjectId, setActiveProjectId] = useState('')
-  const [versions, setVersions] = useState<Version[]>([])
-
-  const activeProject = useMemo(
-    () => projects.find((project) => project.id === activeProjectId) || null,
-    [projects, activeProjectId]
-  )
-
-  const activeOrg = useMemo(
-    () => orgs.find((org) => org.id === activeOrgId) || null,
-    [orgs, activeOrgId]
-  )
-
-  useEffect(() => {
-    async function boot() {
-      const data = await api<{ token: string; default_org: Organization }>(
-        '/auth/token',
-        '',
-        {
-          method: 'POST',
-          body: JSON.stringify({ email: DEMO_EMAIL, name: 'Demo User' })
-        }
-      )
-      setToken(data.token)
-      setActiveOrgId(data.default_org.id)
-    }
-    boot()
-  }, [])
-
-  useEffect(() => {
-    if (!token) return
-    api<{ organizations: Organization[] }>('/organizations', token)
-      .then((data) => setOrgs(data.organizations))
-      .catch(console.error)
-  }, [token])
-
-  useEffect(() => {
-    if (!token || !activeOrgId) return
-    api<{ projects: Project[] }>(`/projects?org_id=${activeOrgId}`, token)
-      .then((data) => {
-        setProjects(data.projects)
-        if (data.projects.length && !activeProjectId) {
-          setActiveProjectId(data.projects[0].id)
-        }
-      })
-      .catch(console.error)
-  }, [token, activeOrgId])
-
-  useEffect(() => {
-    if (!token || !activeProjectId) return
-    api<{ versions: Version[] }>(`/projects/${activeProjectId}/versions`, token)
-      .then((data) => setVersions(data.versions))
-      .catch(console.error)
-  }, [token, activeProjectId])
-
-  async function handleCreateProject(name: string) {
-    if (!token || !activeOrgId) return
-    await api('/projects', token, {
-      method: 'POST',
-      body: JSON.stringify({ organization_id: activeOrgId, name, visibility: 'private' })
-    })
-    const data = await api<{ projects: Project[] }>(`/projects?org_id=${activeOrgId}`, token)
-    setProjects(data.projects)
-  }
-
-  async function handleDeploy(version: string) {
-    if (!token || !activeProjectId) return
-    await api(`/projects/${activeProjectId}/deploy`, token, {
-      method: 'POST',
-      body: JSON.stringify({
-        version,
-        set_default: true,
-        payload: {
-          components: [
-            {
-              name: 'Button Primary',
-              type: 'component',
-              html: '<button class="btn-primary">Primary</button>',
-              css: '.btn-primary { background: #111827; color: #fff; padding: 10px 18px; border-radius: 999px; border: none; font-weight: 600; }'
-            },
-            {
-              name: 'Card',
-              type: 'component',
-              html: '<div class="card-preview"><h4>Card Title</h4><p>Supporting text</p></div>',
-              css: '.card-preview { padding: 16px; border-radius: 12px; border: 1px solid #eadbc9; background: #fff; } .card-preview h4 { margin: 0 0 6px; }'
-            }
-          ],
-          tokens: { primary: '#111827' },
-          metadata: { note: 'Demo payload com html/css' }
-        }
-      })
-    })
-    const data = await api<{ versions: Version[] }>(`/projects/${activeProjectId}/versions`, token)
-    setVersions(data.versions)
-  }
-
-  async function handleSetDefault(versionId: string) {
-    if (!token || !activeProjectId) return
-    await api(`/projects/${activeProjectId}`, token, {
-      method: 'PATCH',
-      body: JSON.stringify({ default_version_id: versionId })
-    })
-    const data = await api<{ projects: Project[] }>(`/projects?org_id=${activeOrgId}`, token)
-    setProjects(data.projects)
-  }
-
-  async function handleSetPassword(password: string) {
-    if (!token || !activeProjectId) return
-    await api(`/projects/${activeProjectId}/password`, token, {
-      method: 'PUT',
-      body: JSON.stringify({ password })
-    })
-    const data = await api<{ projects: Project[] }>(`/projects?org_id=${activeOrgId}`, token)
-    setProjects(data.projects)
-  }
-
-  async function handleToggleVisibility(visibility: 'public' | 'private') {
-    if (!token || !activeProjectId) return
-    await api(`/projects/${activeProjectId}`, token, {
-      method: 'PATCH',
-      body: JSON.stringify({ visibility })
-    })
-    const data = await api<{ projects: Project[] }>(`/projects?org_id=${activeOrgId}`, token)
-    setProjects(data.projects)
-  }
+  const [activeSection, setActiveSection] = useState(navItems[0]?.id ?? "")
+  const [darkMode, setDarkMode] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(true)
 
   return (
-    <div className="workspace">
-      <header className="topbar">
-        <div>
-          <h1>Gauge Workspace</h1>
-          <p className="muted">Workspace multi-tenant para Design Systems.</p>
-        </div>
-        <div className="topbar-actions">
-          <span className="badge private">Local Dev</span>
-        </div>
-      </header>
-
-      <main className="main">
-        <Dashboard
-          orgs={orgs}
-          projects={projects}
-          activeOrgId={activeOrgId}
-          onSelectOrg={(orgId) => {
-            setActiveOrgId(orgId)
-            setActiveProjectId('')
-          }}
-          onCreateProject={handleCreateProject}
-        />
-
-        <section className="columns">
-          <div>
-            <div className="panel">
-              <div className="panel-header">
-                <div>
-                  <h2>Projetos</h2>
-                  {activeOrg && (
-                    <p className="muted">URL base: {`${API_URL}/public/${activeOrg.slug}`}</p>
-                  )}
-                </div>
-              </div>
-              <div className="panel-body">
-                <div className="list">
-                  {projects.map((project) => (
-                    <button
-                      key={project.id}
-                      className={`list-row selectable ${activeProjectId === project.id ? 'active' : ''}`}
-                      onClick={() => setActiveProjectId(project.id)}
-                    >
-                      <div>
-                        <strong>{project.name}</strong>
-                        <div className="muted">/{project.slug}</div>
-                        <div className="muted">ID: {project.id}</div>
-                      </div>
-                      <div className="list-meta">
-                        <span className={`badge ${project.visibility}`}>{project.visibility}</span>
-                        {activeOrg && (
-                          <a
-                            className="link"
-                            href={`${API_URL}/public/${activeOrg.slug}/${project.slug}`}
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            Abrir
-                          </a>
-                        )}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
+    <div className={darkMode ? "dark" : ""}>
+      <div className="min-h-screen bg-background text-foreground flex">
+        {/* Sidebar */}
+        <aside className={`${sidebarOpen ? "w-64" : "w-0"} transition-all duration-200 overflow-hidden border-r flex-shrink-0`}>
+          <div className="p-6 w-64">
+            <div className="flex items-center gap-2 mb-8">
+              <div className="w-7 h-7 bg-foreground rounded-md" />
+              <span className="font-semibold text-base">Design System</span>
             </div>
+            <nav className="space-y-1">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 px-2">Componentes</p>
+              {navItems.map(item => (
+                <button key={item.id} onClick={() => setActiveSection(item.id)}
+                  className={`w-full text-left px-2 py-1.5 rounded-md text-sm transition-colors ${activeSection === item.id ? "bg-accent text-accent-foreground font-medium" : "text-muted-foreground hover:text-foreground hover:bg-accent/50"}`}>
+                  {item.label}
+                </button>
+              ))}
+            </nav>
           </div>
+        </aside>
 
-          <div>
-            <VersionsPanel
-              project={activeProject}
-              versions={versions}
-              onDeploy={handleDeploy}
-              onSetDefault={handleSetDefault}
-              publicBaseUrl={
-                activeOrg && activeProject
-                  ? `${API_URL}/public/${activeOrg.slug}/${activeProject.slug}`
-                  : ''
-              }
-            />
-            <AccessPanel
-              project={activeProject}
-              onSetPassword={handleSetPassword}
-              onToggleVisibility={handleToggleVisibility}
-            />
-          </div>
-        </section>
-      </main>
+        {/* Main */}
+        <div className="flex-1 overflow-auto">
+          <header className="border-b px-6 py-3 flex items-center justify-between sticky top-0 bg-background z-10">
+            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-1.5 rounded-md hover:bg-accent transition-colors">
+              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+            </button>
+            <div className="flex items-center gap-2">
+              <a href="https://github.com" className="text-xs text-muted-foreground hover:text-foreground transition-colors">GitHub</a>
+              <button onClick={() => setDarkMode(!darkMode)} className="p-1.5 rounded-md hover:bg-accent transition-colors text-sm">
+                {darkMode ? "☀️" : "🌙"}
+              </button>
+            </div>
+          </header>
+          <main className="p-8 max-w-4xl">
+      {activeSection === "BottomSheet" && (
+        <ComponentDoc
+          key="BottomSheet"
+          name="Bottom Sheet"
+          description="Tem a função de exibir conteúdo complementar e ações suplementares de algum item da tela"
+          figmaUrl="https://figma.com/file/undefined?node-id=3867-76400"
+          width={1866}
+          height={803}
+          reactCode={`import * as React from "react"
+import { cn } from "@/lib/utils"
+
+export interface BottomSheetProps {
+  type?: "title" | "title+description" | "small tittle";
+  version?: "light" | "dark";
+  children?: React.ReactNode
+}
+
+const BottomSheet = React.forwardRef<HTMLDivElement, BottomSheetProps>(
+  ({ className, children, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        className={cn("inline-flex items-center justify-center rounded w-[1866px] h-[803px]", className)}
+        {...props}
+      >
+        {children}
+      </div>
+    )
+  }
+)
+BottomSheet.displayName = "BottomSheet"
+
+export { BottomSheet }
+export default BottomSheet`}
+          tailwindCode={`import * as React from "react"
+import { cva, type VariantProps } from "class-variance-authority"
+import { cn } from "@/lib/utils"
+
+
+const variants = cva("inline-flex items-center justify-center rounded w-[1866px] h-[803px]", {
+  variants: {
+    type: {
+      title: "",
+      titledescription: "",
+      smalltittle: "",
+    },
+    version: {
+      light: "",
+      dark: "",
+    },
+  },
+  defaultVariants: {
+  },
+})
+
+
+export interface BottomSheetProps extends VariantProps<typeof variants> {
+  className?: string
+  children?: React.ReactNode
+}
+
+export function BottomSheet({ className, children, ...props }: BottomSheetProps) {
+  return (
+    <div className={cn(variants(props), className)}>
+      {children}
+    </div>
+  )
+}
+
+export default BottomSheet`}
+          aiCode={`import * as React from "react"
+import { cn } from "@/lib/utils"
+
+export interface BottomSheetProps {
+  type?: "title" | "title+description" | "small tittle";
+  version?: "light" | "dark";
+  children?: React.ReactNode
+}
+
+const BottomSheet = React.forwardRef<HTMLDivElement, BottomSheetProps>(
+  ({ className, children, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        className={cn("inline-flex items-center justify-center rounded w-[1866px] h-[803px]", className)}
+        {...props}
+      >
+        {children}
+      </div>
+    )
+  }
+)
+BottomSheet.displayName = "BottomSheet"
+
+export { BottomSheet }
+export default BottomSheet`}
+          tokens={{
+  "colors": [
+    "#9747ff",
+    "#ffffff",
+    "#0d0d0d",
+    "#404040",
+    "#f2f2f2",
+    "#d9d9d9"
+  ],
+  "typography": [
+    {
+      "fontFamily": "Suisse BP Int'l",
+      "fontSize": 18,
+      "fontWeight": "Regular"
+    },
+    {
+      "fontFamily": "Suisse BP Int'l",
+      "fontSize": 18,
+      "fontWeight": "Regular"
+    },
+    {
+      "fontFamily": "Degular",
+      "fontSize": 32,
+      "fontWeight": "Medium"
+    },
+    {
+      "fontFamily": "Suisse BP Int'l",
+      "fontSize": 16,
+      "fontWeight": "Regular"
+    },
+    {
+      "fontFamily": "Degular",
+      "fontSize": 32,
+      "fontWeight": "Medium"
+    },
+    {
+      "fontFamily": "Suisse BP Int'l",
+      "fontSize": 16,
+      "fontWeight": "Regular"
+    },
+    {
+      "fontFamily": "Degular",
+      "fontSize": 32,
+      "fontWeight": "Medium"
+    },
+    {
+      "fontFamily": "Degular",
+      "fontSize": 32,
+      "fontWeight": "Medium"
+    }
+  ],
+  "spacing": [],
+  "borderRadius": [
+    "5px"
+  ],
+  "shadows": []
+}}
+        />
+      )}
+          </main>
+        </div>
+      </div>
     </div>
   )
 }
