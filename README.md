@@ -1,42 +1,38 @@
-# Gauge Design System
+# Design System
 
-A modern design system built with React and TypeScript, implementing components from Figma designs.
+Gerado automaticamente via [Design System Publisher Pro](https://github.com/) a partir do Figma.
 
-## Getting Started
+## Componentes (1)
 
-### Installation
+- `BottomSheet` — Bottom Sheet
+
+## Instalação
 
 ```bash
 npm install
-```
-
-### Development
-
-```bash
 npm run dev
 ```
 
-### Backend (MVP)
+## Uso
 
-```bash
-npm run dev:server
+```tsx
+import { BottomSheet } from "@/components"
 ```
 
-See `MVP_GUIDE.md` for full local workflow and plugin integration.
+## Estrutura
 
-### Build
-
-```bash
-npm run build
+```
+src/
+  components/
+    BottomSheet/
+      BottomSheet.tsx         # React
+      BottomSheet.tailwind.tsx # Tailwind
+      BottomSheet.ai.tsx       # AI-generated (se disponível)
+      BottomSheet.module.css   # CSS Module
+  App.tsx     # Docs site
+  main.tsx
 ```
 
-## Components
+---
 
-- **Button** - A versatile button component with multiple variants and states
-
-## Tech Stack
-
-- React 18
-- TypeScript
-- Vite
-- CSS Modules
+*Gerado em: 2026-03-03T21:32:11.667Z*
