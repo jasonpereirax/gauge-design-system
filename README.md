@@ -2,9 +2,10 @@
 
 Gerado automaticamente via [Design System Publisher Pro](https://github.com/) a partir do Figma.
 
-## Componentes (1)
+## Componentes (2)
 
-- `BottomSheet` — Bottom Sheet
+- `Frame1` — Frame 1
+- `Frame2` — Frame 2
 
 ## Instalação
 
@@ -16,7 +17,7 @@ npm run dev
 ## Uso
 
 ```tsx
-import { BottomSheet } from "@/components"
+import { Frame1, Frame2 } from "@/components"
 ```
 
 ## Estrutura
@@ -24,15 +25,20 @@ import { BottomSheet } from "@/components"
 ```
 src/
   components/
-    BottomSheet/
-      BottomSheet.tsx         # React
-      BottomSheet.tailwind.tsx # Tailwind
-      BottomSheet.ai.tsx       # AI-generated (se disponível)
-      BottomSheet.module.css   # CSS Module
+    Frame1/
+      Frame1.tsx         # React
+      Frame1.tailwind.tsx # Tailwind
+      Frame1.ai.tsx       # AI-generated (se disponível)
+      Frame1.module.css   # CSS Module
+    Frame2/
+      Frame2.tsx         # React
+      Frame2.tailwind.tsx # Tailwind
+      Frame2.ai.tsx       # AI-generated (se disponível)
+      Frame2.module.css   # CSS Module
   App.tsx     # Docs site
   main.tsx
 ```
 
 ---
 
-*Gerado em: 2026-03-03T21:41:46.776Z*
+*Gerado em: 2026-03-04T20:33:10.783Z*
