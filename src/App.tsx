@@ -66,33 +66,21 @@ function CodeBlock({ code, language }) {
   const [copied, setCopied] = useState(false)
   const copy = () => { navigator.clipboard.writeText(code); setCopied(true); setTimeout(() => setCopied(false), 2000) }
   if (!code || !code.trim()) return (
-    <div style={{ padding: "32px", textAlign: "center", fontSize: "13px", color: "#888", border: "1px solid #e4e4e7", borderRadius: "12px" }}>
+    <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-8 text-center text-sm text-zinc-400">
       Nenhum código disponível
     </div>
   )
-  const escaped = code.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
-  const doc = "<!DOCTYPE html><html><head><meta charset=UTF-8><style>" +
-    "*{box-sizing:border-box;margin:0;padding:0;border:none}" +
-    "html,body{width:100%;height:100%;background:#0d1117}" +
-    "pre{margin:0;padding:20px;background:#0d1117;font-size:12px;line-height:1.6;overflow-x:auto;height:100%;white-space:pre}" +
-    "code{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;color:#e6edf3;white-space:pre}" +
-    "</style></head><body>" +
-    "<pre><code>" + escaped + "</code></pre>" +
-    "</body></html>"
   return (
-    <div style={{ border: "1px solid #e4e4e7", borderRadius: "12px", overflow: "hidden" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 16px", borderBottom: "1px solid #e4e4e7", background: "#f9fafb" }}>
-        <span style={{ fontSize: "11px", fontFamily: "monospace", color: "#888" }}>{language}</span>
-        <button onClick={copy} style={{ fontSize: "12px", color: "#555", background: "none", border: "none", cursor: "pointer", padding: "4px 8px", borderRadius: "6px" }}>
+    <div className="rounded-xl border border-zinc-200 overflow-hidden">
+      <div className="flex items-center justify-between px-4 py-2 border-b border-zinc-200 bg-zinc-50">
+        <span className="text-xs font-mono text-zinc-400">{language}</span>
+        <button onClick={copy} className="text-xs text-zinc-500 hover:text-zinc-900 px-2 py-1 rounded hover:bg-zinc-100 transition-colors">
           {copied ? "✓ Copiado!" : "Copiar"}
         </button>
       </div>
-      <iframe
-        srcDoc={doc}
-        style={{ width: "100%", height: "320px", border: "none", display: "block" }}
-        sandbox="allow-scripts"
-        title="code"
-      />
+      <pre className="p-4 overflow-x-auto max-h-[480px] bg-zinc-900 text-xs leading-relaxed">
+        <code className="text-zinc-100 font-mono">{code}</code>
+      </pre>
     </div>
   )
 }
