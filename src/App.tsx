@@ -15,99 +15,75 @@ interface ComponentDocProps {
 
 type CodeTab = "preview" | "tailwind" | "react" | "html" | "ai"
 
-function ComponentPreview({ htmlCode, cssCode, svgCode, width, height }: { htmlCode: string; cssCode: string; svgCode?: string; width: number; height: number }) {
-  const [bg, setBg] = useState<"white"|"checker"|"dark">("checker")
+function ComponentPreview({ htmlCode, cssCode, svgCode, width, height }) {
+  const [bg, setBg] = useState("checker")
   const [zoom, setZoom] = useState(1)
-  const checkerStyle = {
-    backgroundImage: "linear-gradient(45deg,#e5e7eb 25%,transparent 25%),linear-gradient(-45deg,#e5e7eb 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e5e7eb 75%),linear-gradient(-45deg,transparent 75%,#e5e7eb 75%)",
+  const checker = {
+    backgroundImage: [
+      "linear-gradient(45deg,#e5e7eb 25%,transparent 25%)",
+      "linear-gradient(-45deg,#e5e7eb 25%,transparent 25%)",
+      "linear-gradient(45deg,transparent 75%,#e5e7eb 75%)",
+      "linear-gradient(-45deg,transparent 75%,#e5e7eb 75%)"
+    ].join(","),
     backgroundSize: "16px 16px",
     backgroundPosition: "0 0,0 8px,8px -8px,-8px 0",
     backgroundColor: "#f9fafb"
   }
-  const bgStyles: Record<string,any> = {
+  const bgMap = {
     white: { background: "#ffffff" },
-    checker: checkerStyle,
+    checker: checker,
     dark: { background: "#09090b" }
   }
-  // Use SVG as fallback if htmlCode has no real visual content
-  const visualContent = (htmlCode && htmlCode.includes("<svg")) ? htmlCode
-    : (svgCode && svgCode.trim()) ? `<div style="display:inline-flex;align-items:center;justify-content:center">${svgCode}</div>`
-    : htmlCode || `<div style="padding:24px;color:#888;font-size:13px">${"(no preview)"}</div>`
-  const srcdoc = [
-    "<!DOCTYPE html><html><head>",
-    "<meta charset="UTF-8"/>",
-    "<meta name="viewport" content="width=device-width,initial-scale=1"/>",
-    "<style>",
-    "*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }",
-    "html, body { width: 100%; height: 100%; }",
-    "body { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:32px; font-family:system-ui,-apple-system,sans-serif; background:transparent; }",
-    cssCode,
-    "</style></head><body>",
-    visualContent,
-    "</body></html>"
-  ].join("
-")
-  const iframeH = Math.max(height * zoom + 96, 200)
+  const visual = (htmlCode && htmlCode.includes("<svg")) ? htmlCode : svgCode ? svgCode : (htmlCode || "")
+  const baseCSS = "*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html,body{width:100%;height:100%}body{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:32px;font-family:system-ui,sans-serif;background:transparent}"
+  const h = Math.max(height * zoom + 96, 200)
+  const doc = "<!DOCTYPE html><html><head><meta charset=UTF-8><style>" + baseCSS + (cssCode || "") + "</style></head><body>" + visual + "</body></html>"
   return (
-    <div className="rounded-xl border overflow-hidden bg-background">
-      <div className="flex items-center gap-3 px-4 py-2.5 border-b bg-muted/20">
-        <div className="flex items-center gap-1.5">
-          <span className="text-xs text-muted-foreground mr-1">Fundo</span>
-          {(["white","checker","dark"] as const).map(b => (
-            <button key={b} onClick={() => setBg(b)} title={b}
-              className={`w-5 h-5 rounded border-2 transition-all ${bg===b?"border-blue-500 scale-110":"border-muted-foreground/30"}`}
-              style={b==="checker"?{...checkerStyle,backgroundSize:"8px 8px"}:b==="dark"?{background:"#09090b"}:{background:"#fff"}} />
-          ))}
-        </div>
-        <div className="w-px h-4 bg-border" />
-        <div className="flex items-center gap-1.5">
-          <span className="text-xs text-muted-foreground">Zoom</span>
-          {[0.5,0.75,1,1.5,2].map(z => (
-            <button key={z} onClick={() => setZoom(z)}
-              className={`text-xs px-2 py-0.5 rounded transition-colors ${zoom===z?"bg-foreground text-background font-medium":"text-muted-foreground hover:text-foreground hover:bg-muted"}`}>
-              {z===1?"1×":z+"×"}
-            </button>
-          ))}
-        </div>
-        <span className="ml-auto text-xs text-muted-foreground font-mono">{width}×{height}px</span>
+    <div style={{ border: "1px solid #e4e4e7", borderRadius: "12px", overflow: "hidden" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 16px", borderBottom: "1px solid #e4e4e7", background: "#fafafa" }}>
+        <span style={{ fontSize: "12px", color: "#888" }}>Fundo</span>
+        {["white", "checker", "dark"].map(b => (
+          <button key={b} onClick={() => setBg(b)}
+            style={{ width: "18px", height: "18px", borderRadius: "50%", border: bg === b ? "2px solid #3b82f6" : "2px solid #e4e4e7", cursor: "pointer", ...(bgMap[b]) }} />
+        ))}
+        <span style={{ width: "1px", height: "16px", background: "#e4e4e7", margin: "0 4px" }} />
+        <span style={{ fontSize: "12px", color: "#888" }}>Zoom</span>
+        {[0.5, 1, 1.5, 2].map(z => (
+          <button key={z} onClick={() => setZoom(z)}
+            style={{ fontSize: "11px", padding: "2px 8px", borderRadius: "6px", border: "none", cursor: "pointer", background: zoom === z ? "#18181b" : "transparent", color: zoom === z ? "#fff" : "#888" }}>
+            {z + "x"}
+          </button>
+        ))}
+        <span style={{ marginLeft: "auto", fontSize: "11px", color: "#aaa", fontFamily: "monospace" }}>{width}x{height}px</span>
       </div>
-      <div className="relative overflow-auto" style={{ minHeight: iframeH + "px", ...bgStyles[bg] }}>
-        <iframe
-          key={zoom + bg}
-          srcDoc={srcdoc}
-          className="w-full border-0 block"
-          style={{ height: iframeH + "px", transform: zoom !== 1 ? `scale(${zoom})` : undefined, transformOrigin: "top center" }}
-          sandbox="allow-scripts"
-          title="Component Preview"
-        />
+      <div style={{ minHeight: h + "px", ...bgMap[bg] }}>
+        <iframe key={zoom + "-" + bg} srcDoc={doc} style={{ width: "100%", height: h + "px", border: "none", display: "block" }} sandbox="allow-scripts" title="Preview" />
       </div>
     </div>
   )
 }
-
-function CodeBlock({ code, language }: { code: string; language: string }) {
+function CodeBlock({ code, language }) {
   const [copied, setCopied] = useState(false)
   const copy = () => { navigator.clipboard.writeText(code); setCopied(true); setTimeout(() => setCopied(false), 2000) }
   if (!code || !code.trim()) return (
-    <div className="rounded-xl border bg-muted/20 p-8 text-center text-sm text-muted-foreground">
-      Nenhum código disponível para este formato
+    <div style={{ padding: "32px", textAlign: "center", fontSize: "13px", color: "#888", border: "1px solid #e4e4e7", borderRadius: "12px" }}>
+      Nenhum código disponível
     </div>
   )
   return (
-    <div className="rounded-xl border overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/40">
-        <span className="text-xs font-mono font-medium text-muted-foreground">{language}</span>
-        <button onClick={copy} className="text-xs text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded hover:bg-muted">
+    <div style={{ border: "1px solid #e4e4e7", borderRadius: "12px", overflow: "hidden" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 16px", borderBottom: "1px solid #e4e4e7", background: "#f9fafb" }}>
+        <span style={{ fontSize: "11px", fontFamily: "monospace", color: "#888" }}>{language}</span>
+        <button onClick={copy} style={{ fontSize: "12px", color: "#666", background: "none", border: "none", cursor: "pointer", padding: "4px 8px", borderRadius: "6px" }}>
           {copied ? "✓ Copiado!" : "Copiar"}
         </button>
       </div>
-      <pre className="p-4 overflow-x-auto bg-background max-h-[480px] text-xs leading-relaxed">
-        <code className="text-foreground font-mono">{code}</code>
+      <pre style={{ margin: 0, padding: "20px", overflowX: "auto", maxHeight: "480px", background: "#0d1117", fontSize: "12px", lineHeight: "1.6" }}>
+        <code style={{ fontFamily: "ui-monospace,SFMono-Regular,Menlo,monospace", color: "#e6edf3", whiteSpace: "pre" }}>{code}</code>
       </pre>
     </div>
   )
 }
-
 function ComponentDoc({ name, description, figmaUrl, width, height, reactCode, tailwindCode, htmlCode, cssCode, svgCode, aiCode, tokens }: ComponentDocProps) {
   const [activeTab, setActiveTab] = useState<CodeTab>("preview")
   const tabs: { id: CodeTab; label: string; show: boolean }[] = [
