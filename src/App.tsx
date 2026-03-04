@@ -1,6 +1,7 @@
 /* eslint-disable */
 // @ts-nocheck
-import { useState, useRef, useEffect } from "react"
+import { useState } from "react"
+import { ComponentPreview } from "@/lib/preview"
 import Frame1 from "./components/Frame1/Frame1"
 import Frame2 from "./components/Frame2/Frame2"
 
@@ -14,76 +15,6 @@ interface ComponentDocProps {
 }
 
 type CodeTab = "preview" | "tailwind" | "react" | "html" | "ai"
-
-function ComponentPreview({ htmlCode, cssCode, svgCode, width, height }: { htmlCode: string; cssCode: string; svgCode?: string; width: number; height: number }) {
-  const [bg, setBg] = useState<"white"|"checker"|"dark">("checker")
-  const [zoom, setZoom] = useState(1)
-  const checkerStyle = {
-    backgroundImage: "linear-gradient(45deg,#e5e7eb 25%,transparent 25%),linear-gradient(-45deg,#e5e7eb 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e5e7eb 75%),linear-gradient(-45deg,transparent 75%,#e5e7eb 75%)",
-    backgroundSize: "16px 16px",
-    backgroundPosition: "0 0,0 8px,8px -8px,-8px 0",
-    backgroundColor: "#f9fafb"
-  }
-  const bgStyles: Record<string,any> = {
-    white: { background: "#ffffff" },
-    checker: checkerStyle,
-    dark: { background: "#09090b" }
-  }
-  // Use SVG as fallback if htmlCode has no real visual content
-  const visualContent = (htmlCode && htmlCode.includes("<svg")) ? htmlCode
-    : (svgCode && svgCode.trim()) ? `<div style="display:inline-flex;align-items:center;justify-content:center">${svgCode}</div>`
-    : htmlCode || `<div style="padding:24px;color:#888;font-size:13px">${"(no preview)"}</div>`
-  const srcdoc = [
-    "<!DOCTYPE html><html><head>",
-    "<meta charset="UTF-8"/>",
-    "<meta name="viewport" content="width=device-width,initial-scale=1"/>",
-    "<style>",
-    "*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }",
-    "html, body { width: 100%; height: 100%; }",
-    "body { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:32px; font-family:system-ui,-apple-system,sans-serif; background:transparent; }",
-    cssCode,
-    "</style></head><body>",
-    visualContent,
-    "</body></html>"
-  ].join("
-")
-  const iframeH = Math.max(height * zoom + 96, 200)
-  return (
-    <div className="rounded-xl border overflow-hidden bg-background">
-      <div className="flex items-center gap-3 px-4 py-2.5 border-b bg-muted/20">
-        <div className="flex items-center gap-1.5">
-          <span className="text-xs text-muted-foreground mr-1">Fundo</span>
-          {(["white","checker","dark"] as const).map(b => (
-            <button key={b} onClick={() => setBg(b)} title={b}
-              className={`w-5 h-5 rounded border-2 transition-all ${bg===b?"border-blue-500 scale-110":"border-muted-foreground/30"}`}
-              style={b==="checker"?{...checkerStyle,backgroundSize:"8px 8px"}:b==="dark"?{background:"#09090b"}:{background:"#fff"}} />
-          ))}
-        </div>
-        <div className="w-px h-4 bg-border" />
-        <div className="flex items-center gap-1.5">
-          <span className="text-xs text-muted-foreground">Zoom</span>
-          {[0.5,0.75,1,1.5,2].map(z => (
-            <button key={z} onClick={() => setZoom(z)}
-              className={`text-xs px-2 py-0.5 rounded transition-colors ${zoom===z?"bg-foreground text-background font-medium":"text-muted-foreground hover:text-foreground hover:bg-muted"}`}>
-              {z===1?"1×":z+"×"}
-            </button>
-          ))}
-        </div>
-        <span className="ml-auto text-xs text-muted-foreground font-mono">{width}×{height}px</span>
-      </div>
-      <div className="relative overflow-auto" style={{ minHeight: iframeH + "px", ...bgStyles[bg] }}>
-        <iframe
-          key={zoom + bg}
-          srcDoc={srcdoc}
-          className="w-full border-0 block"
-          style={{ height: iframeH + "px", transform: zoom !== 1 ? `scale(${zoom})` : undefined, transformOrigin: "top center" }}
-          sandbox="allow-scripts"
-          title="Component Preview"
-        />
-      </div>
-    </div>
-  )
-}
 
 function CodeBlock({ code, language }: { code: string; language: string }) {
   const [copied, setCopied] = useState(false)
