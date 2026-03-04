@@ -37,6 +37,17 @@
 }
 
 @layer base {
-  * { @apply border-border; }
   body { @apply bg-background text-foreground; }
+}
+
+/* Code block - prevent global styles from interfering */
+pre, code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+  border: none !important;
+  background: transparent;
+}
+
+pre {
+  white-space: pre;
+  overflow-x: auto;
 }
