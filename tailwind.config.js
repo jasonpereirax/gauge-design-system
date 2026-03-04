@@ -1,6 +1,14 @@
 /** @type {import("tailwindcss").Config} */
 export default {
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
+  safelist: [
+    "bg-zinc-900", "bg-zinc-50", "bg-zinc-100",
+    "text-zinc-100", "text-zinc-400", "text-zinc-500", "text-zinc-900",
+    "border-zinc-200", "hover:bg-zinc-100", "hover:text-zinc-900",
+    "font-mono", "overflow-x-auto", "max-h-[480px]",
+    "rounded-xl", "overflow-hidden", "border"
+  ],
+  darkMode: "class",
   theme: {
     extend: {
       colors: {
