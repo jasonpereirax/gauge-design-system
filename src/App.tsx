@@ -29,24 +29,20 @@ function ComponentPreview({ htmlCode, cssCode, svgCode, width, height }: { htmlC
     checker: checkerStyle,
     dark: { background: "#09090b" }
   }
-  // Use SVG as fallback if htmlCode has no real visual content
-  const visualContent = (htmlCode && htmlCode.includes("<svg")) ? htmlCode
-    : (svgCode && svgCode.trim()) ? `<div style="display:inline-flex;align-items:center;justify-content:center">${svgCode}</div>`
-    : htmlCode || `<div style="padding:24px;color:#888;font-size:13px">${"(no preview)"}</div>`
-  const srcdoc = [
-    "<!DOCTYPE html><html><head>",
-    "<meta charset="UTF-8"/>",
-    "<meta name="viewport" content="width=device-width,initial-scale=1"/>",
-    "<style>",
-    "*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }",
-    "html, body { width: 100%; height: 100%; }",
-    "body { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:32px; font-family:system-ui,-apple-system,sans-serif; background:transparent; }",
-    cssCode,
-    "</style></head><body>",
-    visualContent,
+  const visual = (htmlCode && htmlCode.includes("<svg")) ? htmlCode
+    : (svgCode && svgCode.trim()) ? "<div>" + svgCode + "</div>"
+    : htmlCode || "<p style="color:#888;font-size:13px">(no preview)</p>"
+  const srcdoc = "<!DOCTYPE html><html><head>" +
+    "<meta charset="UTF-8">" +
+    "<meta name="viewport" content="width=device-width,initial-scale=1">" +
+    "<style>" +
+    "*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}" +
+    "html,body{width:100%;height:100%}" +
+    "body{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:32px;font-family:system-ui,sans-serif;background:transparent}" +
+    cssCode +
+    "</style></head><body>" +
+    visual +
     "</body></html>"
-  ].join("
-")
   const iframeH = Math.max(height * zoom + 96, 200)
   return (
     <div className="rounded-xl border overflow-hidden bg-background">
@@ -76,7 +72,7 @@ function ComponentPreview({ htmlCode, cssCode, svgCode, width, height }: { htmlC
           key={zoom + bg}
           srcDoc={srcdoc}
           className="w-full border-0 block"
-          style={{ height: iframeH + "px", transform: zoom !== 1 ? `scale(${zoom})` : undefined, transformOrigin: "top center" }}
+          style={{ height: iframeH + "px" }}
           sandbox="allow-scripts"
           title="Component Preview"
         />
