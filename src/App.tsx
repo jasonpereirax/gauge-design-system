@@ -70,17 +70,29 @@ function CodeBlock({ code, language }) {
       Nenhum código disponível
     </div>
   )
+  const escaped = code.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+  const doc = "<!DOCTYPE html><html><head><meta charset=UTF-8><style>" +
+    "*{box-sizing:border-box;margin:0;padding:0;border:none}" +
+    "html,body{width:100%;height:100%;background:#0d1117}" +
+    "pre{margin:0;padding:20px;background:#0d1117;font-size:12px;line-height:1.6;overflow-x:auto;height:100%;white-space:pre}" +
+    "code{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;color:#e6edf3;white-space:pre}" +
+    "</style></head><body>" +
+    "<pre><code>" + escaped + "</code></pre>" +
+    "</body></html>"
   return (
     <div style={{ border: "1px solid #e4e4e7", borderRadius: "12px", overflow: "hidden" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 16px", borderBottom: "1px solid #e4e4e7", background: "#f9fafb" }}>
         <span style={{ fontSize: "11px", fontFamily: "monospace", color: "#888" }}>{language}</span>
-        <button onClick={copy} style={{ fontSize: "12px", color: "#666", background: "none", border: "none", cursor: "pointer", padding: "4px 8px", borderRadius: "6px" }}>
+        <button onClick={copy} style={{ fontSize: "12px", color: "#555", background: "none", border: "none", cursor: "pointer", padding: "4px 8px", borderRadius: "6px" }}>
           {copied ? "✓ Copiado!" : "Copiar"}
         </button>
       </div>
-      <pre style={{ margin: 0, padding: "20px", overflowX: "auto", maxHeight: "480px", background: "#0d1117", fontSize: "12px", lineHeight: "1.6" }}>
-        <code style={{ fontFamily: "ui-monospace,SFMono-Regular,Menlo,monospace", color: "#e6edf3", whiteSpace: "pre" }}>{code}</code>
-      </pre>
+      <iframe
+        srcDoc={doc}
+        style={{ width: "100%", height: "320px", border: "none", display: "block" }}
+        sandbox="allow-scripts"
+        title="code"
+      />
     </div>
   )
 }
