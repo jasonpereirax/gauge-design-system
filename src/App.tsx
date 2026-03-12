@@ -1,7 +1,7 @@
 /* eslint-disable */
 // @ts-nocheck
-import { useState } from "react"
-import { ComponentPreview } from "@/lib/preview"
+import React, { useState } from "react"
+// ComponentPreview is defined below
 import Card from "./components/Card/Card"
 
 type Tokens = { colors: string[]; typography: any[]; borderRadius: string[]; shadows: string[]; spacing: string[] }
@@ -14,6 +14,49 @@ interface ComponentDocProps {
 }
 
 type CodeTab = "preview" | "tailwind" | "react" | "html" | "ai"
+
+function ComponentPreview({ htmlCode, cssCode, svgCode, width, height }) {
+  const [bg, setBg] = React.useState("checker")
+  const [zoom, setZoom] = React.useState(1)
+  const checker = {
+    backgroundImage: [
+      "linear-gradient(45deg,#e5e7eb 25%,transparent 25%)",
+      "linear-gradient(-45deg,#e5e7eb 25%,transparent 25%)",
+      "linear-gradient(45deg,transparent 75%,#e5e7eb 75%)",
+      "linear-gradient(-45deg,transparent 75%,#e5e7eb 75%)"
+    ].join(","),
+    backgroundSize: "16px 16px",
+    backgroundPosition: "0 0,0 8px,8px -8px,-8px 0",
+    backgroundColor: "#f9fafb"
+  }
+  const bgMap = { white: { background: "#ffffff" }, checker: checker, dark: { background: "#09090b" } }
+  const visual = (htmlCode && htmlCode.includes("<svg")) ? htmlCode : svgCode ? svgCode : (htmlCode || "")
+  const baseCSS = "*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html,body{width:100%;height:100%}body{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:32px;font-family:system-ui,sans-serif;background:transparent}"
+  const h = Math.max(height * zoom + 96, 200)
+  const buildDoc = () => "<!DOCTYPE html><html><head><meta charset=UTF-8><style>" + baseCSS + (cssCode || "") + "</style></head><body>" + visual + "</body></html>"
+  return (
+    <div style={{ border: "1px solid #e4e4e7", borderRadius: "12px", overflow: "hidden" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "8px 16px", borderBottom: "1px solid #e4e4e7", background: "#f9fafb" }}>
+        <span style={{ fontSize: "11px", color: "#888" }}>Fundo</span>
+        {["white", "checker", "dark"].map(b => (
+          <button key={b} onClick={() => setBg(b)}
+            style={{ width: "20px", height: "20px", borderRadius: "4px", border: bg === b ? "2px solid #3b82f6" : "2px solid #d1d5db", cursor: "pointer", ...bgMap[b] }} />
+        ))}
+        <span style={{ margin: "0 4px", color: "#d1d5db" }}>|</span>
+        {[0.5, 1, 1.5, 2].map(z => (
+          <button key={z} onClick={() => setZoom(z)}
+            style={{ fontSize: "11px", padding: "2px 8px", borderRadius: "4px", border: "none", cursor: "pointer", background: zoom === z ? "#18181b" : "transparent", color: zoom === z ? "#fff" : "#888" }}>
+            {z + "x"}
+          </button>
+        ))}
+        <span style={{ marginLeft: "auto", fontSize: "11px", fontFamily: "monospace", color: "#888" }}>{width}x{height}px</span>
+      </div>
+      <div style={{ minHeight: h + "px", ...bgMap[bg] }}>
+        <iframe key={zoom + "-" + bg} srcDoc={buildDoc()} style={{ width: "100%", height: h + "px", border: "none", display: "block" }} sandbox="allow-scripts" title="Preview" />
+      </div>
+    </div>
+  )
+}
 
 function CodeBlock({ code, language }: { code: string; language: string }) {
   const [copied, setCopied] = useState(false)
