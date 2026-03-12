@@ -15,7 +15,7 @@
   },
   "components": [
     {
-      "name": "Frame 1",
+      "name": "Card",
       "dependencies": [
         "class-variance-authority",
         "clsx",
@@ -23,22 +23,8 @@
       ],
       "files": [
         {
-          "name": "Frame1.tsx",
-          "content": "// @ts-nocheck\nimport * as React from \"react\"\nimport { cn } from \"@/lib/utils\"\n\nexport interface Frame1Props {\n  state?: \"Default\" | \"Disabled\";\n  className?: string;\n  children?: React.ReactNode\n}\n\nconst Frame1 = React.forwardRef<HTMLDivElement, Frame1Props>(\n  ({ className, children, ...props }, ref) => {\n    return (\n      <div\n        ref={ref}\n        className={cn(\"inline-flex items-center justify-center rounded w-[118px] h-[138px]\", className)}\n        {...props}\n      >\n        {children}\n      </div>\n    )\n  }\n)\nFrame1.displayName = \"Frame1\"\n\nexport { Frame1 }\nexport default Frame1"
-        }
-      ]
-    },
-    {
-      "name": "Frame 2",
-      "dependencies": [
-        "class-variance-authority",
-        "clsx",
-        "tailwind-merge"
-      ],
-      "files": [
-        {
-          "name": "Frame2.tsx",
-          "content": "// @ts-nocheck\nimport * as React from \"react\"\nimport { cn } from \"@/lib/utils\"\n\nexport interface Frame2Props {\n  property 1?: \"Default\" | \"Variant2\";\n  className?: string;\n  children?: React.ReactNode\n}\n\nconst Frame2 = React.forwardRef<HTMLDivElement, Frame2Props>(\n  ({ className, children, ...props }, ref) => {\n    return (\n      <div\n        ref={ref}\n        className={cn(\"inline-flex items-center justify-center rounded w-[118px] h-[138px]\", className)}\n        {...props}\n      >\n        {children}\n      </div>\n    )\n  }\n)\nFrame2.displayName = \"Frame2\"\n\nexport { Frame2 }\nexport default Frame2"
+          "name": "Card.tsx",
+          "content": "// @ts-nocheck\nimport * as React from \"react\"\nimport { cn } from \"@/lib/utils\"\n\nexport interface CardProps {\n  type?: \"Select\" | \"Content\" | \"Review\";\n  className?: string;\n  children?: React.ReactNode\n}\n\nconst Card = React.forwardRef<HTMLDivElement, CardProps>(\n  ({ className, children, ...props }, ref) => {\n    return (\n      <div\n        ref={ref}\n        className={cn(\"inline-flex items-center justify-center rounded w-[620px] h-[543px]\", className)}\n        {...props}\n      >\n        {children}\n      </div>\n    )\n  }\n)\nCard.displayName = \"Card\"\n\nexport { Card }\nexport default Card"
         }
       ]
     }
