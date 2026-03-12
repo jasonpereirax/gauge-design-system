@@ -4,7 +4,7 @@ Gerado automaticamente via [Design System Publisher Pro](https://github.com/) a 
 
 ## Componentes (1)
 
-- `Card` — Card
+- `Button` — Button
 
 ## Instalação
 
@@ -16,7 +16,7 @@ npm run dev
 ## Uso
 
 ```tsx
-import { Card } from "@/components"
+import { Button } from "@/components"
 ```
 
 ## Estrutura
@@ -24,15 +24,15 @@ import { Card } from "@/components"
 ```
 src/
   components/
-    Card/
-      Card.tsx         # React
-      Card.tailwind.tsx # Tailwind
-      Card.ai.tsx       # AI-generated (se disponível)
-      Card.module.css   # CSS Module
+    Button/
+      Button.tsx         # React
+      Button.tailwind.tsx # Tailwind
+      Button.ai.tsx       # AI-generated (se disponível)
+      Button.module.css   # CSS Module
   App.tsx     # Docs site
   main.tsx
 ```
 
 ---
 
-*Gerado em: 2026-03-12T20:55:57.400Z*
+*Gerado em: 2026-03-12T21:19:07.550Z*
