@@ -2,10 +2,9 @@
 
 Gerado automaticamente via [Design System Publisher Pro](https://github.com/) a partir do Figma.
 
-## Componentes (2)
+## Componentes (1)
 
-- `Card` — Card
-- `Button` — Button
+- `Dropdown` — Dropdown
 
 ## Instalação
 
@@ -17,7 +16,7 @@ npm run dev
 ## Uso
 
 ```tsx
-import { Card, Button } from "@/components"
+import { Dropdown } from "@/components"
 ```
 
 ## Estrutura
@@ -25,20 +24,15 @@ import { Card, Button } from "@/components"
 ```
 src/
   components/
-    Card/
-      Card.tsx         # React
-      Card.tailwind.tsx # Tailwind
-      Card.ai.tsx       # AI-generated (se disponível)
-      Card.module.css   # CSS Module
-    Button/
-      Button.tsx         # React
-      Button.tailwind.tsx # Tailwind
-      Button.ai.tsx       # AI-generated (se disponível)
-      Button.module.css   # CSS Module
+    Dropdown/
+      Dropdown.tsx         # React
+      Dropdown.tailwind.tsx # Tailwind
+      Dropdown.ai.tsx       # AI-generated (se disponível)
+      Dropdown.module.css   # CSS Module
   App.tsx     # Docs site
   main.tsx
 ```
 
 ---
 
-*Gerado em: 2026-03-13T17:40:28.586Z*
+*Gerado em: 2026-03-13T17:43:12.407Z*
