@@ -15,7 +15,7 @@
   },
   "components": [
     {
-      "name": "Dropdown",
+      "name": "Toast",
       "dependencies": [
         "class-variance-authority",
         "clsx",
@@ -23,8 +23,8 @@
       ],
       "files": [
         {
-          "name": "Dropdown.tsx",
-          "content": "// @ts-nocheck\nimport * as React from \"react\"\nimport { cn } from \"@/lib/utils\"\n\nexport interface DropdownProps {\n  state?: \"open\" | \"Error\" | \"Disabled\" | \"Hover\" | \"Default\" | \"Filled\";\n  className?: string;\n  children?: React.ReactNode\n}\n\nconst Dropdown = React.forwardRef<HTMLDivElement, DropdownProps>(\n  ({ className, children, ...props }, ref) => {\n    return (\n      <div\n        ref={ref}\n        className={cn(\"inline-flex items-center justify-center rounded w-[2893px] h-[365px]\", className)}\n        {...props}\n      >\n        {children}\n      </div>\n    )\n  }\n)\nDropdown.displayName = \"Dropdown\"\n\nexport { Dropdown }\nexport default Dropdown"
+          "name": "Toast.tsx",
+          "content": "// @ts-nocheck\nimport * as React from \"react\"\nimport { cn } from \"@/lib/utils\"\n\nexport interface ToastProps {\n  state?: \"Alert\" | \"Error\" | \"Sucess\";\n  className?: string;\n  children?: React.ReactNode\n}\n\nconst Toast = React.forwardRef<HTMLDivElement, ToastProps>(\n  ({ className, children, ...props }, ref) => {\n    return (\n      <div\n        ref={ref}\n        className={cn(\"inline-flex items-center justify-center rounded w-[320px] h-[336px]\", className)}\n        {...props}\n      >\n        {children}\n      </div>\n    )\n  }\n)\nToast.displayName = \"Toast\"\n\nexport { Toast }\nexport default Toast"
         }
       ]
     }
