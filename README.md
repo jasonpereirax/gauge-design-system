@@ -4,7 +4,7 @@ Gerado automaticamente via [Design System Publisher Pro](https://github.com/) a 
 
 ## Componentes (1)
 
-- `Tab` — Tab
+- `Input` — Input
 
 ## Instalação
 
@@ -16,7 +16,7 @@ npm run dev
 ## Uso
 
 ```tsx
-import { Tab } from "@/components"
+import { Input } from "@/components"
 ```
 
 ## Estrutura
@@ -24,15 +24,15 @@ import { Tab } from "@/components"
 ```
 src/
   components/
-    Tab/
-      Tab.tsx         # React
-      Tab.tailwind.tsx # Tailwind
-      Tab.ai.tsx       # AI-generated (se disponível)
-      Tab.module.css   # CSS Module
+    Input/
+      Input.tsx         # React
+      Input.tailwind.tsx # Tailwind
+      Input.ai.tsx       # AI-generated (se disponível)
+      Input.module.css   # CSS Module
   App.tsx     # Docs site
   main.tsx
 ```
 
 ---
 
-*Gerado em: 2026-03-14T00:13:32.605Z*
+*Gerado em: 2026-03-14T13:28:48.329Z*

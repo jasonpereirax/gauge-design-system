@@ -1,0 +1,35 @@
+:root {
+  --color-primary: #9747ff;
+  --color-secondary: #0b1641;
+  --color-accent-2: #fc3d55;
+  --color-accent-3: #ffffff;
+  --color-accent-4: #cccccc;
+  --color-accent-5: #d9d9d9;
+  --color-accent-6: #262626;
+  --color-accent-7: #b9b9b9;
+  --color-accent-8: #da0202;
+  --color-accent-9: #d5d5d5;
+  --color-accent-10: #969696;
+  --color-accent-11: #444444;
+  --radius: 5px;
+}
+
+.root {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-sizing: border-box;
+  width: 2187px;
+  height: 373px;
+  border-radius: var(--radius, 5px);
+  font-family: "Avenir Next LT Pro", system-ui, sans-serif;
+  font-size: 16px;
+  overflow: hidden;
+}
+
+.root svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
