@@ -4,7 +4,7 @@ Gerado automaticamente via [Design System Publisher Pro](https://github.com/) a 
 
 ## Componentes (1)
 
-- `Toast` — Toast
+- `Tab` — Tab
 
 ## Instalação
 
@@ -16,7 +16,7 @@ npm run dev
 ## Uso
 
 ```tsx
-import { Toast } from "@/components"
+import { Tab } from "@/components"
 ```
 
 ## Estrutura
@@ -24,15 +24,15 @@ import { Toast } from "@/components"
 ```
 src/
   components/
-    Toast/
-      Toast.tsx         # React
-      Toast.tailwind.tsx # Tailwind
-      Toast.ai.tsx       # AI-generated (se disponível)
-      Toast.module.css   # CSS Module
+    Tab/
+      Tab.tsx         # React
+      Tab.tailwind.tsx # Tailwind
+      Tab.ai.tsx       # AI-generated (se disponível)
+      Tab.module.css   # CSS Module
   App.tsx     # Docs site
   main.tsx
 ```
 
 ---
 
-*Gerado em: 2026-03-13T23:47:20.908Z*
+*Gerado em: 2026-03-14T00:13:32.605Z*
