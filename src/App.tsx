@@ -1,8 +1,7 @@
 /* eslint-disable */
 // @ts-nocheck
-import React, { useState, useEffect, useRef, useCallback } from "react"
+import React, { useState, useEffect } from "react"
 import Button from "./components/Button/Button"
-import Accordion from "./components/Accordion/Accordion"
 
 type Tokens = { colors: string[]; typography: any[]; borderRadius: string[]; shadows: string[]; spacing: string[] }
 type VariantProp = { name: string; values: string[] }
@@ -401,7 +400,7 @@ function ComponentDoc({ name,description,figmaUrl,status,category,width,height,r
 }
 
 const globalTokens = {
-  "colors": [
+  colors: [
     "#9747ff",
     "#d9d9d9",
     "#ffffff",
@@ -411,19 +410,15 @@ const globalTokens = {
     "#444444",
     "#262626"
   ],
-  "typography": [
-    {
-      "fontFamily": "Avenir Next LT Pro",
-      "fontSize": 16,
-      "fontWeight": "Demi"
-    }
+  typography: [
+    { fontFamily: "Avenir Next LT Pro", fontSize: 16, fontWeight: "Demi" }
   ],
-  "borderRadius": [
+  borderRadius: [
     "5px",
     "800px"
   ],
-  "shadows": [],
-  "spacing": [
+  shadows: [],
+  spacing: [
     "8px",
     "16px",
     "24px"
@@ -514,7 +509,7 @@ function GlobalTokensPage() {
 }
 
 const navItems = [
-  { id: "Accordion", label: "Accordion" }
+  { id: "Button", label: "Button", category: "↪︎ Buttons", status: "stable" }
 ]
 const componentNames = navItems.map(i=>i.id)
 
@@ -553,6 +548,20 @@ function InstallationPage() {
       </div>
     </div>
   )
+}
+
+class ErrorBoundary extends React.Component<{children:any},{error:any}> {
+  constructor(p:any){super(p);this.state={error:null}}
+  static getDerivedStateFromError(e:any){return {error:e}}
+  render(){
+    if(this.state.error) return (
+      <div style={{padding:"32px",maxWidth:"600px",margin:"40px auto",border:"1px solid #fecaca",borderRadius:"12px",background:"#fff5f5"}}>
+        <div style={{fontSize:"16px",fontWeight:600,color:"#b91c1c",marginBottom:"8px"}}>Erro ao renderizar componente</div>
+        <pre style={{fontSize:"12px",color:"#7f1d1d",background:"#fee2e2",padding:"12px",borderRadius:"8px",overflow:"auto",whiteSpace:"pre-wrap"}}>{String(this.state.error)}</pre>
+      </div>
+    )
+    return this.props.children
+  }
 }
 
 export default function App() {
@@ -642,6 +651,7 @@ export default function App() {
             </div>
           </header>
           <main style={{ padding:"32px",maxWidth:"900px",margin:"0 auto" }}>
+            <ErrorBoundary>
             {activeSection==="installation"&&<InstallationPage />}
             {activeSection==="tokens"&&<GlobalTokensPage />}
       {activeSection === "Button" && (
@@ -1049,6 +1059,7 @@ export default Button`}
 ]}
         />
       )}
+            </ErrorBoundary>
           </main>
         </div>
       </div>
