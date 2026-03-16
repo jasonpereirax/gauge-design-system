@@ -15,7 +15,9 @@
   },
   "components": [
     {
-      "name": "Tab",
+      "name": "Accordion",
+      "category": "Accordion",
+      "status": "stable",
       "dependencies": [
         "class-variance-authority",
         "clsx",
@@ -23,8 +25,8 @@
       ],
       "files": [
         {
-          "name": "Tab.tsx",
-          "content": "// @ts-nocheck\nimport * as React from \"react\"\nimport { cn } from \"@/lib/utils\"\n\nexport interface TabProps {\n  state?: \"Selected\" | \"Default\";\n  className?: string;\n  children?: React.ReactNode\n}\n\nconst Tab = React.forwardRef<HTMLDivElement, TabProps>(\n  ({ className, children, ...props }, ref) => {\n    return (\n      <div\n        ref={ref}\n        className={cn(\"inline-flex items-center justify-center rounded w-[158px] h-[75px]\", className)}\n        {...props}\n      >\n        {children}\n      </div>\n    )\n  }\n)\nTab.displayName = \"Tab\"\n\nexport { Tab }\nexport default Tab"
+          "name": "Accordion.tsx",
+          "content": "// @ts-nocheck\nimport * as React from \"react\"\nimport { cn } from \"@/lib/utils\"\n\nexport interface AccordionProps {\n  state?: \"Default\" | \"Open\";\n  className?: string;\n  children?: React.ReactNode\n}\n\nconst Accordion = React.forwardRef<HTMLDivElement, AccordionProps>(\n  ({ className, children, ...props }, ref) => {\n    return (\n      <div\n        ref={ref}\n        className={cn(\"inline-flex items-center justify-center rounded w-[574px] h-[275px]\", className)}\n        {...props}\n      >\n        {children}\n      </div>\n    )\n  }\n)\nAccordion.displayName = \"Accordion\"\n\nexport { Accordion }\nexport default Accordion"
         }
       ]
     }
