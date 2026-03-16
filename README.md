@@ -4,7 +4,7 @@ Gerado automaticamente via [Design System Publisher Pro](https://github.com/) a 
 
 ## Componentes (1)
 
-- `Accordion` — Accordion
+- `Button` — Button
 
 ## Instalação
 
@@ -16,7 +16,7 @@ npm run dev
 ## Uso
 
 ```tsx
-import { Accordion } from "@/components"
+import { Button } from "@/components"
 ```
 
 ## Estrutura
@@ -24,15 +24,15 @@ import { Accordion } from "@/components"
 ```
 src/
   components/
-    Accordion/
-      Accordion.tsx         # React
-      Accordion.tailwind.tsx # Tailwind
-      Accordion.ai.tsx       # AI-generated (se disponível)
-      Accordion.module.css   # CSS Module
+    Button/
+      Button.tsx         # React
+      Button.tailwind.tsx # Tailwind
+      Button.ai.tsx       # AI-generated (se disponível)
+      Button.module.css   # CSS Module
   App.tsx     # Docs site
   main.tsx
 ```
 
 ---
 
-*Gerado em: 2026-03-16T17:42:01.517Z*
+*Gerado em: 2026-03-16T17:45:17.551Z*
