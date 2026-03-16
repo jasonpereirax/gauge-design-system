@@ -4,7 +4,7 @@ Gerado automaticamente via [Design System Publisher Pro](https://github.com/) a 
 
 ## Componentes (1)
 
-- `Card` — Card
+- `Checkbox` — Checkbox
 
 ## Instalação
 
@@ -16,7 +16,7 @@ npm run dev
 ## Uso
 
 ```tsx
-import { Card } from "@/components"
+import { Checkbox } from "@/components"
 ```
 
 ## Estrutura
@@ -24,15 +24,15 @@ import { Card } from "@/components"
 ```
 src/
   components/
-    Card/
-      Card.tsx         # React
-      Card.tailwind.tsx # Tailwind
-      Card.ai.tsx       # AI-generated (se disponível)
-      Card.module.css   # CSS Module
+    Checkbox/
+      Checkbox.tsx         # React
+      Checkbox.tailwind.tsx # Tailwind
+      Checkbox.ai.tsx       # AI-generated (se disponível)
+      Checkbox.module.css   # CSS Module
   App.tsx     # Docs site
   main.tsx
 ```
 
 ---
 
-*Gerado em: 2026-03-16T18:14:03.812Z*
+*Gerado em: 2026-03-16T18:21:23.306Z*

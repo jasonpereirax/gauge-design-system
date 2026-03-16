@@ -15,8 +15,8 @@
   },
   "components": [
     {
-      "name": "Card",
-      "category": "Card",
+      "name": "Checkbox",
+      "category": "Checkbox",
       "status": "stable",
       "dependencies": [
         "class-variance-authority",
@@ -25,8 +25,8 @@
       ],
       "files": [
         {
-          "name": "Card.tsx",
-          "content": "// @ts-nocheck\nimport * as React from \"react\"\nimport { cn } from \"@/lib/utils\"\n\nexport interface CardProps {\n  type?: \"Select\" | \"Content\" | \"Review\";\n  className?: string;\n  children?: React.ReactNode\n}\n\nconst Card = React.forwardRef<HTMLDivElement, CardProps>(\n  ({ className, children, ...props }, ref) => {\n    return (\n      <div\n        ref={ref}\n        className={cn(\"inline-flex items-center justify-center rounded w-[620px] h-[543px]\", className)}\n        {...props}\n      >\n        {children}\n      </div>\n    )\n  }\n)\nCard.displayName = \"Card\"\n\nexport { Card }\nexport default Card"
+          "name": "Checkbox.tsx",
+          "content": "// @ts-nocheck\nimport * as React from \"react\"\nimport { cn } from \"@/lib/utils\"\n\nexport interface CheckboxProps {\n  state?: \"Default\" | \"Disabled\" | \"Selected\" | \"Error\";\n  size?: \"Large\" | \"Small\";\n  className?: string;\n  children?: React.ReactNode\n}\n\nconst Checkbox = React.forwardRef<HTMLDivElement, CheckboxProps>(\n  ({ className, children, ...props }, ref) => {\n    return (\n      <div\n        ref={ref}\n        className={cn(\"inline-flex items-center justify-center rounded w-[341px] h-[116px]\", className)}\n        {...props}\n      >\n        {children}\n      </div>\n    )\n  }\n)\nCheckbox.displayName = \"Checkbox\"\n\nexport { Checkbox }\nexport default Checkbox"
         }
       ]
     }
