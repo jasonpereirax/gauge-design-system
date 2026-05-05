@@ -4,7 +4,7 @@ Gerado automaticamente via [Design System Publisher Pro](https://github.com/) a 
 
 ## Componentes (1)
 
-- `Checkbox` — Checkbox
+- `Button` — Button
 
 ## Instalação
 
@@ -16,7 +16,7 @@ npm run dev
 ## Uso
 
 ```tsx
-import { Checkbox } from "@/components"
+import { Button } from "@/components"
 ```
 
 ## Estrutura
@@ -24,15 +24,15 @@ import { Checkbox } from "@/components"
 ```
 src/
   components/
-    Checkbox/
-      Checkbox.tsx         # React
-      Checkbox.tailwind.tsx # Tailwind
-      Checkbox.ai.tsx       # AI-generated (se disponível)
-      Checkbox.module.css   # CSS Module
+    Button/
+      Button.tsx         # React
+      Button.tailwind.tsx # Tailwind
+      Button.ai.tsx       # AI-generated (se disponível)
+      Button.module.css   # CSS Module
   App.tsx     # Docs site
   main.tsx
 ```
 
 ---
 
-*Gerado em: 2026-03-16T18:21:23.306Z*
+*Gerado em: 2026-05-05T14:05:07.370Z*
