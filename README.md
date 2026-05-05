@@ -4,7 +4,7 @@ Gerado automaticamente via [Design System Publisher Pro](https://github.com/) a 
 
 ## Componentes (1)
 
-- `Accordion` — Accordion
+- `Dropdown` — Dropdown
 
 ## Instalação
 
@@ -16,7 +16,7 @@ npm run dev
 ## Uso
 
 ```tsx
-import { Accordion } from "@/components"
+import { Dropdown } from "@/components"
 ```
 
 ## Estrutura
@@ -24,15 +24,15 @@ import { Accordion } from "@/components"
 ```
 src/
   components/
-    Accordion/
-      Accordion.tsx         # React
-      Accordion.tailwind.tsx # Tailwind
-      Accordion.ai.tsx       # AI-generated (se disponível)
-      Accordion.module.css   # CSS Module
+    Dropdown/
+      Dropdown.tsx         # React
+      Dropdown.tailwind.tsx # Tailwind
+      Dropdown.ai.tsx       # AI-generated (se disponível)
+      Dropdown.module.css   # CSS Module
   App.tsx     # Docs site
   main.tsx
 ```
 
 ---
 
-*Gerado em: 2026-05-05T20:30:10.785Z*
+*Gerado em: 2026-05-05T20:59:15.859Z*
