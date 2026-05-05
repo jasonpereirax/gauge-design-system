@@ -1307,7 +1307,7 @@ export default Accordion`}
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#71717a" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
   </div>
   <div style="padding:12px 16px;background:#fafafa;border-bottom:1px solid #e4e4e7">
-    <p style="font-size:13px;color:#71717a;margin:0;line-height:1.5">ConteÃºdo expandido.</p>
+    <p style="font-size:13px;color:#71717a;margin:0;line-height:1.5">ConteÃÂºdo expandido.</p>
   </div>
   <div style="padding:14px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;background:#fff">
     <span style="font-size:16px;font-weight:500;color:#18181b">Item 2</span>
@@ -1472,11 +1472,11 @@ export default Accordion`}
           a11y={[
   {
     "role": "text",
-    "note": "Texto visÃ­vel â serÃ¡ lido por leitores de tela"
+    "note": "Texto visÃÂ­vel Ã¢ÂÂ serÃÂ¡ lido por leitores de tela"
   },
   {
     "role": "img",
-    "note": "Ãcone decorativo â usar aria-hidden=\"true\""
+    "note": "ÃÂcone decorativo Ã¢ÂÂ usar aria-hidden=\"true\""
   }
 ]}
         />
@@ -1713,7 +1713,7 @@ export default Control`}
           a11y={[
   {
     "role": "img",
-    "note": "ÃÂcone decorativo Ã¢ÂÂ usar aria-hidden=\"true\""
+    "note": "ÃÂÃÂcone decorativo ÃÂ¢ÃÂÃÂ usar aria-hidden=\"true\""
   }
 ]}
         />
@@ -1930,7 +1930,7 @@ export default Checkbox`}
           a11y={[
   {
     "role": "checkbox",
-    "note": "Estado ÃÂ¢ÃÂÃÂ requer aria-checked"
+    "note": "Estado ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ requer aria-checked"
   }
 ]}
         />
