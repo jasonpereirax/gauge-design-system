@@ -15,8 +15,8 @@
   },
   "components": [
     {
-      "name": "Checkbox",
-      "category": "Checkbox",
+      "name": "Component 1",
+      "category": "Colors",
       "status": "stable",
       "dependencies": [
         "class-variance-authority",
@@ -25,8 +25,24 @@
       ],
       "files": [
         {
-          "name": "Checkbox.tsx",
-          "content": "// @ts-nocheck\nimport * as React from \"react\"\nimport { cn } from \"@/lib/utils\"\n\nexport interface CheckboxProps {\n  state?: \"Default\" | \"Disabled\" | \"Selected\" | \"Error\";\n  size?: \"Large\" | \"Small\";\n  className?: string;\n  children?: React.ReactNode\n}\n\nconst Checkbox = React.forwardRef<HTMLDivElement, CheckboxProps>(\n  ({ className, children, ...props }, ref) => {\n    return (\n      <div\n        ref={ref}\n        className={cn(\"inline-flex items-center justify-center rounded w-[341px] h-[116px]\", className)}\n        {...props}\n      >\n        {children}\n      </div>\n    )\n  }\n)\nCheckbox.displayName = \"Checkbox\"\n\nexport { Checkbox }\nexport default Checkbox"
+          "name": "Component1.tsx",
+          "content": "// @ts-nocheck\nimport * as React from \"react\"\n\nexport interface Component1Props {\n  state?: \"Active\" | \"Default\"\n  className?: string\n  children?: React.ReactNode\n  onClick?: () => void\n}\n\nconst Component1 = React.forwardRef<HTMLDivElement, Component1Props>(\n  ({ state = \"Active\", className, children, ...props }, ref) => {\n    return (\n      <div\n      ref={ref}\n      className={className}\n      style={{ display: \"inline-flex\", alignItems: \"center\", gap: \"8px\", padding: \"8px 12px\", borderRadius: \"5px\", background: \"#0b1641\", border: \"1px solid #e4e4e7\", fontFamily: \"Avenir Next LT Pro\", fontSize: \"12px\", color: \"#18181b\" }}\n      {...props}\n    >\n      {children ?? \"Component 1\"}\n    </div>\n    )\n  }\n)\nComponent1.displayName = \"Component1\"\n\nexport { Component1 }\nexport default Component1"
+        }
+      ]
+    },
+    {
+      "name": "Breadchumb",
+      "category": "Colors",
+      "status": "stable",
+      "dependencies": [
+        "class-variance-authority",
+        "clsx",
+        "tailwind-merge"
+      ],
+      "files": [
+        {
+          "name": "Breadchumb.tsx",
+          "content": "// @ts-nocheck\nimport * as React from \"react\"\n\nexport interface BreadchumbProps {\n  className?: string\n  children?: React.ReactNode\n  onClick?: () => void\n}\n\nconst Breadchumb = React.forwardRef<HTMLDivElement, BreadchumbProps>(\n  ({ className, children, ...props }, ref) => {\n    return (\n      <div\n      ref={ref}\n      className={className}\n      style={{ display: \"inline-flex\", alignItems: \"center\", gap: \"8px\", padding: \"8px 12px\", borderRadius: \"6px\", background: \"#d9d9d9\", border: \"1px solid #e4e4e7\", fontFamily: \"Avenir Next LT Pro\", fontSize: \"12px\", color: \"#18181b\" }}\n      {...props}\n    >\n      {children ?? \"Breadchumb\"}\n    </div>\n    )\n  }\n)\nBreadchumb.displayName = \"Breadchumb\"\n\nexport { Breadchumb }\nexport default Breadchumb"
         }
       ]
     }
