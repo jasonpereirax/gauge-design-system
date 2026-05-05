@@ -4,7 +4,7 @@ Gerado automaticamente via [Design System Publisher Pro](https://github.com/) a 
 
 ## Componentes (1)
 
-- `Dropdown` — Dropdown
+- `Button` — Button
 
 ## Instalação
 
@@ -16,7 +16,7 @@ npm run dev
 ## Uso
 
 ```tsx
-import { Dropdown } from "@/components"
+import { Button } from "@/components"
 ```
 
 ## Estrutura
@@ -24,15 +24,15 @@ import { Dropdown } from "@/components"
 ```
 src/
   components/
-    Dropdown/
-      Dropdown.tsx         # React
-      Dropdown.tailwind.tsx # Tailwind
-      Dropdown.ai.tsx       # AI-generated (se disponível)
-      Dropdown.module.css   # CSS Module
+    Button/
+      Button.tsx         # React
+      Button.tailwind.tsx # Tailwind
+      Button.ai.tsx       # AI-generated (se disponível)
+      Button.module.css   # CSS Module
   App.tsx     # Docs site
   main.tsx
 ```
 
 ---
 
-*Gerado em: 2026-05-05T21:12:08.352Z*
+*Gerado em: 2026-05-05T21:13:44.819Z*

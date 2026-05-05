@@ -89,6 +89,26 @@
           "content": "// @ts-nocheck\nimport * as React from \"react\"\n\nexport interface DropdownProps {\n  state?: \"open\" | \"Error\" | \"Disabled\" | \"Hover\" | \"Default\" | \"Filled\"\n  className?: string\n  children?: React.ReactNode\n  onClick?: () => void\n}\n\nconst Dropdown = React.forwardRef<HTMLDivElement, DropdownProps>(\n  ({ state = \"open\", className, children, ...props }, ref) => {\n    return (\n      <div\n      ref={ref}\n      className={className}\n      style={{ display: \"inline-flex\", alignItems: \"center\", gap: \"150px\", padding: \"150px 225px\", borderRadius: \"5px\", background: \"#0b1641\", border: \"1px solid #e4e4e7\", fontFamily: \"Avenir Next LT Pro\", fontSize: \"16px\", color: \"#18181b\" }}\n      {...props}\n    >\n      {children ?? \"Dropdown\"}\n    </div>\n    )\n  }\n)\nDropdown.displayName = \"Dropdown\"\n\nexport { Dropdown }\nexport default Dropdown"
         }
       ]
+    },
+    {
+      "name": "Button",
+      "safeName": "Button",
+      "category": "↪︎  Buttons",
+      "status": "stable",
+      "version": "1.0.0",
+      "lastUpdated": "2026-05-05T21:13:44.803Z",
+      "contentHash": "wjxcii",
+      "dependencies": [
+        "class-variance-authority",
+        "clsx",
+        "tailwind-merge"
+      ],
+      "files": [
+        {
+          "name": "Button.tsx",
+          "content": "// @ts-nocheck\nimport * as React from \"react\"\n\nexport interface ButtonProps {\n  tipo?: \"Pri Default\" | \"Pri Hover\" | \"Pri Focused\" | \"Pri Disabled\" | \"Sec Default\" | \"Sec Hover\" | \"Sec Focused\" | \"Sec Disabled\" | \"Ter Hover\" | \"Ter Focused\" | \"Ter Disabled\" | \"Ter Default\" | \"Text btn Default\" | \"Text btn Hover\" | \"Text btn Focused\" | \"Text btn Disabled\"\n  className?: string\n  children?: React.ReactNode\n  onClick?: () => void\n}\n\nconst Button = React.forwardRef<HTMLDivElement, ButtonProps>(\n  ({ tipo = \"Pri Default\", className, children, onClick, ...props }, ref) => {\n  const baseStyle: React.CSSProperties = {\n    display: \"inline-flex\", alignItems: \"center\", justifyContent: \"center\",\n    padding: \"8px 16px\",\n    borderRadius: \"5px\",\n    fontFamily: \"Avenir Next LT Pro\",\n    fontSize: \"16px\",\n    fontWeight: 600,\n    cursor: \"pointer\",\n    background: \"#9747ff\",\n    color: \"#ffffff\",\n    border: \"none\"\n  }\n\n    let styles: React.CSSProperties = baseStyle\n    if (tipo === \"Pri Default\") styles = { ...baseStyle, background: \"#9747ff\", color: \"#ffffff\", border: \"none\" }\n    if (tipo === \"Pri Hover\") styles = { ...baseStyle, background: \"transparent\", color: \"#9747ff\", border: \"1px solid #9747ff\" }\n    if (tipo === \"Pri Focused\") styles = { ...baseStyle, background: \"#f4f4f5\", color: \"#18181b\", border: \"none\" }\n    if (tipo === \"Pri Disabled\") styles = { ...baseStyle, background: \"#f4f4f5\", color: \"#18181b\", border: \"none\" }\n    if (tipo === \"Sec Default\") styles = { ...baseStyle, background: \"#f4f4f5\", color: \"#18181b\", border: \"none\" }\n    if (tipo === \"Sec Hover\") styles = { ...baseStyle, background: \"#f4f4f5\", color: \"#18181b\", border: \"none\" }\n    if (tipo === \"Sec Focused\") styles = { ...baseStyle, background: \"#f4f4f5\", color: \"#18181b\", border: \"none\" }\n    if (tipo === \"Sec Disabled\") styles = { ...baseStyle, background: \"#f4f4f5\", color: \"#18181b\", border: \"none\" }\n    if (tipo === \"Ter Hover\") styles = { ...baseStyle, background: \"#f4f4f5\", color: \"#18181b\", border: \"none\" }\n    if (tipo === \"Ter Focused\") styles = { ...baseStyle, background: \"#f4f4f5\", color: \"#18181b\", border: \"none\" }\n    if (tipo === \"Ter Disabled\") styles = { ...baseStyle, background: \"#f4f4f5\", color: \"#18181b\", border: \"none\" }\n    if (tipo === \"Ter Default\") styles = { ...baseStyle, background: \"#f4f4f5\", color: \"#18181b\", border: \"none\" }\n    if (tipo === \"Text btn Default\") styles = { ...baseStyle, background: \"#f4f4f5\", color: \"#18181b\", border: \"none\" }\n    if (tipo === \"Text btn Hover\") styles = { ...baseStyle, background: \"#f4f4f5\", color: \"#18181b\", border: \"none\" }\n    if (tipo === \"Text btn Focused\") styles = { ...baseStyle, background: \"#f4f4f5\", color: \"#18181b\", border: \"none\" }\n    if (tipo === \"Text btn Disabled\") styles = { ...baseStyle, background: \"#f4f4f5\", color: \"#18181b\", border: \"none\" }\n    return (\n      <button\n      ref={ref}\n      onClick={onClick}\n      className={className}\n      style={styles}\n      {...props}\n    >\n      {children ?? \"Button\"}\n    </button>\n    )\n  }\n)\nButton.displayName = \"Button\"\n\nexport { Button }\nexport default Button"
+        }
+      ]
     }
   ]
 }
