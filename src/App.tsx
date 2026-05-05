@@ -1,8 +1,8 @@
 /* eslint-disable */
 // @ts-nocheck
 import React, { useState, useEffect } from "react"
+import Control from "./components/Control/Control"
 import Checkbox from "./components/Checkbox/Checkbox"
-import Card from "./components/Card/Card"
 
 type Tokens = { colors: string[]; typography: any[]; borderRadius: string[]; shadows: string[]; spacing: string[] }
 type VariantProp = { name: string; values: string[] }
@@ -403,19 +403,20 @@ function ComponentDoc({ name,description,figmaUrl,status,category,width,height,r
 const globalTokens = {
   colors: [
     "#9747ff",
-    "#ffffff",
-    "#d5d5d5",
-    "#da0202",
     "#e8e8e8",
-    "#fc3d55"
+    "#d9d9d9",
+    "#262626",
+    "#f2f2f2"
   ],
   typography: [],
   borderRadius: [
-    "4px",
-    "5px"
+    "5px",
+    "1000px"
   ],
   shadows: [],
-  spacing: []
+  spacing: [
+    "8px"
+  ]
 }
 
 function GlobalTokensPage() {
@@ -502,8 +503,8 @@ function GlobalTokensPage() {
 }
 
 const navItems = [
-  { id: "Card", label: "Card", category: "Card", status: "stable" },
-  { id: "Checkbox", label: "Checkbox", category: "Checkbox", status: "stable" }
+  { id: "Checkbox", label: "Checkbox", category: "Checkbox", status: "stable" },
+  { id: "Control", label: "Control", category: "Control", status: "stable" }
 ]
 const componentNames = navItems.map(i=>i.id)
 
@@ -648,6 +649,241 @@ export default function App() {
             <ErrorBoundary>
             {activeSection==="installation"&&<InstallationPage />}
             {activeSection==="tokens"&&<GlobalTokensPage />}
+      {activeSection === "Control" && (
+        <ComponentDoc
+          key="Control"
+          name="Control"
+          description=""
+          figmaUrl="https://figma.com/file/undefined?node-id=74-943"
+          status="stable"
+          category="Control"
+          width={138}
+          height={141}
+          reactCode={`// @ts-nocheck
+import * as React from "react"
+
+export interface ControlProps {
+  state?: "Default" | "Disabled"
+  size?: "Small" | "Large"
+  className?: string
+  children?: React.ReactNode
+  onClick?: () => void
+}
+
+const Control = React.forwardRef<HTMLDivElement, ControlProps>(
+  ({ state = "Default", size = "Small", className, children, ...props }, ref) => {
+    return (
+      <div
+      ref={ref}
+      className={className}
+      style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "8px 12px", borderRadius: "5px", background: "#e8e8e8", border: "1px solid #e4e4e7", fontFamily: "system-ui", fontSize: "14px", color: "#18181b" }}
+      {...props}
+    >
+      {children ?? "Control"}
+    </div>
+    )
+  }
+)
+Control.displayName = "Control"
+
+export { Control }
+export default Control`}
+          tailwindCode={`// @ts-nocheck
+import * as React from "react"
+import { cva, type VariantProps } from "class-variance-authority"
+import { cn } from "@/lib/utils"
+
+
+const variants = cva("inline-flex items-center justify-center rounded w-[138px] h-[141px]", {
+  variants: {
+    state: {
+      default: "",
+      disabled: "",
+    },
+    size: {
+      small: "",
+      large: "",
+    },
+  },
+  defaultVariants: {
+  },
+})
+
+
+export interface ControlProps extends VariantProps<typeof variants> {
+  className?: string
+  children?: React.ReactNode
+}
+
+export function Control({ className, children, ...props }: ControlProps) {
+  return (
+    <div className={cn(variants(props), className)}>
+      {children}
+    </div>
+  )
+}
+
+export default Control`}
+          htmlCode={`<div style="display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:5px;background:#e8e8e8;border:1px solid #e4e4e7;font-family:system-ui">
+  <div style="display:flex;flex-direction:column;gap:2px">
+    <span style="font-size:14px;font-weight:400;color:#18181b">Control</span>
+  </div>
+</div>`}
+          cssCode={`:root {
+  --color-primary: #9747ff;
+  --color-secondary: #e8e8e8;
+  --color-accent-2: #d9d9d9;
+  --color-accent-3: #262626;
+  --color-accent-4: #f2f2f2;
+  --radius: 5px;
+}
+
+.root {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-sizing: border-box;
+  width: 138px;
+  height: 141px;
+  border-radius: var(--radius, 5px);
+  overflow: hidden;
+}
+
+.root svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}`}
+          svgCode={`<svg width="138" height="141" viewBox="0 0 138 141" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="0.5" y="0.5" width="137" height="140" rx="4.5" stroke="#9747FF" stroke-dasharray="10 5"/>
+<path d="M20 103C20 94.1634 27.1634 87 36 87C44.8366 87 52 94.1634 52 103C52 111.837 44.8366 119 36 119C27.1634 119 20 111.837 20 103Z" fill="#E8E8E8"/>
+<mask id="mask0_74_943" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="24" y="91" width="24" height="24">
+<rect x="24" y="91" width="24" height="24" fill="#D9D9D9"/>
+</mask>
+<g mask="url(#mask0_74_943)">
+<path d="M36.9463 103L32.3463 98.4L33.4 97.3463L39.0538 103L33.4 108.654L32.3463 107.6L36.9463 103Z" fill="#262626"/>
+</g>
+<path d="M20 40C20 28.9543 28.9543 20 40 20C51.0457 20 60 28.9543 60 40C60 51.0457 51.0457 60 40 60C28.9543 60 20 51.0457 20 40Z" fill="#E8E8E8"/>
+<mask id="mask1_74_943" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="28" y="28" width="24" height="24">
+<rect x="28" y="28" width="24" height="24" fill="#D9D9D9"/>
+</mask>
+<g mask="url(#mask1_74_943)">
+<path d="M40.9463 40L36.3463 35.4L37.4 34.3462L43.0538 40L37.4 45.6537L36.3463 44.6L40.9463 40Z" fill="#262626"/>
+</g>
+<path d="M78 40C78 28.9543 86.9543 20 98 20C109.046 20 118 28.9543 118 40C118 51.0457 109.046 60 98 60C86.9543 60 78 51.0457 78 40Z" fill="#F2F2F2"/>
+<mask id="mask2_74_943" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="86" y="28" width="24" height="24">
+<rect x="86" y="28" width="24" height="24" fill="#D9D9D9"/>
+</mask>
+<g mask="url(#mask2_74_943)">
+<path d="M98.9463 40L94.3463 35.4L95.4 34.3462L101.054 40L95.4 45.6537L94.3463 44.6L98.9463 40Z" fill="#262626" fill-opacity="0.4"/>
+</g>
+<path d="M82 103C82 94.1634 89.1634 87 98 87C106.837 87 114 94.1634 114 103C114 111.837 106.837 119 98 119C89.1634 119 82 111.837 82 103Z" fill="#F2F2F2"/>
+<mask id="mask3_74_943" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="86" y="91" width="24" height="24">
+<rect x="86" y="91" width="24" height="24" fill="#D9D9D9"/>
+</mask>
+<g mask="url(#mask3_74_943)">
+<path d="M98.9463 103L94.3463 98.4L95.4 97.3463L101.054 103L95.4 108.654L94.3463 107.6L98.9463 103Z" fill="#262626" fill-opacity="0.4"/>
+</g>
+</svg>
+`}
+          aiCode={`// @ts-nocheck
+import * as React from "react"
+
+export interface ControlProps {
+  state?: "Default" | "Disabled"
+  size?: "Small" | "Large"
+  className?: string
+  children?: React.ReactNode
+  onClick?: () => void
+}
+
+const Control = React.forwardRef<HTMLDivElement, ControlProps>(
+  ({ state = "Default", size = "Small", className, children, ...props }, ref) => {
+    return (
+      <div
+      ref={ref}
+      className={className}
+      style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "8px 12px", borderRadius: "5px", background: "#e8e8e8", border: "1px solid #e4e4e7", fontFamily: "system-ui", fontSize: "14px", color: "#18181b" }}
+      {...props}
+    >
+      {children ?? "Control"}
+    </div>
+    )
+  }
+)
+Control.displayName = "Control"
+
+export { Control }
+export default Control`}
+          tokens={{
+  "colors": [
+    "#9747ff",
+    "#e8e8e8",
+    "#d9d9d9",
+    "#262626",
+    "#f2f2f2"
+  ],
+  "typography": [],
+  "spacing": [
+    "8px"
+  ],
+  "borderRadius": [
+    "5px",
+    "1000px"
+  ],
+  "shadows": []
+}}
+          variantProperties={[
+  {
+    "name": "State",
+    "values": [
+      "Default",
+      "Disabled"
+    ]
+  },
+  {
+    "name": "Size",
+    "values": [
+      "Small",
+      "Large"
+    ]
+  }
+]}
+          anatomy={{
+  "name": "State=Default, Size=Small",
+  "type": "COMPONENT",
+  "visible": true,
+  "children": [
+    {
+      "name": "chevron_forward",
+      "type": "INSTANCE",
+      "visible": true,
+      "children": [
+        {
+          "name": "Bounding box",
+          "type": "RECTANGLE",
+          "visible": true,
+          "children": []
+        },
+        {
+          "name": "chevron_forward",
+          "type": "VECTOR",
+          "visible": true,
+          "children": []
+        }
+      ]
+    }
+  ]
+}}
+          a11y={[
+  {
+    "role": "img",
+    "note": "Ícone decorativo — usar aria-hidden=\"true\""
+  }
+]}
+        />
+      )}
       {activeSection === "Checkbox" && (
         <ComponentDoc
           key="Checkbox"
@@ -860,7 +1096,7 @@ export default Checkbox`}
           a11y={[
   {
     "role": "checkbox",
-    "note": "Estado — requer aria-checked"
+    "note": "Estado â requer aria-checked"
   }
 ]}
         />
