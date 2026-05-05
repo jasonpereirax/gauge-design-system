@@ -2,9 +2,10 @@
 
 Gerado automaticamente via [Design System Publisher Pro](https://github.com/) a partir do Figma.
 
-## Componentes (1)
+## Componentes (2)
 
-- `Checkbox` — Checkbox
+- `Component1` — Component 1
+- `Breadchumb` — Breadchumb
 
 ## Instalação
 
@@ -16,7 +17,7 @@ npm run dev
 ## Uso
 
 ```tsx
-import { Checkbox } from "@/components"
+import { Component1, Breadchumb } from "@/components"
 ```
 
 ## Estrutura
@@ -24,15 +25,20 @@ import { Checkbox } from "@/components"
 ```
 src/
   components/
-    Checkbox/
-      Checkbox.tsx         # React
-      Checkbox.tailwind.tsx # Tailwind
-      Checkbox.ai.tsx       # AI-generated (se disponível)
-      Checkbox.module.css   # CSS Module
+    Component1/
+      Component1.tsx         # React
+      Component1.tailwind.tsx # Tailwind
+      Component1.ai.tsx       # AI-generated (se disponível)
+      Component1.module.css   # CSS Module
+    Breadchumb/
+      Breadchumb.tsx         # React
+      Breadchumb.tailwind.tsx # Tailwind
+      Breadchumb.ai.tsx       # AI-generated (se disponível)
+      Breadchumb.module.css   # CSS Module
   App.tsx     # Docs site
   main.tsx
 ```
 
 ---
 
-*Gerado em: 2026-03-16T18:21:23.306Z*
+*Gerado em: 2026-05-05T17:11:46.045Z*
