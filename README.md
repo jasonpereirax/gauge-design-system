@@ -4,7 +4,7 @@ Gerado automaticamente via [Design System Publisher Pro](https://github.com/) a 
 
 ## Componentes (1)
 
-- `Control` — Control
+- `Accordion` — Accordion
 
 ## Instalação
 
@@ -16,7 +16,7 @@ npm run dev
 ## Uso
 
 ```tsx
-import { Control } from "@/components"
+import { Accordion } from "@/components"
 ```
 
 ## Estrutura
@@ -24,15 +24,15 @@ import { Control } from "@/components"
 ```
 src/
   components/
-    Control/
-      Control.tsx         # React
-      Control.tailwind.tsx # Tailwind
-      Control.ai.tsx       # AI-generated (se disponível)
-      Control.module.css   # CSS Module
+    Accordion/
+      Accordion.tsx         # React
+      Accordion.tailwind.tsx # Tailwind
+      Accordion.ai.tsx       # AI-generated (se disponível)
+      Accordion.module.css   # CSS Module
   App.tsx     # Docs site
   main.tsx
 ```
 
 ---
 
-*Gerado em: 2026-05-05T20:28:58.442Z*
+*Gerado em: 2026-05-05T20:30:10.785Z*
