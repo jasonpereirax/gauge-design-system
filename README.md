@@ -4,7 +4,7 @@ Gerado automaticamente via [Design System Publisher Pro](https://github.com/) a 
 
 ## Componentes (1)
 
-- `Button` — Button
+- `Breadchumb` — Breadchumb
 
 ## Instalação
 
@@ -16,7 +16,7 @@ npm run dev
 ## Uso
 
 ```tsx
-import { Button } from "@/components"
+import { Breadchumb } from "@/components"
 ```
 
 ## Estrutura
@@ -24,15 +24,15 @@ import { Button } from "@/components"
 ```
 src/
   components/
-    Button/
-      Button.tsx         # React
-      Button.tailwind.tsx # Tailwind
-      Button.ai.tsx       # AI-generated (se disponível)
-      Button.module.css   # CSS Module
+    Breadchumb/
+      Breadchumb.tsx         # React
+      Breadchumb.tailwind.tsx # Tailwind
+      Breadchumb.ai.tsx       # AI-generated (se disponível)
+      Breadchumb.module.css   # CSS Module
   App.tsx     # Docs site
   main.tsx
 ```
 
 ---
 
-*Gerado em: 2026-05-05T21:13:44.819Z*
+*Gerado em: 2026-05-06T17:46:35.985Z*
