@@ -4,7 +4,7 @@ Gerado automaticamente via [Design System Publisher Pro](https://github.com/) a 
 
 ## Componentes (1)
 
-- `Button` — Button
+- `Toast` — Toast
 
 ## Instalação
 
@@ -16,7 +16,7 @@ npm run dev
 ## Uso
 
 ```tsx
-import { Button } from "@/components"
+import { Toast } from "@/components"
 ```
 
 ## Estrutura
@@ -24,15 +24,15 @@ import { Button } from "@/components"
 ```
 src/
   components/
-    Button/
-      Button.tsx         # React
-      Button.tailwind.tsx # Tailwind
-      Button.ai.tsx       # AI-generated (se disponível)
-      Button.module.css   # CSS Module
+    Toast/
+      Toast.tsx         # React
+      Toast.tailwind.tsx # Tailwind
+      Toast.ai.tsx       # AI-generated (se disponível)
+      Toast.module.css   # CSS Module
   App.tsx     # Docs site
   main.tsx
 ```
 
 ---
 
-*Gerado em: 2026-05-07T18:54:46.705Z*
+*Gerado em: 2026-05-07T19:05:51.793Z*
