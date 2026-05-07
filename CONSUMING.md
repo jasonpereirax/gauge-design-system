@@ -25,10 +25,10 @@ npm install @jasonpereirax/gauge-design-system
 ## 3. Usar
 
 ```tsx
-import { Tag } from '@jasonpereirax/gauge-design-system'
+import { Itemlist } from '@jasonpereirax/gauge-design-system'
 
 export default function App() {
-  return <Tag />
+  return <Itemlist />
 }
 ```
 
