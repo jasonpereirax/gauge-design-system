@@ -4,7 +4,7 @@ Gerado automaticamente via [Design System Publisher Pro](https://github.com/) a 
 
 ## Componentes (1)
 
-- `Itemlist` — Item list
+- `Header` — Header
 
 ## Instalação
 
@@ -16,7 +16,7 @@ npm run dev
 ## Uso
 
 ```tsx
-import { Itemlist } from "@/components"
+import { Header } from "@/components"
 ```
 
 ## Estrutura
@@ -24,15 +24,15 @@ import { Itemlist } from "@/components"
 ```
 src/
   components/
-    Itemlist/
-      Itemlist.tsx         # React
-      Itemlist.tailwind.tsx # Tailwind
-      Itemlist.ai.tsx       # AI-generated (se disponível)
-      Itemlist.module.css   # CSS Module
+    Header/
+      Header.tsx         # React
+      Header.tailwind.tsx # Tailwind
+      Header.ai.tsx       # AI-generated (se disponível)
+      Header.module.css   # CSS Module
   App.tsx     # Docs site
   main.tsx
 ```
 
 ---
 
-*Gerado em: 2026-05-07T20:06:19.119Z*
+*Gerado em: 2026-05-07T20:36:27.055Z*

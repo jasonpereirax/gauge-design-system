@@ -1,7 +1,7 @@
 /* eslint-disable */
 // @ts-nocheck
 import React, { useState, useEffect } from "react"
-import Itemlist from "./components/Itemlist/Itemlist"
+import Header from "./components/Header/Header"
 import Checkbox from "./components/Checkbox/Checkbox"
 import Control from "./components/Control/Control"
 import Accordion from "./components/Accordion/Accordion"
@@ -10,6 +10,7 @@ import Button from "./components/Button/Button"
 import Breadchumb from "./components/Breadchumb/Breadchumb"
 import Toast from "./components/Toast/Toast"
 import Tag from "./components/Tag/Tag"
+import ItemList from "./components/ItemList/ItemList"
 
 type Tokens = { colors: string[]; typography: any[]; borderRadius: string[]; shadows: string[]; spacing: string[] }
 type VariantProp = { name: string; values: string[] }
@@ -491,20 +492,33 @@ function ComponentDoc({ name,description,figmaUrl,status,category,version,lastUp
 const globalTokens = {
   colors: [
     "#9747ff",
+    "#ffffff",
     "#0b1641",
-    "#f2f2f2"
+    "#d9d9d9",
+    "#262626",
+    "#1c1b1f",
+    "#fc3d55",
+    "#969696",
+    "#cccccc"
   ],
   typography: [
-    { fontFamily: "Avenir Next", fontSize: 14, fontWeight: "Regular" }
+    { fontFamily: "Avenir Next LT Pro", fontSize: 16, fontWeight: "Demi" },
+    { fontFamily: "Avenir Next", fontSize: 16, fontWeight: "Medium" }
   ],
   borderRadius: [
-    "4px",
-    "5px"
+    "5px",
+    "800px"
   ],
   shadows: [],
   spacing: [
+    "4px",
     "8px",
-    "10px"
+    "10px",
+    "16px",
+    "24px",
+    "48px",
+    "144px",
+    "189px"
   ]
 }
 
@@ -596,11 +610,12 @@ const navItems = [
   { id: "Control", label: "Control", category: "Control", status: "stable" },
   { id: "Accordion", label: "Accordion", category: "Accordion", status: "stable" },
   { id: "Dropdown", label: "Dropdown", category: "Dropdown", status: "stable" },
-  { id: "Button", label: "Button", category: "ÃÂ¢ÃÂÃÂªÃÂ¯ÃÂ¸ÃÂ  Buttons", status: "stable" },
+  { id: "Button", label: "Button", category: "ÃÂÃÂ¢ÃÂÃÂÃÂÃÂªÃÂÃÂ¯ÃÂÃÂ¸ÃÂÃÂ  Buttons", status: "stable" },
   { id: "Breadchumb", label: "Breadchumb", category: "Colors", status: "stable" },
   { id: "Toast", label: "Toast", category: "Toast", status: "stable" },
   { id: "Tag", label: "Tag", category: "Tag", status: "stable" },
-  { id: "Itemlist", label: "Item list", category: "Item list", status: "stable" }
+  { id: "ItemList", label: "Item list", category: "Item list", status: "stable" },
+  { id: "Header", label: "Header", category: "Header", status: "stable" }
 ]
 const componentNames = navItems.map(i=>i.id)
 
@@ -925,46 +940,83 @@ export default function App() {
   return (
     <div className={darkMode?"dark":""}>
       <div className="min-h-screen bg-background text-foreground flex">
-        <aside className={`${sidebarOpen?"w-64":"w-0"} transition-all duration-200 overflow-hidden border-r shrink-0`}>
-          <div className="p-4 w-64 flex flex-col h-screen sticky top-0">
-            <div style={{ display:"flex",alignItems:"center",gap:"10px",marginBottom:"20px" }}>
-              <div style={{ width:"28px",height:"28px",background:"#18181b",borderRadius:"7px",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0 }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>
-              </div>
-              <div>
-                <div style={{ fontSize:"13px",fontWeight:600,lineHeight:1 }}>Design System</div>
-                <div style={{ fontSize:"11px",color:"#a1a1aa",lineHeight:1,marginTop:"2px" }}>{navItems.length} components</div>
-              </div>
-            </div>
-            <div style={{ position:"relative",marginBottom:"16px" }}>
-              <svg style={{ position:"absolute",left:"8px",top:"50%",transform:"translateY(-50%)",pointerEvents:"none" }} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-              <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar..." style={{ width:"100%",padding:"6px 8px 6px 26px",fontSize:"12px",border:"1px solid #e4e4e7",borderRadius:"7px",outline:"none",background:"#fafafa",color:"#18181b" }} />
-              {search&&<button onClick={()=>setSearch("")} style={{ position:"absolute",right:"6px",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:"14px",color:"#a1a1aa",lineHeight:1 }}>×</button>}
-            </div>
-            <nav style={{ flex:1,overflowY:"auto",scrollbarWidth:"none" }}>
-              <div style={{ fontSize:"10px",fontWeight:600,textTransform:"uppercase",letterSpacing:"0.08em",color:"#a1a1aa",marginBottom:"4px",padding:"0 6px" }}>Geral</div>
-              {[{id:"installation",label:"Instalação"},{id:"tokens",label:"Tokens"},{id:"insights",label:"Insights"}].map(item=>(
-                <button key={item.id} onClick={()=>navigate(item.id)}
-                  style={{ width:"100%",textAlign:"left",padding:"5px 8px",borderRadius:"6px",fontSize:"13px",border:"none",cursor:"pointer",display:"flex",alignItems:"center",gap:"6px",marginBottom:"1px",background:activeSection===item.id?"#18181b":activeSection===item.id?"#18181b":"transparent",color:activeSection===item.id?"#fff":"#52525b",fontWeight:activeSection===item.id?500:400 }}>
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-                  {item.label}
+        <aside className={`${sidebarOpen?"w-72":"w-0"} transition-all duration-200 overflow-hidden shrink-0`} style={{ background:"#ffffff", borderRight:"1px solid #E9EAEB" }}>
+          <div className="w-72 flex flex-col h-screen sticky top-0">
+            <div style={{ padding:"20px 16px 12px" }}>
+              <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"0 4px", marginBottom:"16px" }}>
+                <div style={{ display:"flex", alignItems:"center", gap:"10px" }}>
+                  <div style={{ width:"32px", height:"32px", borderRadius:"9px", background:"#F97316", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+                  </div>
+                  <div style={{ fontSize:"15px", fontWeight:600, color:"#181D27", letterSpacing:"-0.01em", lineHeight:1 }}>Design System</div>
+                </div>
+                <button onClick={()=>setSidebarOpen(false)} style={{ background:"transparent", border:"none", cursor:"pointer", color:"#717680", padding:"6px", borderRadius:"6px", display:"flex" }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
                 </button>
-              ))}
+              </div>
+              <div style={{ position:"relative" }}>
+                <svg style={{ position:"absolute", left:"10px", top:"50%", transform:"translateY(-50%)", pointerEvents:"none" }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#717680" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar..." style={{ width:"100%", padding:"8px 10px 8px 32px", fontSize:"14px", border:"1px solid #E9EAEB", borderRadius:"8px", outline:"none", background:"#FAFAFA", color:"#181D27", fontWeight:500 }} />
+              </div>
+            </div>
+            <nav style={{ flex:1, overflowY:"auto", padding:"4px 12px", scrollbarWidth:"none" }}>
+              {[{id:"installation",label:"Instalação",icon:"home"},{id:"tokens",label:"Tokens",icon:"settings"},{id:"insights",label:"Insights",icon:"chart"}].map(item=>{
+                const active = activeSection===item.id;
+                const txtColor = active?"#181D27":"#414651";
+                const bg = active?"#F5F5F5":"transparent";
+                const iconPaths: any = {
+                  home: <path d="M3 12L21 12M3 12L3 21H10V14H14V21H21V12M3 12L12 3L21 12"/>,
+                  settings: (<><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></>),
+                  chart: (<><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></>)
+                };
+                return (
+                  <button key={item.id} onClick={()=>navigate(item.id)} style={{ width:"100%", textAlign:"left", padding:"9px 10px", borderRadius:"8px", border:"none", cursor:"pointer", display:"flex", alignItems:"center", gap:"12px", marginBottom:"2px", background:bg, color:txtColor, fontSize:"14px", fontWeight:600, lineHeight:1.2 }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink:0 }}>{iconPaths[item.icon]}</svg>
+                    <span style={{ flex:1 }}>{item.label}</span>
+                  </button>
+                )
+              })}
               {categories.map(cat=>(
-                <div key={cat} style={{ marginTop:"14px" }}>
-                  <div style={{ fontSize:"10px",fontWeight:600,textTransform:"uppercase",letterSpacing:"0.08em",color:"#a1a1aa",marginBottom:"4px",padding:"0 6px" }}>{cat}</div>
-                  {filtered.filter(i=>i.category===cat).map(item=>(
-                    <button key={item.id} onClick={()=>navigate(item.id)}
-                      style={{ width:"100%",textAlign:"left",padding:"5px 8px",borderRadius:"6px",fontSize:"13px",border:"none",cursor:"pointer",display:"flex",alignItems:"center",gap:"6px",marginBottom:"1px",background:activeSection===item.id?"#18181b":"transparent",color:activeSection===item.id?"#fff":"#52525b",fontWeight:activeSection===item.id?500:400 }}>
-                      <span style={{ width:"5px",height:"5px",borderRadius:"50%",background:"currentColor",opacity:0.4,flexShrink:0 }}/>
-                      <span style={{ flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap" }}>{item.label}</span>
-                      {item.status!=="stable"&&<StatusBadge status={item.status as Status}/>}
-                    </button>
-                  ))}
+                <div key={cat}>
+                  <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"14px 10px 6px" }}>
+                    <span style={{ fontSize:"12px", fontWeight:600, color:"#717680", letterSpacing:"0.02em" }}>{cat.toUpperCase()}</span>
+                  </div>
+                  {filtered.filter(i=>i.category===cat).map(item=>{
+                    const active = activeSection===item.id;
+                    const txtColor = active?"#181D27":"#414651";
+                    const bg = active?"#F5F5F5":"transparent";
+                    return (
+                      <button key={item.id} onClick={()=>navigate(item.id)} style={{ width:"100%", textAlign:"left", padding:"9px 10px", borderRadius:"8px", border:"none", cursor:"pointer", display:"flex", alignItems:"center", gap:"12px", marginBottom:"2px", background:bg, color:txtColor, fontSize:"14px", fontWeight:600, lineHeight:1.2 }}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink:0 }}><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                        <span style={{ flex:1, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{item.label}</span>
+                        {item.status==="stable" && <span style={{ fontSize:"11px", fontWeight:500, padding:"2px 7px", borderRadius:"99px", background:"#ECFDF3", color:"#067647", flexShrink:0 }}>stable</span>}
+                        {item.status==="beta" && <span style={{ fontSize:"11px", fontWeight:500, padding:"2px 7px", borderRadius:"99px", background:"#FFF6ED", color:"#B93815", flexShrink:0 }}>beta</span>}
+                        {item.status==="deprecated" && <span style={{ fontSize:"11px", fontWeight:500, padding:"2px 7px", borderRadius:"99px", background:"#FEF3F2", color:"#B42318", flexShrink:0 }}>old</span>}
+                      </button>
+                    )
+                  })}
                 </div>
               ))}
-              {search&&filtered.length===0&&<div style={{ padding:"16px 8px",fontSize:"12px",color:"#a1a1aa" }}>Nenhum resultado para "{search}"</div>}
+              {search&&filtered.length===0&&<div style={{ padding:"16px 8px", fontSize:"13px", color:"#717680", fontWeight:500 }}>Nenhum resultado para "{search}"</div>}
             </nav>
+            <div style={{ padding:"12px", borderTop:"1px solid #E9EAEB" }}>
+              <button style={{ display:"flex", alignItems:"center", gap:"10px", width:"100%", padding:"8px", borderRadius:"8px", border:"1px solid transparent", background:"transparent", cursor:"pointer", fontFamily:"inherit" }}>
+                <div style={{ width:"40px", height:"40px", borderRadius:"50%", background:"linear-gradient(135deg,#92400e,#78350f)", display:"flex", alignItems:"center", justifyContent:"center", color:"#fff", fontSize:"13px", fontWeight:600, flexShrink:0, position:"relative" }}>
+                  JP
+                  <span style={{ position:"absolute", bottom:"-2px", right:"-2px", width:"14px", height:"14px", background:"#3b82f6", borderRadius:"50%", border:"2px solid #fff", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                    <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </span>
+                </div>
+                <div style={{ flex:1, minWidth:0, textAlign:"left" }}>
+                  <div style={{ fontSize:"14px", fontWeight:600, color:"#181D27", lineHeight:1.2, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>Jason Pereira</div>
+                  <div style={{ fontSize:"13px", color:"#535862", lineHeight:1.3, marginTop:"2px", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis", fontWeight:400 }}>jason@gauge.design</div>
+                </div>
+                <div style={{ color:"#717680", flexShrink:0, display:"flex", flexDirection:"column", gap:"1px" }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="7 15 12 10 17 15"/></svg>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="7 9 12 14 17 9"/></svg>
+                </div>
+              </button>
+            </div>
           </div>
         </aside>
         <div style={{ flex:1,overflow:"auto" }}>
@@ -987,6 +1039,401 @@ export default function App() {
             {activeSection==="installation"&&<InstallationPage />}
             {activeSection==="tokens"&&<GlobalTokensPage />}
             {activeSection==="insights"&&<InsightsPage />}
+      {activeSection === "Header" && (
+        <ComponentDoc
+          key="Header"
+          name="Header"
+          description=""
+          figmaUrl="https://figma.com/file/undefined?node-id=31-355"
+          status="stable"
+          category="Header"
+          version={componentMeta["Header"]?.version}
+          lastUpdated={componentMeta["Header"]?.lastUpdated}
+          darkMode={darkMode}
+          fontFamily="Avenir Next LT Pro"
+          width={1320}
+          height={211}
+          reactCode={`// @ts-nocheck
+import * as React from "react"
+
+export interface HeaderProps {
+  device?: "Desktop" | "Mobile"
+  className?: string
+  children?: React.ReactNode
+}
+
+const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
+  ({ device = "Desktop", className, children, device, ...props }, ref) => {
+    return (
+      <div
+      ref={ref}
+      className={className}
+      style={{ display: "inline-flex", alignItems: "center", gap: "189px", padding: "189px 283.5px", borderRadius: "5px", background: "#ffffff", border: "1px solid #e4e4e7", fontFamily: "Avenir Next LT Pro", fontSize: "16px", color: "#18181b" }}
+      {...props}
+    >
+      {children ?? "Header"}
+    </div>
+    );
+  }
+)
+Header.displayName = "Header"
+
+export { Header }
+export default Header`}
+          tailwindCode={`// @ts-nocheck
+import * as React from "react"
+import { cva, type VariantProps } from "class-variance-authority"
+import { cn } from "@/lib/utils"
+
+
+const variants = cva("inline-flex items-center justify-center rounded w-[1320px] h-[211px]", {
+  variants: {
+    device: {
+      desktop: "",
+      mobile: "",
+    },
+  },
+  defaultVariants: {
+  },
+})
+
+
+export interface HeaderProps extends VariantProps<typeof variants> {
+  className?: string
+  children?: React.ReactNode
+}
+
+export function Header({ className, children, ...props }: HeaderProps) {
+  return (
+    <div className={cn(variants(props), className)}>
+      {children}
+    </div>
+  )
+}
+
+export default Header`}
+          htmlCode={`<div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;padding:24px;font-family:system-ui">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><button style="display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;white-space:nowrap;font-family:'Avenir Next LT Pro', system-ui;cursor:pointer;background:#ffffff;border:none;border-radius:0px;padding:24px 16px 24px 16px;gap:189px;color:#0b1641;font-size:16px;font-weight:400;min-width:360px;min-height:88px">PT</button><span style="font-size:10px;color:#a1a1aa;font-family:monospace">Device=Mobile</span></div>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><button style="display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;white-space:nowrap;font-family:'Avenir Next', system-ui;cursor:pointer;background:#ffffff;border:none;border-radius:0px;padding:16px 48px 16px 48px;gap:144px;color:#0b1641;font-size:16px;font-weight:500;min-width:1280px;min-height:72px">Sobre</button><span style="font-size:10px;color:#a1a1aa;font-family:monospace">Device=Desktop</span></div>
+</div>`}
+          cssCode={`:root {
+  --color-primary: #9747ff;
+  --color-secondary: #ffffff;
+  --color-accent-2: #0b1641;
+  --color-accent-3: #d9d9d9;
+  --color-accent-4: #262626;
+  --color-accent-5: #1c1b1f;
+  --color-accent-6: #fc3d55;
+  --color-accent-7: #969696;
+  --color-accent-8: #cccccc;
+  --radius: 5px;
+}
+
+.root {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-sizing: border-box;
+  width: 1320px;
+  height: 211px;
+  border-radius: var(--radius, 5px);
+  font-family: "Avenir Next LT Pro", system-ui, sans-serif;
+  font-size: 16px;
+  overflow: hidden;
+}
+
+.root svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}`}
+          svgCode={`<svg width="1320" height="211" viewBox="0 0 1320 211" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="0.5" y="0.5" width="1319" height="210" rx="4.5" stroke="#9747FF" stroke-dasharray="10 5"/>
+<rect width="360" height="88" transform="translate(20 111.2)" fill="white"/>
+<path d="M43.2722 158.351C41.6371 156.747 40.7297 154.608 40.7176 152.327L40.7173 152.28C40.7173 150.017 41.6018 147.884 43.2074 146.275C44.8254 144.654 46.9831 143.754 49.2833 143.742C51.5838 143.73 53.751 144.607 55.3864 146.211C57.0218 147.815 57.9292 149.955 57.9413 152.236L57.9416 152.282C57.9416 154.545 57.057 156.678 55.4515 158.287C53.8333 159.909 51.6755 160.808 49.3752 160.82H49.3287C49.3284 160.82 49.3279 160.82 49.3275 160.82C47.0448 160.82 44.8964 159.945 43.2722 158.351ZM49.2592 139.2C42.0234 139.238 36.1367 145.106 36.1367 152.28V152.315C36.1556 155.839 37.5473 159.115 40.055 161.575C42.563 164.036 45.8817 165.38 49.3994 165.362C52.9231 165.344 56.2289 163.965 58.7075 161.482C61.1674 159.017 62.5218 155.75 62.5218 152.283L62.5217 152.213C62.503 148.717 61.1132 145.44 58.6082 142.982C56.1208 140.542 52.8292 139.2 49.3325 139.2C49.308 139.2 49.2837 139.2 49.2592 139.2Z" fill="url(#paint0_linear_31_355)"/>
+<path d="M82.4436 151.058C81.6417 149.841 80.0694 148.594 77.5537 148.594C73.2141 148.594 70.1953 151.868 70.1953 156.842C70.1953 161.799 73.2141 165.073 77.5694 165.073C80.0381 165.073 81.5159 163.888 82.3807 162.641V163.857C82.3807 166.18 80.8556 167.939 77.7424 167.939C76.4606 167.939 75.2882 167.661 74.2462 167.068L72.8705 169.978C74.2278 170.667 75.8246 171.026 77.711 171.026C82.8839 171.026 85.9973 168.347 85.9973 163.811V149.015H82.4436V151.058ZM78.2142 161.924C75.6826 161.924 73.906 159.975 73.906 156.842C73.906 153.692 75.6826 151.743 78.2142 151.743C80.5726 151.743 82.491 153.427 82.491 156.842C82.491 160.256 80.5726 161.924 78.2142 161.924ZM153.6 158.322H155.863V157.372C155.863 152.133 152.75 148.594 147.986 148.594C143.395 148.594 140.061 152.024 140.061 157.309C140.061 162.439 143.552 165.806 148.316 165.806C150.634 165.806 152.438 165.179 153.889 163.887L152.034 161.367C150.976 162.451 149.8 162.782 148.458 162.782C145.549 162.782 144.102 160.989 143.819 158.322H153.16H153.6ZM143.914 155.516C144.401 152.944 145.989 151.619 147.97 151.619C150.03 151.619 151.586 153.022 152.058 155.516H143.914ZM115.963 158.572C115.963 160.63 114.454 162.703 111.969 162.703C110.177 162.703 108.982 161.565 108.982 159.321V149.015H105.366V160.131C105.366 163.826 107.787 165.79 110.837 165.79C113.84 165.79 115.444 164.356 116.01 163.374V165.385H119.579V149.015H115.963V158.572ZM95.4787 148.625C93.3312 148.625 91.4773 149.288 90.0843 150.457L91.9592 153.005C92.844 152.192 93.964 151.697 95.2902 151.697C97.3968 151.697 98.7334 152.804 98.7334 155.298V155.485H96.2176C91.1547 155.485 88.2617 157.029 88.2617 160.677C88.2617 163.889 90.6987 165.791 93.8905 165.791C96.4535 165.791 98.0415 164.715 98.7963 163.467V165.385H102.366V155.205C102.366 150.746 99.6296 148.625 95.4787 148.625ZM98.749 159.242C98.749 160.848 97.224 162.984 94.6453 162.984C92.8843 162.984 91.7994 162.174 91.7994 160.599C91.7994 158.619 93.8435 158.104 96.7837 158.104H98.749V159.242ZM134.263 151.058C133.461 149.841 131.889 148.594 129.373 148.594C125.034 148.594 122.015 151.868 122.015 156.842C122.015 161.799 125.034 165.073 129.389 165.073C131.858 165.073 133.335 163.888 134.2 162.641V163.857C134.2 166.18 132.675 167.939 129.562 167.939C128.28 167.939 127.108 167.661 126.066 167.068L124.69 169.978C126.047 170.667 127.644 171.026 129.53 171.026C134.703 171.026 137.817 168.347 137.817 163.811V149.015H134.263V151.058ZM130.033 161.924C127.502 161.924 125.725 159.975 125.725 156.842C125.725 153.692 127.502 151.743 130.033 151.743C132.392 151.743 134.31 153.427 134.31 156.842C134.31 160.256 132.392 161.924 130.033 161.924Z" fill="#0B1641"/>
+<path d="M258.422 149.372H262.117C262.768 149.372 263.354 149.432 263.875 149.552C264.396 149.666 264.844 149.856 265.219 150.122C265.594 150.387 265.883 150.729 266.086 151.145C266.289 151.562 266.391 152.065 266.391 152.653C266.391 153.283 266.273 153.812 266.039 154.239C265.805 154.666 265.487 155.01 265.086 155.27C264.685 155.531 264.216 155.721 263.68 155.841C263.148 155.955 262.583 156.012 261.984 156.012H260.438V160.7H258.422V149.372ZM261.844 154.317C262.177 154.317 262.492 154.294 262.789 154.247C263.086 154.195 263.352 154.109 263.586 153.989C263.82 153.864 264.008 153.695 264.148 153.481C264.289 153.268 264.359 152.992 264.359 152.653C264.359 152.32 264.289 152.049 264.148 151.841C264.008 151.632 263.823 151.471 263.594 151.356C263.365 151.236 263.104 151.158 262.812 151.122C262.521 151.085 262.219 151.067 261.906 151.067H260.438V154.317H261.844ZM270.273 151.13H266.797V149.372H275.758V151.13H272.289V160.7H270.273V151.13Z" fill="#0B1641"/>
+<mask id="mask0_31_355" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="284" y="143" width="24" height="25">
+<rect x="284" y="143.2" width="24" height="24" fill="#D9D9D9"/>
+</mask>
+<g mask="url(#mask0_31_355)">
+<path d="M296 158.254L290.346 152.6L291.4 151.546L296 156.146L300.6 151.546L301.654 152.6L296 158.254Z" fill="#262626"/>
+</g>
+<mask id="mask1_31_355" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="332" y="139" width="32" height="33">
+<rect x="332" y="139.2" width="32" height="32" fill="#D9D9D9"/>
+</mask>
+<g mask="url(#mask1_31_355)">
+<path d="M336.667 162.713V160.713H359.333V162.713H336.667ZM336.667 156.2V154.2H359.333V156.2H336.667ZM336.667 149.687V147.687H359.333V149.687H336.667Z" fill="#1C1B1F"/>
+</g>
+<rect width="1280" height="72" transform="translate(20 20)" fill="white"/>
+<path d="M75.2722 59.1515C73.6371 57.5475 72.7297 55.4076 72.7176 53.1266L72.7173 53.0797C72.7173 50.8167 73.6018 48.6842 75.2074 47.0751C76.8254 45.4536 78.9831 44.5537 81.2833 44.5419C83.5838 44.5299 85.751 45.4068 87.3864 47.0108C89.0218 48.6151 89.9292 50.7548 89.9413 53.0362L89.9416 53.0821C89.9416 55.3453 89.057 57.4779 87.4515 59.087C85.8333 60.7087 83.6755 61.6085 81.3752 61.6205H81.3287C81.3284 61.6205 81.3279 61.6205 81.3275 61.6205C79.0448 61.6205 76.8964 60.7447 75.2722 59.1515ZM81.2592 40.0002C74.0234 40.0384 68.1367 45.9061 68.1367 53.0802V53.1146C68.1556 56.6389 69.5473 59.9154 72.055 62.3754C74.563 64.8357 77.8817 66.1805 81.3994 66.162C84.9231 66.1436 88.2289 64.7654 90.7075 62.2819C93.1674 59.8167 94.5218 56.55 94.5218 53.083L94.5217 53.0132C94.503 49.5175 93.1132 46.2396 90.6082 43.7823C88.1208 41.3416 84.8292 40 81.3325 40C81.308 40 81.2837 40 81.2592 40.0002Z" fill="url(#paint1_linear_31_355)"/>
+<path d="M114.444 51.8578C113.642 50.6415 112.069 49.3943 109.554 49.3943C105.214 49.3943 102.195 52.6683 102.195 57.6416C102.195 62.5994 105.214 65.8733 109.569 65.8733C112.038 65.8733 113.516 64.6885 114.381 63.4412V64.6573C114.381 66.9804 112.856 68.7391 109.742 68.7391C108.461 68.7391 107.288 68.4606 106.246 67.8681L104.871 70.7776C106.228 71.4672 107.825 71.826 109.711 71.826C114.884 71.826 117.997 69.1473 117.997 64.6106V49.8153H114.444V51.8578ZM110.214 62.7243C107.683 62.7243 105.906 60.7753 105.906 57.6416C105.906 54.4924 107.683 52.5434 110.214 52.5434C112.573 52.5434 114.491 54.2273 114.491 57.6416C114.491 61.0559 112.573 62.7243 110.214 62.7243ZM185.6 59.1225H187.863V58.1716C187.863 52.9333 184.75 49.3943 179.986 49.3943C175.395 49.3943 172.061 52.824 172.061 58.1094C172.061 63.2386 175.552 66.606 180.316 66.606C182.634 66.606 184.438 65.9789 185.889 64.6872L184.034 62.1666C182.976 63.2514 181.8 63.5818 180.458 63.5818C177.549 63.5818 176.102 61.7887 175.819 59.1225H185.16H185.6ZM175.914 56.3165C176.401 53.7439 177.989 52.419 179.97 52.419C182.03 52.419 183.586 53.8221 184.058 56.3165H175.914ZM147.963 59.3722C147.963 61.43 146.454 63.5035 143.969 63.5035C142.177 63.5035 140.982 62.3655 140.982 60.1206V49.8153H137.366V60.9312C137.366 64.6262 139.787 66.5904 142.837 66.5904C145.84 66.5904 147.444 65.1561 148.01 64.174V66.1852H151.579V49.8153H147.963V59.3722ZM127.479 49.4255C125.331 49.4255 123.477 50.0884 122.084 51.2566L123.959 53.805C124.844 52.9923 125.964 52.4968 127.29 52.4968C129.397 52.4968 130.733 53.604 130.733 56.0983V56.2851H128.218C123.155 56.2851 120.262 57.8289 120.262 61.4769C120.262 64.6887 122.699 66.5906 125.89 66.5906C128.453 66.5906 130.042 65.5149 130.796 64.2675V66.1852H134.366V56.0046C134.366 51.5458 131.63 49.4255 127.479 49.4255ZM130.749 60.0424C130.749 61.6483 129.224 63.7842 126.645 63.7842C124.884 63.7842 123.799 62.9736 123.799 61.3986C123.799 59.4188 125.843 58.9042 128.784 58.9042H130.749V60.0424ZM166.263 51.8578C165.461 50.6415 163.889 49.3943 161.373 49.3943C157.034 49.3943 154.015 52.6683 154.015 57.6416C154.015 62.5994 157.034 65.8733 161.389 65.8733C163.858 65.8733 165.335 64.6885 166.2 63.4412V64.6573C166.2 66.9804 164.675 68.7391 161.562 68.7391C160.28 68.7391 159.108 68.4606 158.066 67.8681L156.69 70.7776C158.047 71.4672 159.644 71.826 161.53 71.826C166.703 71.826 169.817 69.1473 169.817 64.6106V49.8153H166.263V51.8578ZM162.033 62.7243C159.502 62.7243 157.725 60.7753 157.725 57.6416C157.725 54.4924 159.502 52.5434 162.033 52.5434C164.392 52.5434 166.31 54.2273 166.31 57.6416C166.31 61.0559 164.392 62.7243 162.033 62.7243Z" fill="#0B1641"/>
+<path d="M635.141 52.268C634.917 51.9587 634.613 51.708 634.229 51.516C633.845 51.3133 633.413 51.212 632.933 51.212C632.677 51.212 632.415 51.2493 632.149 51.324C631.893 51.388 631.658 51.5 631.445 51.66C631.231 51.8093 631.055 52.0013 630.917 52.236C630.789 52.46 630.725 52.732 630.725 53.052C630.725 53.3613 630.783 53.6227 630.901 53.836C631.029 54.0387 631.194 54.2147 631.397 54.364C631.61 54.5027 631.855 54.6253 632.133 54.732C632.421 54.828 632.725 54.9293 633.045 55.036C633.429 55.1533 633.818 55.2867 634.213 55.436C634.607 55.5853 634.965 55.7827 635.285 56.028C635.605 56.2733 635.866 56.5827 636.069 56.956C636.271 57.3187 636.373 57.7827 636.373 58.348C636.373 58.9347 636.261 59.4467 636.037 59.884C635.823 60.3107 635.535 60.668 635.173 60.956C634.81 61.2333 634.389 61.4413 633.909 61.58C633.439 61.7187 632.954 61.788 632.453 61.788C631.738 61.788 631.045 61.6493 630.373 61.372C629.711 61.0947 629.162 60.684 628.725 60.14L629.957 59.1C630.223 59.4947 630.581 59.8147 631.029 60.06C631.477 60.3053 631.962 60.428 632.485 60.428C632.751 60.428 633.018 60.3907 633.285 60.316C633.551 60.2413 633.791 60.124 634.005 59.964C634.229 59.804 634.41 59.6067 634.549 59.372C634.687 59.1267 634.757 58.8333 634.757 58.492C634.757 58.1507 634.682 57.868 634.533 57.644C634.394 57.4093 634.202 57.212 633.957 57.052C633.711 56.892 633.423 56.7587 633.093 56.652C632.773 56.5347 632.431 56.4173 632.069 56.3C631.706 56.1933 631.349 56.0653 630.997 55.916C630.645 55.756 630.33 55.5587 630.053 55.324C629.775 55.0787 629.551 54.78 629.381 54.428C629.21 54.076 629.125 53.6387 629.125 53.116C629.125 52.5507 629.237 52.0653 629.461 51.66C629.695 51.2547 629.994 50.9187 630.357 50.652C630.73 50.3853 631.146 50.1933 631.605 50.076C632.074 49.948 632.543 49.884 633.013 49.884C633.674 49.884 634.293 50.0013 634.869 50.236C635.445 50.4707 635.909 50.7853 636.261 51.18L635.141 52.268ZM646.218 57.692C646.218 58.2787 646.112 58.8173 645.898 59.308C645.696 59.7987 645.408 60.2253 645.034 60.588C644.672 60.94 644.24 61.2173 643.738 61.42C643.237 61.612 642.698 61.708 642.122 61.708C641.546 61.708 641.008 61.612 640.506 61.42C640.005 61.2173 639.573 60.94 639.21 60.588C638.848 60.2253 638.56 59.7987 638.346 59.308C638.144 58.8173 638.042 58.2787 638.042 57.692C638.042 57.1053 638.144 56.572 638.346 56.092C638.56 55.6013 638.848 55.18 639.21 54.828C639.573 54.476 640.005 54.204 640.506 54.012C641.008 53.8093 641.546 53.708 642.122 53.708C642.698 53.708 643.237 53.8093 643.738 54.012C644.24 54.204 644.672 54.476 645.034 54.828C645.408 55.18 645.696 55.6013 645.898 56.092C646.112 56.572 646.218 57.1053 646.218 57.692ZM644.65 57.692C644.65 57.3293 644.592 56.9827 644.474 56.652C644.368 56.3213 644.208 56.0333 643.994 55.788C643.781 55.532 643.514 55.3293 643.194 55.18C642.885 55.0307 642.528 54.956 642.122 54.956C641.717 54.956 641.354 55.0307 641.034 55.18C640.725 55.3293 640.464 55.532 640.25 55.788C640.037 56.0333 639.872 56.3213 639.754 56.652C639.648 56.9827 639.594 57.3293 639.594 57.692C639.594 58.0547 639.648 58.4013 639.754 58.732C639.872 59.0627 640.037 59.356 640.25 59.612C640.464 59.868 640.725 60.0707 641.034 60.22C641.354 60.3693 641.717 60.444 642.122 60.444C642.528 60.444 642.885 60.3693 643.194 60.22C643.514 60.0707 643.781 59.868 643.994 59.612C644.208 59.356 644.368 59.0627 644.474 58.732C644.592 58.4013 644.65 58.0547 644.65 57.692ZM649.792 60.3V61.5H648.336V49.404H649.84V55.052H649.888C650.144 54.6787 650.501 54.364 650.96 54.108C651.418 53.8413 651.962 53.708 652.592 53.708C653.157 53.708 653.669 53.8093 654.128 54.012C654.597 54.2147 654.997 54.4973 655.328 54.86C655.669 55.2227 655.93 55.6493 656.112 56.14C656.293 56.62 656.384 57.1373 656.384 57.692C656.384 58.2467 656.293 58.7693 656.112 59.26C655.93 59.7507 655.674 60.1773 655.344 60.54C655.013 60.9027 654.613 61.1907 654.144 61.404C653.674 61.6067 653.146 61.708 652.56 61.708C652.016 61.708 651.498 61.5907 651.008 61.356C650.517 61.1107 650.122 60.7587 649.824 60.3H649.792ZM654.832 57.692C654.832 57.34 654.778 56.9987 654.672 56.668C654.565 56.3373 654.405 56.044 654.192 55.788C653.978 55.532 653.712 55.3293 653.392 55.18C653.082 55.0307 652.72 54.956 652.304 54.956C651.92 54.956 651.568 55.0307 651.248 55.18C650.938 55.3293 650.672 55.532 650.448 55.788C650.224 56.044 650.048 56.3373 649.92 56.668C649.802 56.9987 649.744 57.3453 649.744 57.708C649.744 58.0707 649.802 58.4173 649.92 58.748C650.048 59.0787 650.224 59.372 650.448 59.628C650.672 59.8733 650.938 60.0707 651.248 60.22C651.568 60.3693 651.92 60.444 652.304 60.444C652.72 60.444 653.082 60.3693 653.392 60.22C653.712 60.06 653.978 59.852 654.192 59.596C654.405 59.34 654.565 59.0467 654.672 58.716C654.778 58.3853 654.832 58.044 654.832 57.692ZM658.476 55.548C658.476 55.3453 658.47 55.084 658.46 54.764C658.449 54.444 658.433 54.1613 658.412 53.916H659.836C659.857 54.108 659.873 54.332 659.884 54.588C659.894 54.8333 659.9 55.036 659.9 55.196H659.948C660.161 54.748 660.47 54.3907 660.876 54.124C661.292 53.8467 661.756 53.708 662.268 53.708C662.502 53.708 662.7 53.7293 662.86 53.772L662.796 55.164C662.582 55.1107 662.353 55.084 662.108 55.084C661.745 55.084 661.43 55.1533 661.164 55.292C660.897 55.42 660.673 55.596 660.492 55.82C660.321 56.044 660.193 56.3053 660.108 56.604C660.022 56.892 659.98 57.196 659.98 57.516V61.5H658.476V55.548ZM669.543 57.036C669.533 56.7373 669.479 56.46 669.383 56.204C669.298 55.9373 669.165 55.708 668.983 55.516C668.813 55.324 668.594 55.1747 668.327 55.068C668.071 54.9507 667.767 54.892 667.415 54.892C667.095 54.892 666.791 54.9507 666.503 55.068C666.226 55.1747 665.981 55.324 665.767 55.516C665.565 55.708 665.394 55.9373 665.255 56.204C665.127 56.46 665.053 56.7373 665.031 57.036H669.543ZM671.063 57.644C671.063 57.7293 671.063 57.8147 671.063 57.9C671.063 57.9853 671.058 58.0707 671.047 58.156H665.031C665.042 58.476 665.111 58.78 665.239 59.068C665.378 59.3453 665.559 59.5907 665.783 59.804C666.007 60.0067 666.263 60.1667 666.551 60.284C666.85 60.4013 667.165 60.46 667.495 60.46C668.007 60.46 668.45 60.348 668.823 60.124C669.197 59.9 669.49 59.628 669.703 59.308L670.759 60.156C670.354 60.6893 669.874 61.084 669.319 61.34C668.775 61.5853 668.167 61.708 667.495 61.708C666.919 61.708 666.386 61.612 665.895 61.42C665.405 61.228 664.983 60.9613 664.631 60.62C664.279 60.268 664.002 59.8467 663.799 59.356C663.597 58.8653 663.495 58.3213 663.495 57.724C663.495 57.1373 663.591 56.5987 663.783 56.108C663.986 55.6067 664.263 55.18 664.615 54.828C664.967 54.476 665.383 54.204 665.863 54.012C666.343 53.8093 666.861 53.708 667.415 53.708C667.97 53.708 668.471 53.7987 668.919 53.98C669.378 54.1613 669.762 54.4227 670.071 54.764C670.391 55.1053 670.637 55.5213 670.807 56.012C670.978 56.492 671.063 57.036 671.063 57.644Z" fill="#0B1641"/>
+<path d="M735.36 52.268C735.136 51.9587 734.832 51.708 734.448 51.516C734.064 51.3133 733.632 51.212 733.152 51.212C732.896 51.212 732.634 51.2493 732.368 51.324C732.112 51.388 731.877 51.5 731.664 51.66C731.45 51.8093 731.274 52.0013 731.136 52.236C731.008 52.46 730.944 52.732 730.944 53.052C730.944 53.3613 731.002 53.6227 731.12 53.836C731.248 54.0387 731.413 54.2147 731.616 54.364C731.829 54.5027 732.074 54.6253 732.352 54.732C732.64 54.828 732.944 54.9293 733.264 55.036C733.648 55.1533 734.037 55.2867 734.432 55.436C734.826 55.5853 735.184 55.7827 735.504 56.028C735.824 56.2733 736.085 56.5827 736.288 56.956C736.49 57.3187 736.592 57.7827 736.592 58.348C736.592 58.9347 736.48 59.4467 736.256 59.884C736.042 60.3107 735.754 60.668 735.392 60.956C735.029 61.2333 734.608 61.4413 734.128 61.58C733.658 61.7187 733.173 61.788 732.672 61.788C731.957 61.788 731.264 61.6493 730.592 61.372C729.93 61.0947 729.381 60.684 728.944 60.14L730.176 59.1C730.442 59.4947 730.8 59.8147 731.248 60.06C731.696 60.3053 732.181 60.428 732.704 60.428C732.97 60.428 733.237 60.3907 733.504 60.316C733.77 60.2413 734.01 60.124 734.224 59.964C734.448 59.804 734.629 59.6067 734.768 59.372C734.906 59.1267 734.976 58.8333 734.976 58.492C734.976 58.1507 734.901 57.868 734.752 57.644C734.613 57.4093 734.421 57.212 734.176 57.052C733.93 56.892 733.642 56.7587 733.312 56.652C732.992 56.5347 732.65 56.4173 732.288 56.3C731.925 56.1933 731.568 56.0653 731.216 55.916C730.864 55.756 730.549 55.5587 730.272 55.324C729.994 55.0787 729.77 54.78 729.6 54.428C729.429 54.076 729.344 53.6387 729.344 53.116C729.344 52.5507 729.456 52.0653 729.68 51.66C729.914 51.2547 730.213 50.9187 730.576 50.652C730.949 50.3853 731.365 50.1933 731.824 50.076C732.293 49.948 732.762 49.884 733.232 49.884C733.893 49.884 734.512 50.0013 735.088 50.236C735.664 50.4707 736.128 50.7853 736.48 51.18L735.36 52.268ZM746.437 57.692C746.437 58.2787 746.33 58.8173 746.117 59.308C745.914 59.7987 745.626 60.2253 745.253 60.588C744.89 60.94 744.458 61.2173 743.957 61.42C743.456 61.612 742.917 61.708 742.341 61.708C741.765 61.708 741.226 61.612 740.725 61.42C740.224 61.2173 739.792 60.94 739.429 60.588C739.066 60.2253 738.778 59.7987 738.565 59.308C738.362 58.8173 738.261 58.2787 738.261 57.692C738.261 57.1053 738.362 56.572 738.565 56.092C738.778 55.6013 739.066 55.18 739.429 54.828C739.792 54.476 740.224 54.204 740.725 54.012C741.226 53.8093 741.765 53.708 742.341 53.708C742.917 53.708 743.456 53.8093 743.957 54.012C744.458 54.204 744.89 54.476 745.253 54.828C745.626 55.18 745.914 55.6013 746.117 56.092C746.33 56.572 746.437 57.1053 746.437 57.692ZM744.869 57.692C744.869 57.3293 744.81 56.9827 744.693 56.652C744.586 56.3213 744.426 56.0333 744.213 55.788C744 55.532 743.733 55.3293 743.413 55.18C743.104 55.0307 742.746 54.956 742.341 54.956C741.936 54.956 741.573 55.0307 741.253 55.18C740.944 55.3293 740.682 55.532 740.469 55.788C740.256 56.0333 740.09 56.3213 739.973 56.652C739.866 56.9827 739.813 57.3293 739.813 57.692C739.813 58.0547 739.866 58.4013 739.973 58.732C740.09 59.0627 740.256 59.356 740.469 59.612C740.682 59.868 740.944 60.0707 741.253 60.22C741.573 60.3693 741.936 60.444 742.341 60.444C742.746 60.444 743.104 60.3693 743.413 60.22C743.733 60.0707 744 59.868 744.213 59.612C744.426 59.356 744.586 59.0627 744.693 58.732C744.81 58.4013 744.869 58.0547 744.869 57.692ZM750.059 61.5H748.555V49.404H750.059V61.5ZM758.023 61.5C758.001 61.308 757.985 61.0947 757.975 60.86C757.964 60.6147 757.959 60.412 757.959 60.252H757.927C757.735 60.6573 757.409 61.004 756.951 61.292C756.503 61.5693 756.001 61.708 755.447 61.708C754.956 61.708 754.529 61.628 754.167 61.468C753.815 61.308 753.521 61.0893 753.287 60.812C753.063 60.524 752.892 60.1933 752.775 59.82C752.668 59.4467 752.615 59.0467 752.615 58.62V53.916H754.119V58.108C754.119 58.4173 754.14 58.716 754.183 59.004C754.236 59.2813 754.327 59.5267 754.455 59.74C754.583 59.9533 754.759 60.124 754.983 60.252C755.207 60.38 755.495 60.444 755.847 60.444C756.455 60.444 756.945 60.22 757.319 59.772C757.692 59.3133 757.879 58.7053 757.879 57.948V53.916H759.383V59.868C759.383 60.0707 759.388 60.332 759.399 60.652C759.409 60.972 759.425 61.2547 759.447 61.5H758.023ZM767.303 55.836C767.143 55.5907 766.903 55.388 766.583 55.228C766.263 55.0573 765.922 54.972 765.559 54.972C765.165 54.972 764.813 55.0467 764.503 55.196C764.205 55.3453 763.949 55.548 763.735 55.804C763.522 56.0493 763.357 56.3373 763.239 56.668C763.133 56.9987 763.079 57.3453 763.079 57.708C763.079 58.0707 763.133 58.4173 763.239 58.748C763.357 59.0787 763.522 59.372 763.735 59.628C763.949 59.8733 764.21 60.0707 764.519 60.22C764.829 60.3693 765.181 60.444 765.575 60.444C765.959 60.444 766.306 60.3693 766.615 60.22C766.935 60.0707 767.197 59.868 767.399 59.612L768.407 60.524C768.098 60.876 767.725 61.1587 767.287 61.372C766.85 61.5747 766.343 61.6867 765.767 61.708L765.175 62.604C765.25 62.5827 765.319 62.572 765.383 62.572C765.447 62.572 765.522 62.572 765.607 62.572C765.789 62.572 765.965 62.5933 766.135 62.636C766.317 62.6787 766.477 62.748 766.615 62.844C766.765 62.94 766.882 63.068 766.967 63.228C767.063 63.388 767.111 63.5853 767.111 63.82C767.111 64.0973 767.047 64.3267 766.919 64.508C766.791 64.7 766.626 64.8493 766.423 64.956C766.231 65.0733 766.013 65.1533 765.767 65.196C765.533 65.2387 765.303 65.26 765.079 65.26C764.802 65.26 764.514 65.228 764.215 65.164C763.917 65.1 763.655 65.0093 763.431 64.892L763.751 64.22C764.146 64.4013 764.557 64.492 764.983 64.492C765.069 64.492 765.165 64.4813 765.271 64.46C765.389 64.4387 765.495 64.4013 765.591 64.348C765.698 64.3053 765.783 64.2413 765.847 64.156C765.922 64.0707 765.959 63.9587 765.959 63.82C765.959 63.5853 765.869 63.4253 765.687 63.34C765.506 63.2547 765.309 63.212 765.095 63.212C764.999 63.212 764.893 63.2227 764.775 63.244C764.658 63.2653 764.546 63.292 764.439 63.324L764.119 63.004L764.999 61.676C764.487 61.612 764.018 61.4733 763.591 61.26C763.165 61.0467 762.791 60.7693 762.471 60.428C762.162 60.0867 761.922 59.6867 761.751 59.228C761.581 58.7693 761.495 58.2627 761.495 57.708C761.495 57.1107 761.597 56.5667 761.799 56.076C762.002 55.5853 762.285 55.164 762.647 54.812C763.01 54.46 763.437 54.188 763.927 53.996C764.429 53.804 764.967 53.708 765.543 53.708C766.077 53.708 766.605 53.8147 767.127 54.028C767.661 54.2413 768.082 54.5507 768.391 54.956L767.303 55.836ZM777.578 57.692C777.578 58.2787 777.471 58.8173 777.258 59.308C777.055 59.7987 776.767 60.2253 776.394 60.588C776.031 60.94 775.599 61.2173 775.098 61.42C774.596 61.612 774.058 61.708 773.482 61.708C772.906 61.708 772.367 61.612 771.866 61.42C771.364 61.2173 770.932 60.94 770.57 60.588C770.207 60.2253 769.919 59.7987 769.706 59.308C769.503 58.8173 769.402 58.2787 769.402 57.692C769.402 57.1053 769.503 56.572 769.706 56.092C769.919 55.6013 770.207 55.18 770.57 54.828C770.932 54.476 771.364 54.204 771.866 54.012C772.367 53.8093 772.906 53.708 773.482 53.708C774.058 53.708 774.596 53.8093 775.098 54.012C775.599 54.204 776.031 54.476 776.394 54.828C776.767 55.18 777.055 55.6013 777.258 56.092C777.471 56.572 777.578 57.1053 777.578 57.692ZM776.01 57.692C776.01 57.3293 775.951 56.9827 775.834 56.652C775.727 56.3213 775.567 56.0333 775.354 55.788C775.14 55.532 774.874 55.3293 774.554 55.18C774.244 55.0307 773.887 54.956 773.482 54.956C773.076 54.956 772.714 55.0307 772.394 55.18C772.084 55.3293 771.823 55.532 771.61 55.788C771.396 56.0333 771.231 56.3213 771.114 56.652C771.007 56.9827 770.954 57.3293 770.954 57.692C770.954 58.0547 771.007 58.4013 771.114 58.732C771.231 59.0627 771.396 59.356 771.61 59.612C771.823 59.868 772.084 60.0707 772.394 60.22C772.714 60.3693 773.076 60.444 773.482 60.444C773.887 60.444 774.244 60.3693 774.554 60.22C774.874 60.0707 775.14 59.868 775.354 59.612C775.567 59.356 775.727 59.0627 775.834 58.732C775.951 58.4013 776.01 58.0547 776.01 57.692ZM770.73 52.348C770.772 52.1133 770.826 51.8893 770.89 51.676C770.964 51.452 771.066 51.2547 771.194 51.084C771.322 50.9027 771.476 50.7587 771.658 50.652C771.85 50.5453 772.084 50.492 772.362 50.492C772.564 50.492 772.767 50.524 772.97 50.588C773.183 50.652 773.38 50.7267 773.562 50.812C773.775 50.908 773.967 50.9933 774.138 51.068C774.319 51.132 774.484 51.164 774.634 51.164C774.868 51.164 775.039 51.0893 775.146 50.94C775.263 50.78 775.348 50.6093 775.402 50.428H776.266C776.223 50.6627 776.164 50.892 776.09 51.116C776.026 51.3293 775.93 51.5267 775.802 51.708C775.674 51.8787 775.514 52.0173 775.322 52.124C775.13 52.2307 774.9 52.284 774.634 52.284C774.431 52.284 774.223 52.252 774.01 52.188C773.796 52.1133 773.594 52.0333 773.402 51.948C773.21 51.852 773.023 51.772 772.842 51.708C772.671 51.644 772.511 51.612 772.362 51.612C772.138 51.612 771.967 51.692 771.85 51.852C771.743 52.0013 771.663 52.1667 771.61 52.348H770.73ZM785.215 57.036C785.205 56.7373 785.151 56.46 785.055 56.204C784.97 55.9373 784.837 55.708 784.655 55.516C784.485 55.324 784.266 55.1747 783.999 55.068C783.743 54.9507 783.439 54.892 783.087 54.892C782.767 54.892 782.463 54.9507 782.175 55.068C781.898 55.1747 781.653 55.324 781.439 55.516C781.237 55.708 781.066 55.9373 780.927 56.204C780.799 56.46 780.725 56.7373 780.703 57.036H785.215ZM786.735 57.644C786.735 57.7293 786.735 57.8147 786.735 57.9C786.735 57.9853 786.73 58.0707 786.719 58.156H780.703C780.714 58.476 780.783 58.78 780.911 59.068C781.05 59.3453 781.231 59.5907 781.455 59.804C781.679 60.0067 781.935 60.1667 782.223 60.284C782.522 60.4013 782.837 60.46 783.167 60.46C783.679 60.46 784.122 60.348 784.495 60.124C784.869 59.9 785.162 59.628 785.375 59.308L786.431 60.156C786.026 60.6893 785.546 61.084 784.991 61.34C784.447 61.5853 783.839 61.708 783.167 61.708C782.591 61.708 782.058 61.612 781.567 61.42C781.077 61.228 780.655 60.9613 780.303 60.62C779.951 60.268 779.674 59.8467 779.471 59.356C779.269 58.8653 779.167 58.3213 779.167 57.724C779.167 57.1373 779.263 56.5987 779.455 56.108C779.658 55.6067 779.935 55.18 780.287 54.828C780.639 54.476 781.055 54.204 781.535 54.012C782.015 53.8093 782.533 53.708 783.087 53.708C783.642 53.708 784.143 53.7987 784.591 53.98C785.05 54.1613 785.434 54.4227 785.743 54.764C786.063 55.1053 786.309 55.5213 786.479 56.012C786.65 56.492 786.735 57.036 786.735 57.644ZM792.931 55.836C792.76 55.5587 792.52 55.3347 792.211 55.164C791.902 54.9827 791.555 54.892 791.171 54.892C791 54.892 790.83 54.9133 790.659 54.956C790.488 54.988 790.334 55.0467 790.195 55.132C790.067 55.2067 789.96 55.308 789.875 55.436C789.8 55.5533 789.763 55.7027 789.763 55.884C789.763 56.204 789.907 56.444 790.195 56.604C790.483 56.7533 790.915 56.892 791.491 57.02C791.854 57.1053 792.19 57.2067 792.499 57.324C792.808 57.4413 793.075 57.5907 793.299 57.772C793.534 57.9427 793.715 58.1507 793.843 58.396C793.971 58.6413 794.035 58.9293 794.035 59.26C794.035 59.708 793.95 60.0867 793.779 60.396C793.608 60.7053 793.379 60.9613 793.091 61.164C792.814 61.356 792.494 61.4947 792.131 61.58C791.768 61.6653 791.395 61.708 791.011 61.708C790.435 61.708 789.87 61.596 789.315 61.372C788.771 61.148 788.318 60.8067 787.955 60.348L789.027 59.436C789.23 59.7347 789.507 59.9853 789.859 60.188C790.222 60.3907 790.616 60.492 791.043 60.492C791.235 60.492 791.416 60.476 791.587 60.444C791.768 60.4013 791.928 60.3373 792.067 60.252C792.216 60.1667 792.334 60.0547 792.419 59.916C792.504 59.7773 792.547 59.6013 792.547 59.388C792.547 59.036 792.376 58.7747 792.035 58.604C791.704 58.4333 791.214 58.2733 790.563 58.124C790.307 58.06 790.046 57.9853 789.779 57.9C789.523 57.804 789.288 57.676 789.075 57.516C788.862 57.356 788.686 57.1587 788.547 56.924C788.419 56.6787 788.355 56.38 788.355 56.028C788.355 55.6227 788.435 55.276 788.595 54.988C788.766 54.6893 788.984 54.4493 789.251 54.268C789.518 54.076 789.822 53.9373 790.163 53.852C790.504 53.756 790.856 53.708 791.219 53.708C791.763 53.708 792.286 53.8147 792.787 54.028C793.299 54.2413 793.694 54.5507 793.971 54.956L792.931 55.836Z" fill="#0B1641"/>
+<path d="M862.229 59.74C861.781 60.348 861.199 60.844 860.485 61.228C859.77 61.6013 858.911 61.788 857.909 61.788C857.045 61.788 856.245 61.644 855.509 61.356C854.783 61.0573 854.154 60.6467 853.621 60.124C853.098 59.5907 852.687 58.9613 852.389 58.236C852.09 57.5 851.941 56.6947 851.941 55.82C851.941 54.9347 852.09 54.1293 852.389 53.404C852.698 52.668 853.119 52.044 853.653 51.532C854.197 51.0093 854.837 50.604 855.573 50.316C856.309 50.028 857.109 49.884 857.973 49.884C858.357 49.884 858.746 49.9213 859.141 49.996C859.535 50.0707 859.914 50.1827 860.277 50.332C860.639 50.4813 860.97 50.668 861.269 50.892C861.567 51.1053 861.823 51.356 862.037 51.644L860.789 52.604C860.511 52.22 860.117 51.9053 859.605 51.66C859.103 51.404 858.559 51.276 857.973 51.276C857.311 51.276 856.714 51.3987 856.181 51.644C855.658 51.8787 855.21 52.204 854.837 52.62C854.463 53.036 854.175 53.5213 853.973 54.076C853.77 54.62 853.669 55.2013 853.669 55.82C853.669 56.46 853.765 57.0573 853.957 57.612C854.159 58.1667 854.442 58.652 854.805 59.068C855.178 59.4733 855.626 59.7933 856.149 60.028C856.682 60.2627 857.274 60.38 857.925 60.38C858.565 60.38 859.146 60.252 859.669 59.996C860.191 59.74 860.623 59.3667 860.965 58.876L862.229 59.74ZM868.204 56.588C868.204 56.0227 868.033 55.6067 867.692 55.34C867.35 55.0627 866.897 54.924 866.332 54.924C865.905 54.924 865.5 55.0093 865.116 55.18C864.742 55.34 864.428 55.548 864.172 55.804L863.372 54.844C863.745 54.492 864.198 54.2147 864.732 54.012C865.276 53.8093 865.857 53.708 866.476 53.708C867.02 53.708 867.489 53.788 867.884 53.948C868.289 54.0973 868.62 54.3053 868.876 54.572C869.132 54.8387 869.324 55.1533 869.452 55.516C869.58 55.8787 869.644 56.268 869.644 56.684V59.996C869.644 60.252 869.649 60.524 869.66 60.812C869.681 61.0893 869.713 61.3187 869.756 61.5H868.396C868.31 61.1373 868.268 60.7747 868.268 60.412H868.22C867.942 60.8173 867.59 61.132 867.164 61.356C866.748 61.58 866.252 61.692 865.676 61.692C865.377 61.692 865.062 61.6493 864.732 61.564C864.412 61.4893 864.118 61.3613 863.852 61.18C863.585 60.9987 863.361 60.7587 863.18 60.46C863.009 60.1613 862.924 59.7933 862.924 59.356C862.924 58.78 863.078 58.3267 863.388 57.996C863.697 57.6547 864.102 57.3987 864.604 57.228C865.105 57.0467 865.67 56.9293 866.299 56.876C866.929 56.8227 867.564 56.796 868.204 56.796V56.588ZM867.836 57.884C867.462 57.884 867.073 57.9 866.668 57.932C866.273 57.964 865.91 58.028 865.58 58.124C865.26 58.22 864.993 58.364 864.78 58.556C864.566 58.748 864.46 59.004 864.46 59.324C864.46 59.548 864.502 59.7347 864.588 59.884C864.684 60.0333 864.806 60.156 864.956 60.252C865.105 60.348 865.27 60.4173 865.452 60.46C865.633 60.492 865.82 60.508 866.012 60.508C866.716 60.508 867.254 60.3 867.628 59.884C868.012 59.4573 868.204 58.924 868.204 58.284V57.884H867.836ZM872.155 55.548C872.155 55.3453 872.15 55.084 872.139 54.764C872.129 54.444 872.113 54.1613 872.091 53.916H873.515C873.537 54.108 873.553 54.332 873.563 54.588C873.574 54.8333 873.579 55.036 873.579 55.196H873.627C873.841 54.748 874.15 54.3907 874.555 54.124C874.971 53.8467 875.435 53.708 875.947 53.708C876.182 53.708 876.379 53.7293 876.539 53.772L876.475 55.164C876.262 55.1107 876.033 55.084 875.787 55.084C875.425 55.084 875.11 55.1533 874.843 55.292C874.577 55.42 874.353 55.596 874.171 55.82C874.001 56.044 873.873 56.3053 873.787 56.604C873.702 56.892 873.659 57.196 873.659 57.516V61.5H872.155V55.548ZM877.952 55.548C877.952 55.3453 877.947 55.084 877.936 54.764C877.926 54.444 877.91 54.1613 877.888 53.916H879.312C879.334 54.108 879.35 54.332 879.36 54.588C879.371 54.8333 879.376 55.036 879.376 55.196H879.424C879.638 54.748 879.947 54.3907 880.352 54.124C880.768 53.8467 881.232 53.708 881.744 53.708C881.979 53.708 882.176 53.7293 882.336 53.772L882.272 55.164C882.059 55.1107 881.83 55.084 881.584 55.084C881.222 55.084 880.907 55.1533 880.64 55.292C880.374 55.42 880.15 55.596 879.968 55.82C879.798 56.044 879.67 56.3053 879.584 56.604C879.499 56.892 879.456 57.196 879.456 57.516V61.5H877.952V55.548ZM889.02 57.036C889.009 56.7373 888.956 56.46 888.86 56.204C888.775 55.9373 888.641 55.708 888.46 55.516C888.289 55.324 888.071 55.1747 887.804 55.068C887.548 54.9507 887.244 54.892 886.892 54.892C886.572 54.892 886.268 54.9507 885.98 55.068C885.703 55.1747 885.457 55.324 885.244 55.516C885.041 55.708 884.871 55.9373 884.732 56.204C884.604 56.46 884.529 56.7373 884.508 57.036H889.02ZM890.54 57.644C890.54 57.7293 890.54 57.8147 890.54 57.9C890.54 57.9853 890.535 58.0707 890.524 58.156H884.508C884.519 58.476 884.588 58.78 884.716 59.068C884.855 59.3453 885.036 59.5907 885.26 59.804C885.484 60.0067 885.74 60.1667 886.028 60.284C886.327 60.4013 886.641 60.46 886.972 60.46C887.484 60.46 887.927 60.348 888.3 60.124C888.673 59.9 888.967 59.628 889.18 59.308L890.236 60.156C889.831 60.6893 889.351 61.084 888.796 61.34C888.252 61.5853 887.644 61.708 886.972 61.708C886.396 61.708 885.863 61.612 885.372 61.42C884.881 61.228 884.46 60.9613 884.108 60.62C883.756 60.268 883.479 59.8467 883.276 59.356C883.073 58.8653 882.972 58.3213 882.972 57.724C882.972 57.1373 883.068 56.5987 883.26 56.108C883.463 55.6067 883.74 55.18 884.092 54.828C884.444 54.476 884.86 54.204 885.34 54.012C885.82 53.8093 886.337 53.708 886.892 53.708C887.447 53.708 887.948 53.7987 888.396 53.98C888.855 54.1613 889.239 54.4227 889.548 54.764C889.868 55.1053 890.113 55.5213 890.284 56.012C890.455 56.492 890.54 57.036 890.54 57.644ZM894.16 61.5H892.656V53.916H894.16V61.5ZM894.416 51.18C894.416 51.4573 894.314 51.6867 894.112 51.868C893.92 52.0493 893.685 52.14 893.408 52.14C893.13 52.14 892.896 52.0493 892.704 51.868C892.512 51.676 892.416 51.4467 892.416 51.18C892.416 50.9027 892.512 50.6733 892.704 50.492C892.896 50.3 893.13 50.204 893.408 50.204C893.685 50.204 893.92 50.3 894.112 50.492C894.314 50.6733 894.416 50.9027 894.416 51.18ZM896.78 55.548C896.78 55.3453 896.775 55.084 896.764 54.764C896.754 54.444 896.738 54.1613 896.716 53.916H898.14C898.162 54.108 898.178 54.332 898.188 54.588C898.199 54.8333 898.204 55.036 898.204 55.196H898.252C898.466 54.748 898.775 54.3907 899.18 54.124C899.596 53.8467 900.06 53.708 900.572 53.708C900.807 53.708 901.004 53.7293 901.164 53.772L901.1 55.164C900.887 55.1107 900.658 55.084 900.412 55.084C900.05 55.084 899.735 55.1533 899.468 55.292C899.202 55.42 898.978 55.596 898.796 55.82C898.626 56.044 898.498 56.3053 898.412 56.604C898.327 56.892 898.284 57.196 898.284 57.516V61.5H896.78V55.548ZM907.094 56.588C907.094 56.0227 906.923 55.6067 906.582 55.34C906.241 55.0627 905.787 54.924 905.222 54.924C904.795 54.924 904.39 55.0093 904.006 55.18C903.633 55.34 903.318 55.548 903.062 55.804L902.262 54.844C902.635 54.492 903.089 54.2147 903.622 54.012C904.166 53.8093 904.747 53.708 905.366 53.708C905.91 53.708 906.379 53.788 906.774 53.948C907.179 54.0973 907.51 54.3053 907.766 54.572C908.022 54.8387 908.214 55.1533 908.342 55.516C908.47 55.8787 908.534 56.268 908.534 56.684V59.996C908.534 60.252 908.539 60.524 908.55 60.812C908.571 61.0893 908.603 61.3187 908.646 61.5H907.286C907.201 61.1373 907.158 60.7747 907.158 60.412H907.11C906.833 60.8173 906.481 61.132 906.054 61.356C905.638 61.58 905.142 61.692 904.566 61.692C904.267 61.692 903.953 61.6493 903.622 61.564C903.302 61.4893 903.009 61.3613 902.742 61.18C902.475 60.9987 902.251 60.7587 902.07 60.46C901.899 60.1613 901.814 59.7933 901.814 59.356C901.814 58.78 901.969 58.3267 902.278 57.996C902.587 57.6547 902.993 57.3987 903.494 57.228C903.995 57.0467 904.561 56.9293 905.19 56.876C905.819 56.8227 906.454 56.796 907.094 56.796V56.588ZM906.726 57.884C906.353 57.884 905.963 57.9 905.558 57.932C905.163 57.964 904.801 58.028 904.47 58.124C904.15 58.22 903.883 58.364 903.67 58.556C903.457 58.748 903.35 59.004 903.35 59.324C903.35 59.548 903.393 59.7347 903.478 59.884C903.574 60.0333 903.697 60.156 903.846 60.252C903.995 60.348 904.161 60.4173 904.342 60.46C904.523 60.492 904.71 60.508 904.902 60.508C905.606 60.508 906.145 60.3 906.518 59.884C906.902 59.4573 907.094 58.924 907.094 58.284V57.884H906.726ZM915.142 55.836C914.971 55.5587 914.731 55.3347 914.422 55.164C914.113 54.9827 913.766 54.892 913.382 54.892C913.211 54.892 913.041 54.9133 912.87 54.956C912.699 54.988 912.545 55.0467 912.406 55.132C912.278 55.2067 912.171 55.308 912.086 55.436C912.011 55.5533 911.974 55.7027 911.974 55.884C911.974 56.204 912.118 56.444 912.406 56.604C912.694 56.7533 913.126 56.892 913.702 57.02C914.065 57.1053 914.401 57.2067 914.71 57.324C915.019 57.4413 915.286 57.5907 915.51 57.772C915.745 57.9427 915.926 58.1507 916.054 58.396C916.182 58.6413 916.246 58.9293 916.246 59.26C916.246 59.708 916.161 60.0867 915.99 60.396C915.819 60.7053 915.59 60.9613 915.302 61.164C915.025 61.356 914.705 61.4947 914.342 61.58C913.979 61.6653 913.606 61.708 913.222 61.708C912.646 61.708 912.081 61.596 911.526 61.372C910.982 61.148 910.529 60.8067 910.166 60.348L911.238 59.436C911.441 59.7347 911.718 59.9853 912.07 60.188C912.433 60.3907 912.827 60.492 913.254 60.492C913.446 60.492 913.627 60.476 913.798 60.444C913.979 60.4013 914.139 60.3373 914.278 60.252C914.427 60.1667 914.545 60.0547 914.63 59.916C914.715 59.7773 914.758 59.6013 914.758 59.388C914.758 59.036 914.587 58.7747 914.246 58.604C913.915 58.4333 913.425 58.2733 912.774 58.124C912.518 58.06 912.257 57.9853 911.99 57.9C911.734 57.804 911.499 57.676 911.286 57.516C911.073 57.356 910.897 57.1587 910.758 56.924C910.63 56.6787 910.566 56.38 910.566 56.028C910.566 55.6227 910.646 55.276 910.806 54.988C910.977 54.6893 911.195 54.4493 911.462 54.268C911.729 54.076 912.033 53.9373 912.374 53.852C912.715 53.756 913.067 53.708 913.43 53.708C913.974 53.708 914.497 53.8147 914.998 54.028C915.51 54.2413 915.905 54.5507 916.182 54.956L915.142 55.836Z" fill="#0B1641"/>
+<path d="M984.572 59.74C984.124 60.348 983.543 60.844 982.828 61.228C982.114 61.6013 981.255 61.788 980.252 61.788C979.388 61.788 978.588 61.644 977.852 61.356C977.127 61.0573 976.498 60.6467 975.964 60.124C975.442 59.5907 975.031 58.9613 974.732 58.236C974.434 57.5 974.284 56.6947 974.284 55.82C974.284 54.9347 974.434 54.1293 974.732 53.404C975.042 52.668 975.463 52.044 975.996 51.532C976.54 51.0093 977.18 50.604 977.916 50.316C978.652 50.028 979.452 49.884 980.316 49.884C980.7 49.884 981.09 49.9213 981.484 49.996C981.879 50.0707 982.258 50.1827 982.62 50.332C982.983 50.4813 983.314 50.668 983.612 50.892C983.911 51.1053 984.167 51.356 984.38 51.644L983.132 52.604C982.855 52.22 982.46 51.9053 981.948 51.66C981.447 51.404 980.903 51.276 980.316 51.276C979.655 51.276 979.058 51.3987 978.524 51.644C978.002 51.8787 977.554 52.204 977.18 52.62C976.807 53.036 976.519 53.5213 976.316 54.076C976.114 54.62 976.012 55.2013 976.012 55.82C976.012 56.46 976.108 57.0573 976.3 57.612C976.503 58.1667 976.786 58.652 977.148 59.068C977.522 59.4733 977.97 59.7933 978.492 60.028C979.026 60.2627 979.618 60.38 980.268 60.38C980.908 60.38 981.49 60.252 982.012 59.996C982.535 59.74 982.967 59.3667 983.308 58.876L984.572 59.74ZM993.601 57.692C993.601 58.2787 993.494 58.8173 993.281 59.308C993.078 59.7987 992.79 60.2253 992.417 60.588C992.054 60.94 991.622 61.2173 991.121 61.42C990.62 61.612 990.081 61.708 989.505 61.708C988.929 61.708 988.39 61.612 987.889 61.42C987.388 61.2173 986.956 60.94 986.593 60.588C986.23 60.2253 985.942 59.7987 985.729 59.308C985.526 58.8173 985.425 58.2787 985.425 57.692C985.425 57.1053 985.526 56.572 985.729 56.092C985.942 55.6013 986.23 55.18 986.593 54.828C986.956 54.476 987.388 54.204 987.889 54.012C988.39 53.8093 988.929 53.708 989.505 53.708C990.081 53.708 990.62 53.8093 991.121 54.012C991.622 54.204 992.054 54.476 992.417 54.828C992.79 55.18 993.078 55.6013 993.281 56.092C993.494 56.572 993.601 57.1053 993.601 57.692ZM992.033 57.692C992.033 57.3293 991.974 56.9827 991.857 56.652C991.75 56.3213 991.59 56.0333 991.377 55.788C991.164 55.532 990.897 55.3293 990.577 55.18C990.268 55.0307 989.91 54.956 989.505 54.956C989.1 54.956 988.737 55.0307 988.417 55.18C988.108 55.3293 987.846 55.532 987.633 55.788C987.42 56.0333 987.254 56.3213 987.137 56.652C987.03 56.9827 986.977 57.3293 986.977 57.692C986.977 58.0547 987.03 58.4013 987.137 58.732C987.254 59.0627 987.42 59.356 987.633 59.612C987.846 59.868 988.108 60.0707 988.417 60.22C988.737 60.3693 989.1 60.444 989.505 60.444C989.91 60.444 990.268 60.3693 990.577 60.22C990.897 60.0707 991.164 59.868 991.377 59.612C991.59 59.356 991.75 59.0627 991.857 58.732C991.974 58.4013 992.033 58.0547 992.033 57.692ZM997.047 53.916C997.068 54.108 997.084 54.3267 997.095 54.572C997.105 54.8067 997.111 55.004 997.111 55.164H997.159C997.255 54.9613 997.383 54.7747 997.543 54.604C997.713 54.4227 997.905 54.268 998.119 54.14C998.332 54.0013 998.567 53.8947 998.823 53.82C999.079 53.7453 999.345 53.708 999.623 53.708C1000.11 53.708 1000.53 53.7933 1000.89 53.964C1001.24 54.124 1001.53 54.3427 1001.77 54.62C1002 54.8973 1002.17 55.2227 1002.28 55.596C1002.4 55.9693 1002.45 56.3693 1002.45 56.796V61.5H1000.95V57.292C1000.95 56.9827 1000.92 56.6893 1000.87 56.412C1000.83 56.1347 1000.74 55.8893 1000.61 55.676C1000.49 55.4627 1000.31 55.292 1000.09 55.164C999.863 55.036 999.575 54.972 999.223 54.972C998.625 54.972 998.135 55.2013 997.751 55.66C997.377 56.108 997.191 56.7107 997.191 57.468V61.5H995.687V55.548C995.687 55.3453 995.681 55.084 995.671 54.764C995.66 54.444 995.644 54.1613 995.623 53.916H997.047ZM1008.71 55.148H1006.7V59.1C1006.7 59.5587 1006.78 59.8893 1006.95 60.092C1007.12 60.284 1007.39 60.38 1007.77 60.38C1007.91 60.38 1008.06 60.364 1008.22 60.332C1008.38 60.3 1008.52 60.252 1008.65 60.188L1008.7 61.42C1008.51 61.484 1008.31 61.532 1008.09 61.564C1007.87 61.6067 1007.65 61.628 1007.42 61.628C1006.7 61.628 1006.15 61.4307 1005.77 61.036C1005.39 60.6413 1005.21 60.0493 1005.21 59.26V55.148H1003.75V53.916H1005.21V51.74H1006.7V53.916H1008.71V55.148ZM1014.98 56.588C1014.98 56.0227 1014.81 55.6067 1014.47 55.34C1014.13 55.0627 1013.68 54.924 1013.11 54.924C1012.69 54.924 1012.28 55.0093 1011.9 55.18C1011.52 55.34 1011.21 55.548 1010.95 55.804L1010.15 54.844C1010.53 54.492 1010.98 54.2147 1011.51 54.012C1012.06 53.8093 1012.64 53.708 1013.26 53.708C1013.8 53.708 1014.27 53.788 1014.66 53.948C1015.07 54.0973 1015.4 54.3053 1015.66 54.572C1015.91 54.8387 1016.1 55.1533 1016.23 55.516C1016.36 55.8787 1016.42 56.268 1016.42 56.684V59.996C1016.42 60.252 1016.43 60.524 1016.44 60.812C1016.46 61.0893 1016.49 61.3187 1016.54 61.5H1015.18C1015.09 61.1373 1015.05 60.7747 1015.05 60.412H1015C1014.72 60.8173 1014.37 61.132 1013.94 61.356C1013.53 61.58 1013.03 61.692 1012.46 61.692C1012.16 61.692 1011.84 61.6493 1011.51 61.564C1011.19 61.4893 1010.9 61.3613 1010.63 61.18C1010.37 60.9987 1010.14 60.7587 1009.96 60.46C1009.79 60.1613 1009.7 59.7933 1009.7 59.356C1009.7 58.78 1009.86 58.3267 1010.17 57.996C1010.48 57.6547 1010.88 57.3987 1011.38 57.228C1011.89 57.0467 1012.45 56.9293 1013.08 56.876C1013.71 56.8227 1014.34 56.796 1014.98 56.796V56.588ZM1014.62 57.884C1014.24 57.884 1013.85 57.9 1013.45 57.932C1013.05 57.964 1012.69 58.028 1012.36 58.124C1012.04 58.22 1011.77 58.364 1011.56 58.556C1011.35 58.748 1011.24 59.004 1011.24 59.324C1011.24 59.548 1011.28 59.7347 1011.37 59.884C1011.46 60.0333 1011.59 60.156 1011.74 60.252C1011.89 60.348 1012.05 60.4173 1012.23 60.46C1012.41 60.492 1012.6 60.508 1012.79 60.508C1013.5 60.508 1014.04 60.3 1014.41 59.884C1014.79 59.4573 1014.98 58.924 1014.98 58.284V57.884H1014.62ZM1022.49 55.148H1020.48V59.1C1020.48 59.5587 1020.56 59.8893 1020.73 60.092C1020.9 60.284 1021.18 60.38 1021.55 60.38C1021.69 60.38 1021.84 60.364 1022 60.332C1022.16 60.3 1022.3 60.252 1022.43 60.188L1022.48 61.42C1022.3 61.484 1022.09 61.532 1021.87 61.564C1021.66 61.6067 1021.43 61.628 1021.2 61.628C1020.48 61.628 1019.93 61.4307 1019.55 61.036C1019.18 60.6413 1018.99 60.0493 1018.99 59.26V55.148H1017.53V53.916H1018.99V51.74H1020.48V53.916H1022.49V55.148ZM1031.73 57.692C1031.73 58.2787 1031.62 58.8173 1031.41 59.308C1031.2 59.7987 1030.92 60.2253 1030.54 60.588C1030.18 60.94 1029.75 61.2173 1029.25 61.42C1028.74 61.612 1028.21 61.708 1027.63 61.708C1027.05 61.708 1026.52 61.612 1026.01 61.42C1025.51 61.2173 1025.08 60.94 1024.72 60.588C1024.36 60.2253 1024.07 59.7987 1023.85 59.308C1023.65 58.8173 1023.55 58.2787 1023.55 57.692C1023.55 57.1053 1023.65 56.572 1023.85 56.092C1024.07 55.6013 1024.36 55.18 1024.72 54.828C1025.08 54.476 1025.51 54.204 1026.01 54.012C1026.52 53.8093 1027.05 53.708 1027.63 53.708C1028.21 53.708 1028.74 53.8093 1029.25 54.012C1029.75 54.204 1030.18 54.476 1030.54 54.828C1030.92 55.18 1031.2 55.6013 1031.41 56.092C1031.62 56.572 1031.73 57.1053 1031.73 57.692ZM1030.16 57.692C1030.16 57.3293 1030.1 56.9827 1029.98 56.652C1029.88 56.3213 1029.72 56.0333 1029.5 55.788C1029.29 55.532 1029.02 55.3293 1028.7 55.18C1028.39 55.0307 1028.04 54.956 1027.63 54.956C1027.22 54.956 1026.86 55.0307 1026.54 55.18C1026.23 55.3293 1025.97 55.532 1025.76 55.788C1025.54 56.0333 1025.38 56.3213 1025.26 56.652C1025.16 56.9827 1025.1 57.3293 1025.1 57.692C1025.1 58.0547 1025.16 58.4013 1025.26 58.732C1025.38 59.0627 1025.54 59.356 1025.76 59.612C1025.97 59.868 1026.23 60.0707 1026.54 60.22C1026.86 60.3693 1027.22 60.444 1027.63 60.444C1028.04 60.444 1028.39 60.3693 1028.7 60.22C1029.02 60.0707 1029.29 59.868 1029.5 59.612C1029.72 59.356 1029.88 59.0627 1029.98 58.732C1030.1 58.4013 1030.16 58.0547 1030.16 57.692Z" fill="#0B1641"/>
+<path d="M1102.42 50.1719H1106.12C1106.77 50.1719 1107.35 50.2318 1107.88 50.3516C1108.4 50.4661 1108.84 50.6562 1109.22 50.9219C1109.59 51.1875 1109.88 51.5286 1110.09 51.9453C1110.29 52.362 1110.39 52.8646 1110.39 53.4531C1110.39 54.0833 1110.27 54.612 1110.04 55.0391C1109.8 55.4661 1109.49 55.8099 1109.09 56.0703C1108.68 56.3307 1108.22 56.5208 1107.68 56.6406C1107.15 56.7552 1106.58 56.8125 1105.98 56.8125H1104.44V61.5H1102.42V50.1719ZM1105.84 55.1172C1106.18 55.1172 1106.49 55.0938 1106.79 55.0469C1107.09 54.9948 1107.35 54.9089 1107.59 54.7891C1107.82 54.6641 1108.01 54.4948 1108.15 54.2812C1108.29 54.0677 1108.36 53.7917 1108.36 53.4531C1108.36 53.1198 1108.29 52.849 1108.15 52.6406C1108.01 52.4323 1107.82 52.2708 1107.59 52.1562C1107.36 52.0365 1107.1 51.9583 1106.81 51.9219C1106.52 51.8854 1106.22 51.8672 1105.91 51.8672H1104.44V55.1172H1105.84ZM1114.27 51.9297H1110.8V50.1719H1119.76V51.9297H1116.29V61.5H1114.27V51.9297Z" fill="#0B1641"/>
+<path d="M1138.43 49.5V65.5H1137.12V49.5H1138.43Z" fill="#969696"/>
+<path d="M1158.27 50.1719H1165.77V51.9297H1160.29V54.8125H1165.48V56.5078H1160.29V59.7109H1166.06V61.5H1158.27V50.1719ZM1173.81 52.5391C1173.6 52.263 1173.3 52.0312 1172.91 51.8438C1172.52 51.6562 1172.13 51.5625 1171.73 51.5625C1171.5 51.5625 1171.27 51.5938 1171.03 51.6562C1170.8 51.7135 1170.58 51.8047 1170.39 51.9297C1170.2 52.0495 1170.04 52.2083 1169.91 52.4062C1169.79 52.6042 1169.73 52.8411 1169.73 53.1172C1169.73 53.3724 1169.79 53.5911 1169.89 53.7734C1170 53.9557 1170.15 54.112 1170.33 54.2422C1170.52 54.3672 1170.74 54.4792 1171.01 54.5781C1171.28 54.6719 1171.57 54.7656 1171.89 54.8594C1172.26 54.9792 1172.63 55.1146 1173.02 55.2656C1173.41 55.4115 1173.76 55.6068 1174.09 55.8516C1174.41 56.0964 1174.68 56.4062 1174.89 56.7812C1175.1 57.1562 1175.2 57.6198 1175.2 58.1719C1175.2 58.7812 1175.09 59.3125 1174.87 59.7656C1174.64 60.2188 1174.34 60.5964 1173.97 60.8984C1173.6 61.1953 1173.16 61.4167 1172.66 61.5625C1172.16 61.7135 1171.63 61.7891 1171.08 61.7891C1170.34 61.7891 1169.62 61.6536 1168.91 61.3828C1168.21 61.1068 1167.64 60.7031 1167.19 60.1719L1168.63 58.8281C1168.91 59.2135 1169.28 59.5182 1169.74 59.7422C1170.21 59.9661 1170.66 60.0781 1171.11 60.0781C1171.34 60.0781 1171.58 60.0495 1171.83 59.9922C1172.07 59.9297 1172.29 59.8307 1172.49 59.6953C1172.69 59.5547 1172.85 59.3802 1172.97 59.1719C1173.09 58.9635 1173.16 58.7057 1173.16 58.3984C1173.16 58.0964 1173.09 57.849 1172.95 57.6562C1172.81 57.4583 1172.62 57.2865 1172.39 57.1406C1172.16 56.9948 1171.88 56.8698 1171.55 56.7656C1171.24 56.6562 1170.9 56.5443 1170.55 56.4297C1170.21 56.3203 1169.87 56.1927 1169.52 56.0469C1169.18 55.8958 1168.88 55.6979 1168.6 55.4531C1168.33 55.2083 1168.11 54.9089 1167.94 54.5547C1167.77 54.1953 1167.69 53.7474 1167.69 53.2109C1167.69 52.638 1167.81 52.1432 1168.05 51.7266C1168.29 51.3099 1168.6 50.9661 1168.98 50.6953C1169.38 50.4193 1169.82 50.2161 1170.31 50.0859C1170.81 49.9505 1171.32 49.8828 1171.83 49.8828C1172.41 49.8828 1172.99 49.9844 1173.58 50.1875C1174.17 50.3906 1174.69 50.6953 1175.12 51.1016L1173.81 52.5391Z" fill="#CCCCCC"/>
+<path d="M1194.43 49.5V65.5H1193.12V49.5H1194.43Z" fill="#969696"/>
+<path d="M1214.62 50.1719H1222.12V51.9297H1216.64V54.8125H1221.84V56.5078H1216.64V59.7109H1222.41V61.5H1214.62V50.1719ZM1224.39 50.1719H1227.06L1232.33 58.6484H1232.36V50.1719H1234.38V61.5H1231.81L1226.44 52.75H1226.41V61.5H1224.39V50.1719Z" fill="#CCCCCC"/>
+<defs>
+<linearGradient id="paint0_linear_31_355" x1="36.1367" y1="152.281" x2="62.5218" y2="152.281" gradientUnits="userSpaceOnUse">
+<stop stop-color="#E40647"/>
+<stop offset="1" stop-color="#B71631"/>
+</linearGradient>
+<linearGradient id="paint1_linear_31_355" x1="68.1367" y1="53.0811" x2="94.5218" y2="53.0811" gradientUnits="userSpaceOnUse">
+<stop stop-color="#E40647"/>
+<stop offset="1" stop-color="#B71631"/>
+</linearGradient>
+</defs>
+</svg>
+`}
+          aiCode={`// @ts-nocheck
+import * as React from "react"
+
+export interface HeaderProps {
+  device?: "Desktop" | "Mobile"
+  className?: string
+  children?: React.ReactNode
+}
+
+const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
+  ({ device = "Desktop", className, children, device, ...props }, ref) => {
+    return (
+      <div
+      ref={ref}
+      className={className}
+      style={{ display: "inline-flex", alignItems: "center", gap: "189px", padding: "189px 283.5px", borderRadius: "5px", background: "#ffffff", border: "1px solid #e4e4e7", fontFamily: "Avenir Next LT Pro", fontSize: "16px", color: "#18181b" }}
+      {...props}
+    >
+      {children ?? "Header"}
+    </div>
+    );
+  }
+)
+Header.displayName = "Header"
+
+export { Header }
+export default Header`}
+          tokens={{
+  "colors": [
+    "#9747ff",
+    "#ffffff",
+    "#0b1641",
+    "#d9d9d9",
+    "#262626",
+    "#1c1b1f",
+    "#fc3d55",
+    "#969696",
+    "#cccccc"
+  ],
+  "typography": [
+    {
+      "fontFamily": "Avenir Next LT Pro",
+      "fontSize": 16,
+      "fontWeight": "Demi"
+    },
+    {
+      "fontFamily": "Avenir Next",
+      "fontSize": 16,
+      "fontWeight": "Medium"
+    },
+    {
+      "fontFamily": "Avenir Next",
+      "fontSize": 16,
+      "fontWeight": "Medium"
+    },
+    {
+      "fontFamily": "Avenir Next",
+      "fontSize": 16,
+      "fontWeight": "Medium"
+    },
+    {
+      "fontFamily": "Avenir Next",
+      "fontSize": 16,
+      "fontWeight": "Medium"
+    },
+    {
+      "fontFamily": "Avenir Next",
+      "fontSize": 16,
+      "fontWeight": "Medium"
+    },
+    {
+      "fontFamily": "Avenir Next",
+      "fontSize": 16,
+      "fontWeight": "Medium"
+    },
+    {
+      "fontFamily": "Avenir Next",
+      "fontSize": 16,
+      "fontWeight": "Medium"
+    },
+    {
+      "fontFamily": "Avenir Next",
+      "fontSize": 16,
+      "fontWeight": "Medium"
+    },
+    {
+      "fontFamily": "Avenir Next LT Pro",
+      "fontSize": 16,
+      "fontWeight": "Demi"
+    },
+    {
+      "fontFamily": "Avenir Next",
+      "fontSize": 16,
+      "fontWeight": "Medium"
+    },
+    {
+      "fontFamily": "Avenir Next LT Pro",
+      "fontSize": 16,
+      "fontWeight": "Demi"
+    },
+    {
+      "fontFamily": "Avenir Next",
+      "fontSize": 16,
+      "fontWeight": "Medium"
+    },
+    {
+      "fontFamily": "Avenir Next LT Pro",
+      "fontSize": 16,
+      "fontWeight": "Demi"
+    }
+  ],
+  "spacing": [
+    "189px",
+    "24px",
+    "16px",
+    "8px",
+    "144px",
+    "48px",
+    "4px",
+    "10px"
+  ],
+  "borderRadius": [
+    "5px",
+    "800px"
+  ],
+  "shadows": []
+}}
+          variantProperties={[
+  {
+    "name": "Device",
+    "values": [
+      "Desktop",
+      "Mobile"
+    ]
+  }
+]}
+          variantStyles={[{"name":"Device=Mobile","width":360,"height":88,"background":"#ffffff","border":null,"borderRadius":"0px","padding":"24px 16px 24px 16px","gap":"189px","shadow":null,"opacity":1,"text":"PT","textColor":"#0b1641","fontFamily":"Avenir Next LT Pro","fontSize":16,"fontWeight":400},{"name":"Device=Desktop","width":1280,"height":72,"background":"#ffffff","border":null,"borderRadius":"0px","padding":"16px 48px 16px 48px","gap":"144px","shadow":null,"opacity":1,"text":"Sobre","textColor":"#0b1641","fontFamily":"Avenir Next","fontSize":16,"fontWeight":500}]}
+          anatomy={{
+  "name": "Device=Mobile",
+  "type": "COMPONENT",
+  "visible": true,
+  "children": [
+    {
+      "name": "Logo",
+      "type": "FRAME",
+      "visible": true,
+      "children": [
+        {
+          "name": "logo",
+          "type": "GROUP",
+          "visible": true,
+          "children": [
+            {
+              "name": "simbolo",
+              "type": "VECTOR",
+              "visible": true,
+              "children": []
+            },
+            {
+              "name": "logotipo",
+              "type": "VECTOR",
+              "visible": true,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Frame 2",
+      "type": "FRAME",
+      "visible": true,
+      "children": [
+        {
+          "name": "Language",
+          "type": "INSTANCE",
+          "visible": true,
+          "children": [
+            {
+              "name": "Button",
+              "type": "INSTANCE",
+              "visible": true,
+              "children": [
+                {
+                  "name": "remove",
+                  "type": "INSTANCE",
+                  "visible": false,
+                  "children": []
+                },
+                {
+                  "name": "Button",
+                  "type": "TEXT",
+                  "visible": true,
+                  "children": []
+                },
+                {
+                  "name": "keyboard_arrow_down",
+                  "type": "INSTANCE",
+                  "visible": true,
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "menu",
+          "type": "GROUP",
+          "visible": true,
+          "children": [
+            {
+              "name": "Bounding box",
+              "type": "RECTANGLE",
+              "visible": true,
+              "children": []
+            },
+            {
+              "name": "menu",
+              "type": "VECTOR",
+              "visible": true,
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}}
+          a11y={[
+  {
+    "role": "button",
+    "note": "Interativo — verificar texto acessível e estado desabilitado"
+  },
+  {
+    "role": "text",
+    "note": "Texto visível — será lido por leitores de tela"
+  },
+  {
+    "role": "img",
+    "note": "Ícone decorativo — usar aria-hidden=\"true\""
+  }
+]}
+        />
+      )}
       {activeSection === "Itemlist" && (
         <ComponentDoc
           key="Itemlist"
@@ -1178,11 +1625,11 @@ export default Itemlist`}
           a11y={[
   {
     "role": "list",
-    "note": "Lista — usar <ul>/<li> ou role=\"list\""
+    "note": "Lista â usar <ul>/<li> ou role=\"list\""
   },
   {
     "role": "text",
-    "note": "Texto visível — será lido por leitores de tela"
+    "note": "Texto visÃ­vel â serÃ¡ lido por leitores de tela"
   }
 ]}
         />
@@ -1424,11 +1871,11 @@ export default Tag`}
           a11y={[
   {
     "role": "text",
-    "note": "Texto visÃ­vel â serÃ¡ lido por leitores de tela"
+    "note": "Texto visÃÂ­vel Ã¢ÂÂ serÃÂ¡ lido por leitores de tela"
   },
   {
     "role": "img",
-    "note": "Ãcone decorativo â usar aria-hidden=\"true\""
+    "note": "ÃÂcone decorativo Ã¢ÂÂ usar aria-hidden=\"true\""
   }
 ]}
         />
@@ -1459,7 +1906,7 @@ const Toast = React.forwardRef<HTMLDivElement, ToastProps>(
   ({ className, children, title, ...props }, ref) => {
     return (
       <div ref={ref} className={className} role="alert" style={{ display: "flex", alignItems: "flex-start", gap: "10px", padding: "12px 14px", borderRadius: "5px", background: "#eff6ff", border: "1px solid #bfdbfe", fontFamily: "Avenir Next LT Pro" }} {...props}>
-      <span style={{ fontSize: "14px", color: "#1e40af", flexShrink: 0, marginTop: "1px" }}>Ã¢ÂÂ¹</span>
+      <span style={{ fontSize: "14px", color: "#1e40af", flexShrink: 0, marginTop: "1px" }}>ÃÂ¢ÃÂÃÂ¹</span>
       <div>
         {title && <div style={{ fontSize: "13px", fontWeight: 600, color: "#1e40af", marginBottom: "2px" }}>{title}</div>}
         <div style={{ fontSize: "12px", color: "#1e40af", opacity: 0.8 }}>{children}</div>
@@ -1506,9 +1953,9 @@ export function Toast({ className, children, ...props }: ToastProps) {
 
 export default Toast`}
           htmlCode={`<div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;padding:24px;font-family:system-ui">
-  <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><button style="display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;white-space:nowrap;font-family:'Avenir Next LT Pro', system-ui;cursor:pointer;background:#366d2b;border:none;border-radius:8px;padding:12px 12px 12px 12px;gap:40px;color:#ffffff;font-size:16px;font-weight:400;min-width:280px;min-height:66px">TÃÂ­tulo da mensagem</button><span style="font-size:10px;color:#a1a1aa;font-family:monospace">State=Sucess</span></div>
-  <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><button style="display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;white-space:nowrap;font-family:'Avenir Next LT Pro', system-ui;cursor:pointer;background:#e7ae03;border:none;border-radius:8px;padding:12px 12px 12px 12px;gap:40px;color:#262626;font-size:16px;font-weight:400;min-width:280px;min-height:66px">TÃÂ­tulo da mensagem</button><span style="font-size:10px;color:#a1a1aa;font-family:monospace">State=Alert</span></div>
-  <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><button style="display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;white-space:nowrap;font-family:'Avenir Next LT Pro', system-ui;cursor:pointer;background:#da0202;border:none;border-radius:8px;padding:12px 12px 12px 12px;gap:40px;color:#ffffff;font-size:16px;font-weight:400;min-width:280px;min-height:66px">TÃÂ­tulo da mensagem</button><span style="font-size:10px;color:#a1a1aa;font-family:monospace">State=Error</span></div>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><button style="display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;white-space:nowrap;font-family:'Avenir Next LT Pro', system-ui;cursor:pointer;background:#366d2b;border:none;border-radius:8px;padding:12px 12px 12px 12px;gap:40px;color:#ffffff;font-size:16px;font-weight:400;min-width:280px;min-height:66px">TÃÂÃÂ­tulo da mensagem</button><span style="font-size:10px;color:#a1a1aa;font-family:monospace">State=Sucess</span></div>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><button style="display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;white-space:nowrap;font-family:'Avenir Next LT Pro', system-ui;cursor:pointer;background:#e7ae03;border:none;border-radius:8px;padding:12px 12px 12px 12px;gap:40px;color:#262626;font-size:16px;font-weight:400;min-width:280px;min-height:66px">TÃÂÃÂ­tulo da mensagem</button><span style="font-size:10px;color:#a1a1aa;font-family:monospace">State=Alert</span></div>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><button style="display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;white-space:nowrap;font-family:'Avenir Next LT Pro', system-ui;cursor:pointer;background:#da0202;border:none;border-radius:8px;padding:12px 12px 12px 12px;gap:40px;color:#ffffff;font-size:16px;font-weight:400;min-width:280px;min-height:66px">TÃÂÃÂ­tulo da mensagem</button><span style="font-size:10px;color:#a1a1aa;font-family:monospace">State=Error</span></div>
 </div>`}
           cssCode={`:root {
   --color-primary: #9747ff;
@@ -1603,7 +2050,7 @@ const Toast = React.forwardRef<HTMLDivElement, ToastProps>(
   ({ className, children, title, ...props }, ref) => {
     return (
       <div ref={ref} className={className} role="alert" style={{ display: "flex", alignItems: "flex-start", gap: "10px", padding: "12px 14px", borderRadius: "5px", background: "#eff6ff", border: "1px solid #bfdbfe", fontFamily: "Avenir Next LT Pro" }} {...props}>
-      <span style={{ fontSize: "14px", color: "#1e40af", flexShrink: 0, marginTop: "1px" }}>Ã¢ÂÂ¹</span>
+      <span style={{ fontSize: "14px", color: "#1e40af", flexShrink: 0, marginTop: "1px" }}>ÃÂ¢ÃÂÃÂ¹</span>
       <div>
         {title && <div style={{ fontSize: "13px", fontWeight: 600, color: "#1e40af", marginBottom: "2px" }}>{title}</div>}
         <div style={{ fontSize: "12px", color: "#1e40af", opacity: 0.8 }}>{children}</div>
@@ -1715,13 +2162,13 @@ export default Toast`}
           "visible": true,
           "children": [
             {
-              "name": "TÃÂ­tulo da mensagem",
+              "name": "TÃÂÃÂ­tulo da mensagem",
               "type": "TEXT",
               "visible": true,
               "children": []
             },
             {
-              "name": "SubtÃÂ­tulo da mensagem aqui",
+              "name": "SubtÃÂÃÂ­tulo da mensagem aqui",
               "type": "TEXT",
               "visible": true,
               "children": []
@@ -1754,7 +2201,7 @@ export default Toast`}
           a11y={[
   {
     "role": "text",
-    "note": "Texto visÃÂ­vel Ã¢ÂÂ serÃÂ¡ lido por leitores de tela"
+    "note": "Texto visÃÂÃÂ­vel ÃÂ¢ÃÂÃÂ serÃÂÃÂ¡ lido por leitores de tela"
   }
 ]}
         />
@@ -1766,7 +2213,7 @@ export default Toast`}
           description=""
           figmaUrl="https://figma.com/file/undefined?node-id=6-13"
           status="stable"
-          category="ÃÂ¢ÃÂÃÂªÃÂ¯ÃÂ¸ÃÂ  Buttons"
+          category="ÃÂÃÂ¢ÃÂÃÂÃÂÃÂªÃÂÃÂ¯ÃÂÃÂ¸ÃÂÃÂ  Buttons"
           version={componentMeta["Button"]?.version}
           lastUpdated={componentMeta["Button"]?.lastUpdated}
           darkMode={darkMode}
@@ -2202,11 +2649,11 @@ export default Button`}
           a11y={[
   {
     "role": "button",
-    "note": "Interativo ÃÂ¢ÃÂÃÂ verificar texto acessÃÂÃÂ­vel e estado desabilitado"
+    "note": "Interativo ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ verificar texto acessÃÂÃÂÃÂÃÂ­vel e estado desabilitado"
   },
   {
     "role": "text",
-    "note": "Texto visÃÂÃÂ­vel ÃÂ¢ÃÂÃÂ serÃÂÃÂ¡ lido por leitores de tela"
+    "note": "Texto visÃÂÃÂÃÂÃÂ­vel ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ serÃÂÃÂÃÂÃÂ¡ lido por leitores de tela"
   }
 ]}
         />
@@ -2657,11 +3104,11 @@ export default Breadchumb`}
           a11y={[
   {
     "role": "text",
-    "note": "Texto visÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ­vel ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ serÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¡ lido por leitores de tela"
+    "note": "Texto visÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ­vel ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ serÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¡ lido por leitores de tela"
   },
   {
     "role": "img",
-    "note": "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂcone decorativo ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ usar aria-hidden=\"true\""
+    "note": "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂcone decorativo ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ usar aria-hidden=\"true\""
   }
 ]}
         />
@@ -3193,19 +3640,19 @@ export default Dropdown`}
           a11y={[
   {
     "role": "textbox",
-    "note": "Campo de entrada ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ requer aria-label ou <label> associado"
+    "note": "Campo de entrada ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ requer aria-label ou <label> associado"
   },
   {
     "role": "text",
-    "note": "Texto visÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ­vel ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ serÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¡ lido por leitores de tela"
+    "note": "Texto visÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ­vel ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ serÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¡ lido por leitores de tela"
   },
   {
     "role": "img",
-    "note": "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂcone decorativo ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ usar aria-hidden=\"true\""
+    "note": "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂcone decorativo ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ usar aria-hidden=\"true\""
   },
   {
     "role": "list",
-    "note": "Lista ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ usar <ul>/<li> ou role=\"list\""
+    "note": "Lista ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ usar <ul>/<li> ou role=\"list\""
   }
 ]}
         />
@@ -3288,7 +3735,7 @@ export default Accordion`}
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#71717a" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
   </div>
   <div style="padding:12px 16px;background:#fafafa;border-bottom:1px solid #e4e4e7">
-    <p style="font-size:13px;color:#71717a;margin:0;line-height:1.5">ConteÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂºdo expandido.</p>
+    <p style="font-size:13px;color:#71717a;margin:0;line-height:1.5">ConteÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂºdo expandido.</p>
   </div>
   <div style="padding:14px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;background:#fff">
     <span style="font-size:16px;font-weight:500;color:#18181b">Item 2</span>
@@ -3453,11 +3900,11 @@ export default Accordion`}
           a11y={[
   {
     "role": "text",
-    "note": "Texto visÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ­vel ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ serÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¡ lido por leitores de tela"
+    "note": "Texto visÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ­vel ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ serÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¡ lido por leitores de tela"
   },
   {
     "role": "img",
-    "note": "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂcone decorativo ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ usar aria-hidden=\"true\""
+    "note": "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂcone decorativo ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ usar aria-hidden=\"true\""
   }
 ]}
         />
@@ -3694,7 +4141,7 @@ export default Control`}
           a11y={[
   {
     "role": "img",
-    "note": "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂcone decorativo ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ usar aria-hidden=\"true\""
+    "note": "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂcone decorativo ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ usar aria-hidden=\"true\""
   }
 ]}
         />
@@ -3911,7 +4358,7 @@ export default Checkbox`}
           a11y={[
   {
     "role": "checkbox",
-    "note": "Estado ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ requer aria-checked"
+    "note": "Estado ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ requer aria-checked"
   }
 ]}
         />
