@@ -1,13 +1,14 @@
 /* eslint-disable */
 // @ts-nocheck
 import React, { useState, useEffect } from "react"
-import Toast from "./components/Toast/Toast"
+import Tag from "./components/Tag/Tag"
 import Checkbox from "./components/Checkbox/Checkbox"
 import Control from "./components/Control/Control"
 import Accordion from "./components/Accordion/Accordion"
 import Dropdown from "./components/Dropdown/Dropdown"
 import Button from "./components/Button/Button"
 import Breadchumb from "./components/Breadchumb/Breadchumb"
+import Toast from "./components/Toast/Toast"
 
 type Tokens = { colors: string[]; typography: any[]; borderRadius: string[]; shadows: string[]; spacing: string[] }
 type VariantProp = { name: string; values: string[] }
@@ -17,11 +18,12 @@ type Status = "stable" | "beta" | "deprecated" | "wip" | "experimental"
 
 interface ComponentDocProps {
   name: string; description: string; figmaUrl: string; status: Status; category: string; darkMode?: boolean
+  version?: string; lastUpdated?: string; fontFamily?: string
   version?: string; lastUpdated?: string
   width: number; height: number
   reactCode: string; tailwindCode: string; htmlCode: string; cssCode: string
   svgCode?: string; aiCode?: string
-  tokens: Tokens; variantProperties: VariantProp[]; anatomy: AnatomyNode | null; a11y: A11yHint[]
+  tokens: Tokens; variantProperties: VariantProp[]; variantStyles?: any[]; anatomy: AnatomyNode | null; a11y: A11yHint[]
 }
 
 type DocTab = "overview" | "variants" | "playground" | "tokens" | "props" | "anatomy" | "a11y" | "code"
@@ -56,18 +58,20 @@ function CodeBlock({ code, language }: { code: string; language: string }) {
   )
 }
 
-function ComponentPreview({ htmlCode, cssCode, svgCode, width, height, overrideHtml, darkMode }: any) {
+function ComponentPreview({ htmlCode, cssCode, svgCode, width, height, overrideHtml, darkMode, fontFamily }: any) {
   const [bg, setBg] = React.useState("checker")
   const [zoom, setZoom] = React.useState(1)
   const checker = { backgroundImage: ["linear-gradient(45deg,#e5e7eb 25%,transparent 25%)","linear-gradient(-45deg,#e5e7eb 25%,transparent 25%)","linear-gradient(45deg,transparent 75%,#e5e7eb 75%)","linear-gradient(-45deg,transparent 75%,#e5e7eb 75%)"].join(","), backgroundSize: "16px 16px", backgroundPosition: "0 0,0 8px,8px -8px,-8px 0", backgroundColor: "#f9fafb" }
   const checkerDark = { backgroundImage: ["linear-gradient(45deg,#27272a 25%,transparent 25%)","linear-gradient(-45deg,#27272a 25%,transparent 25%)","linear-gradient(45deg,transparent 75%,#27272a 75%)","linear-gradient(-45deg,transparent 75%,#27272a 75%)"].join(","), backgroundSize: "16px 16px", backgroundPosition: "0 0,0 8px,8px -8px,-8px 0", backgroundColor: "#18181b" }
   const bgMap: any = { white: { background: "#ffffff" }, checker: darkMode ? checkerDark : checker, dark: { background: "#09090b" } }
   const visual = overrideHtml || (htmlCode && htmlCode.trim() ? htmlCode : (svgCode || ""))
-  // Inject dark mode class and media query into iframe
   const darkCSS = darkMode ? "html{color-scheme:dark}body{background:#09090b;color:#f4f4f5}" : ""
   const baseCSS = "*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html,body{width:100%;height:100%}body{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;font-family:system-ui,sans-serif;background:transparent}"
+  // Load font from Google Fonts if it's a known web font
+  const SYSTEM_FONTS = new Set(["system-ui","sans-serif","serif","monospace","cursive","fantasy","Arial","Helvetica","Times New Roman","Georgia","Verdana","Tahoma","Trebuchet MS","Impact","Courier New"])
+  const fontLink = fontFamily && !SYSTEM_FONTS.has(fontFamily) ? `<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=${encodeURIComponent(fontFamily)}:wght@400;500;600;700&display=swap">` : ""
   const h = Math.max(height * zoom + 80, 180)
-  const buildDoc = () => `<!DOCTYPE html><html class="${darkMode?"dark":""}"><head><meta charset=UTF-8><style>${baseCSS}${darkCSS}${cssCode||""}</style></head><body>${visual}</body></html>`
+  const buildDoc = () => `<!DOCTYPE html><html class="${darkMode?"dark":""}"><head><meta charset=UTF-8>${fontLink}<style>${baseCSS}${darkCSS}${cssCode||""}</style></head><body>${visual}</body></html>`
   const bgLabels: any = { white: "Branco", checker: "Grade", dark: "Escuro" }
   return (
     <div style={{ border: "1px solid #e4e4e7", borderRadius: "10px", overflow: "hidden" }}>
@@ -88,7 +92,7 @@ function ComponentPreview({ htmlCode, cssCode, svgCode, width, height, overrideH
   )
 }
 
-function Playground({ htmlCode, cssCode, svgCode, width, height, variantProperties, reactCode, tailwindCode }: any) {
+function Playground({ htmlCode, cssCode, svgCode, width, height, variantProperties, variantStyles, reactCode, tailwindCode }: any) {
   const [selections, setSelections] = useState<Record<string,string>>(() => {
     const init: Record<string,string> = {}
     ;(variantProperties||[]).forEach((p: VariantProp) => { init[p.name] = p.values[0] || "" })
@@ -98,30 +102,65 @@ function Playground({ htmlCode, cssCode, svgCode, width, height, variantProperti
   const [copied, setCopied] = useState(false)
   const setVal = (name: string, val: string) => setSelections(s => ({...s, [name]: val}))
 
-  // Build code snippet with current prop values injected
+  // Match the active variantStyle based on current selections
+  const activeVs = React.useMemo(() => {
+    if (!variantStyles?.length) return null
+    const selEntries = Object.entries(selections)
+    // Try to find a variant whose name includes all selected values
+    return variantStyles.find((vs: any) => {
+      return selEntries.every(([k,v]) => vs.name.toLowerCase().includes(v.toLowerCase()))
+    }) || variantStyles[0]
+  }, [selections, variantStyles])
+
+  // Build a single-button HTML from the matched variantStyle
+  const liveHtml = React.useMemo(() => {
+    if (!activeVs) return htmlCode || ""
+    const vs = activeVs
+    const parts: string[] = [
+      `display:inline-flex`, `align-items:center`, `justify-content:center`,
+      `box-sizing:border-box`, `white-space:nowrap`,
+      `border:${vs.border || "none"}`,
+      `border-radius:${vs.borderRadius || "6px"}`,
+      `padding:${vs.padding || "8px 16px"}`,
+      `background:${vs.background || "transparent"}`,
+      `color:${vs.textColor || "#18181b"}`,
+      `font-family:"${vs.fontFamily || "system-ui"}", system-ui`,
+      `font-size:${vs.fontSize || 14}px`,
+      `font-weight:${vs.fontWeight || 400}`,
+      vs.shadow ? `box-shadow:${vs.shadow}` : "",
+      (vs.opacity != null && vs.opacity < 1) ? `opacity:${vs.opacity};cursor:not-allowed;pointer-events:none` : `cursor:pointer`
+    ].filter(Boolean)
+    return `<button type="button" style="${parts.join(";")}">${vs.text || "Button"}</button>`
+  }, [activeVs, htmlCode])
+
+  // Build code snippet injecting current selections
   const buildCodeSnippet = (base: string) => {
     if (!base) return ""
     let code = base
     Object.entries(selections).forEach(([k, v]) => {
-      // Replace variant prop occurrences in the code
-      const propLower = k.toLowerCase()
-      code = code.replace(new RegExp(propLower + `=["'](\\w+)["']`, "g"), `${propLower}="${v}"`,)
-      code = code.replace(new RegExp(`${propLower} = ["'](\\w+)["']`, "g"), `${propLower} = "${v}"`,)
+      const propLower = k.toLowerCase().replace(/[^a-z0-9]/g, "")
+      const propVariant = propLower + "Variant"
+      ;[propLower, propVariant].forEach(prop => {
+        code = code.replace(
+          new RegExp(`(${prop})\\s*=\\s*["'](.*?)["']`, "g"),
+          `$1="${v}"`
+        )
+      })
     })
     return code
   }
 
-  const currentCode = codeTab === "tailwind" ? buildCodeSnippet(tailwindCode) : buildCodeSnippet(reactCode)
-  const propsStr = Object.entries(selections).map(([k,v]) => `${k}="${v}"`).join(" ")
-
-  const copyCode = () => { navigator.clipboard.writeText(currentCode); setCopied(true); setTimeout(()=>setCopied(false),2000) }
+  const currentCode = codeTab === "tailwind" ? buildCodeSnippet(tailwindCode||"") : buildCodeSnippet(reactCode||"")
+  const cn = (reactCode||"").match(/const (\w+)/)?.[1] || "Component"
+  const propsStr = Object.entries(selections).map(([k,v]) => `${k.toLowerCase().replace(/[^a-z0-9]/g,"")}="${v}"`).join(" ")
+  const copyCode = () => { navigator.clipboard.writeText(currentCode||""); setCopied(true); setTimeout(()=>setCopied(false),2000) }
 
   if (!variantProperties || variantProperties.length === 0) return (
     <div style={{ display:"flex", flexDirection:"column", gap:"16px" }}>
       <div style={{ padding:"16px", background:"#fafafa", borderRadius:"10px", border:"1px solid #e4e4e7", fontSize:"13px", color:"#71717a" }}>
         Este componente não tem variantes — preview do estado padrão.
       </div>
-      <ComponentPreview htmlCode={htmlCode} cssCode={cssCode} svgCode={svgCode} width={width} height={height} darkMode={darkMode} />
+      <ComponentPreview htmlCode={htmlCode} cssCode={cssCode} svgCode={svgCode} width={width} height={height} darkMode={darkMode} fontFamily={fontFamily} />
     </div>
   )
   return (
@@ -132,7 +171,7 @@ function Playground({ htmlCode, cssCode, svgCode, width, height, variantProperti
             <div style={{ fontSize:"11px", fontWeight:600, color:"#71717a", textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:"6px" }}>{prop.name}</div>
             <div style={{ display:"flex", gap:"4px", flexWrap:"wrap" }}>
               {prop.values.map((v: string) => (
-                <button key={v} onClick={() => setVal(prop.name, v)}
+                <button key={v} type="button" onClick={() => setVal(prop.name, v)}
                   style={{ fontSize:"12px", padding:"4px 10px", borderRadius:"6px", border: selections[prop.name]===v?"1.5px solid #18181b":"1px solid #e4e4e7", background:selections[prop.name]===v?"#18181b":"#fff", color:selections[prop.name]===v?"#fff":"#52525b", cursor:"pointer", fontFamily:"monospace" }}>{v}
                 </button>
               ))}
@@ -140,18 +179,19 @@ function Playground({ htmlCode, cssCode, svgCode, width, height, variantProperti
           </div>
         ))}
       </div>
-      <div style={{ fontSize:"11px", fontFamily:"monospace", color:"#a1a1aa", padding:"0 2px" }}>
-        &lt;{(reactCode||"Component").match(/const (w+)/)?.[1]||"Component"} {propsStr} /&gt;
+      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"0 2px" }}>
+        <code style={{ fontSize:"11px", color:"#a1a1aa" }}>&lt;{cn} {propsStr} /&gt;</code>
+        {activeVs && <span style={{ fontSize:"10px", color:"#d4d4d8", fontFamily:"monospace" }}>{activeVs.name}</span>}
       </div>
-      <ComponentPreview htmlCode={htmlCode} cssCode={cssCode} svgCode={svgCode} width={width} height={height} darkMode={darkMode} />
+      <ComponentPreview htmlCode={liveHtml} cssCode={cssCode} svgCode={svgCode} width={width} height={height} darkMode={darkMode} fontFamily={fontFamily} />
       <div style={{ border:"1px solid #e4e4e7", borderRadius:"10px", overflow:"hidden" }}>
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", borderBottom:"1px solid #e4e4e7", background:"#fafafa", padding:"0 14px" }}>
           <div style={{ display:"flex" }}>
             {(["tailwind","react"] as const).filter(t => t==="tailwind"?!!tailwindCode:!!reactCode).map(t => (
-              <button key={t} onClick={()=>setCodeTab(t)} style={{ padding:"8px 12px", fontSize:"12px", fontWeight:codeTab===t?600:400, color:codeTab===t?"#18181b":"#71717a", background:"none", border:"none", borderBottom:codeTab===t?"2px solid #18181b":"2px solid transparent", cursor:"pointer", marginBottom:"-1px" }}>{t}</button>
+              <button key={t} type="button" onClick={()=>setCodeTab(t)} style={{ padding:"8px 12px", fontSize:"12px", fontWeight:codeTab===t?600:400, color:codeTab===t?"#18181b":"#71717a", background:"none", border:"none", borderBottom:codeTab===t?"2px solid #18181b":"2px solid transparent", cursor:"pointer", marginBottom:"-1px" }}>{t}</button>
             ))}
           </div>
-          <button onClick={copyCode} style={{ fontSize:"11px", color:copied?"#16a34a":"#71717a", background:copied?"#f0fdf4":"transparent", border:"none", cursor:"pointer", padding:"4px 8px", borderRadius:"5px" }}>
+          <button type="button" onClick={copyCode} style={{ fontSize:"11px", color:copied?"#16a34a":"#71717a", background:copied?"#f0fdf4":"transparent", border:"none", cursor:"pointer", padding:"4px 8px", borderRadius:"5px" }}>
             {copied ? "✓ Copiado!" : "Copiar"}
           </button>
         </div>
@@ -268,7 +308,7 @@ function A11yTable({ a11y }: { a11y: A11yHint[] }) {
   )
 }
 
-function ComponentDoc({ name,description,figmaUrl,status,category,version,lastUpdated,darkMode,width,height,reactCode,tailwindCode,htmlCode,cssCode,svgCode,aiCode,tokens,variantProperties,anatomy,a11y }: ComponentDocProps) {
+function ComponentDoc({ name,description,figmaUrl,status,category,version,lastUpdated,darkMode,width,height,reactCode,tailwindCode,htmlCode,cssCode,svgCode,aiCode,tokens,variantProperties,variantStyles,anatomy,a11y,fontFamily }: ComponentDocProps) {
   const [docTab,setDocTab] = useState<DocTab>("overview")
   const [codeTab,setCodeTab] = useState<CodeTab>("tailwind")
   const [hoveredNode,setHoveredNode] = useState<number|null>(null)
@@ -325,7 +365,7 @@ function ComponentDoc({ name,description,figmaUrl,status,category,version,lastUp
       <div style={{ paddingTop:"24px" }}>
         {docTab==="overview"&&(
           <div style={{ display:"flex",flexDirection:"column",gap:"24px" }}>
-            <ComponentPreview htmlCode={htmlCode} cssCode={cssCode} svgCode={svgCode} width={width} height={height} darkMode={darkMode} />
+            <ComponentPreview htmlCode={htmlCode} cssCode={cssCode} svgCode={svgCode} width={width} height={height} darkMode={darkMode} fontFamily={fontFamily} />
             {variantProperties&&variantProperties.length>0&&(
               <div>
                 <div style={{ fontSize:"12px",fontWeight:600,color:"#71717a",textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"10px" }}>Variantes</div>
@@ -359,13 +399,13 @@ function ComponentDoc({ name,description,figmaUrl,status,category,version,lastUp
             </div>
           </div>
         )}
-        {docTab==="playground"&&<Playground htmlCode={htmlCode} cssCode={cssCode} svgCode={svgCode} width={width} height={height} variantProperties={variantProperties} reactCode={reactCode} tailwindCode={tailwindCode} />}
+        {docTab==="playground"&&<Playground htmlCode={htmlCode} cssCode={cssCode} svgCode={svgCode} width={width} height={height} variantProperties={variantProperties} reactCode={reactCode} tailwindCode={tailwindCode} variantStyles={variantStyles} />}
         {docTab==="variants"&&(
           <div style={{ display:"flex",flexDirection:"column",gap:"24px" }}>
             {!variantProperties||variantProperties.length===0?(
               <div style={{ display:"flex",flexDirection:"column",gap:"12px" }}>
                 <p style={{ margin:0,fontSize:"13px",color:"#71717a" }}>Componente sem variantes — renderização do estado padrão.</p>
-                <ComponentPreview htmlCode={htmlCode} cssCode={cssCode} svgCode={svgCode} width={width} height={height} darkMode={darkMode} />
+                <ComponentPreview htmlCode={htmlCode} cssCode={cssCode} svgCode={svgCode} width={width} height={height} darkMode={darkMode} fontFamily={fontFamily} />
               </div>
             ):variantProperties.map((prop:VariantProp,pi:number)=>(
               <div key={pi}>
@@ -450,27 +490,23 @@ function ComponentDoc({ name,description,figmaUrl,status,category,version,lastUp
 const globalTokens = {
   colors: [
     "#9747ff",
-    "#366d2b",
+    "#0b1641",
     "#d9d9d9",
-    "#ffffff",
-    "#e7ae03",
-    "#1c1b1f",
-    "#262626",
-    "#da0202"
+    "#262626"
   ],
   typography: [
-    { fontFamily: "Avenir Next LT Pro", fontSize: 12, fontWeight: "Regular" },
-    { fontFamily: "Avenir Next LT Pro", fontSize: 16, fontWeight: "Demi" }
+    { fontFamily: "Avenir Next LT Pro", fontSize: 16, fontWeight: "Light" }
   ],
   borderRadius: [
     "5px",
-    "8px"
+    "1000px"
   ],
   shadows: [],
   spacing: [
+    "4px",
     "8px",
-    "12px",
-    "40px"
+    "16px",
+    "24px"
   ]
 }
 
@@ -562,9 +598,10 @@ const navItems = [
   { id: "Control", label: "Control", category: "Control", status: "stable" },
   { id: "Accordion", label: "Accordion", category: "Accordion", status: "stable" },
   { id: "Dropdown", label: "Dropdown", category: "Dropdown", status: "stable" },
-  { id: "Button", label: "Button", category: "âªï¸  Buttons", status: "stable" },
+  { id: "Button", label: "Button", category: "Ã¢ÂÂªÃ¯Â¸Â  Buttons", status: "stable" },
   { id: "Breadchumb", label: "Breadchumb", category: "Colors", status: "stable" },
-  { id: "Toast", label: "Toast", category: "Toast", status: "stable" }
+  { id: "Toast", label: "Toast", category: "Toast", status: "stable" },
+  { id: "Tag", label: "Tag", category: "Tag", status: "stable" }
 ]
 const componentNames = navItems.map(i=>i.id)
 
@@ -951,6 +988,252 @@ export default function App() {
             {activeSection==="installation"&&<InstallationPage />}
             {activeSection==="tokens"&&<GlobalTokensPage />}
             {activeSection==="insights"&&<InsightsPage />}
+      {activeSection === "Tag" && (
+        <ComponentDoc
+          key="Tag"
+          name="Tag"
+          description=""
+          figmaUrl="https://figma.com/file/undefined?node-id=70-1478"
+          status="stable"
+          category="Tag"
+          version={componentMeta["Tag"]?.version}
+          lastUpdated={componentMeta["Tag"]?.lastUpdated}
+          darkMode={darkMode}
+          fontFamily="Avenir Next LT Pro"
+          width={182}
+          height={254}
+          reactCode={`// @ts-nocheck
+import * as React from "react"
+
+export interface TagProps {
+  typeVariant?: "Default" | "Icon"
+  sizeVariant?: "Large" | "Small"
+  className?: string
+  children?: React.ReactNode
+}
+
+const Tag = React.forwardRef<HTMLDivElement, TagProps>(
+  ({ typeVariant = "Default", sizeVariant = "Large", className, children, typeVariant, sizeVariant, ...props }, ref) => {
+    return (
+      <span
+      ref={ref}
+      className={className}
+      style={{ display: "inline-flex", alignItems: "center", padding: "2px 8px", borderRadius: "5px", background: "#9747ff", color: "#ffffff", fontSize: "11px", fontWeight: 600, fontFamily: "Avenir Next LT Pro" }}
+      {...props}
+    >
+      {children ?? "Tag"}
+    </span>
+    );
+  }
+)
+Tag.displayName = "Tag"
+
+export { Tag }
+export default Tag`}
+          tailwindCode={`// @ts-nocheck
+import * as React from "react"
+import { cva, type VariantProps } from "class-variance-authority"
+import { cn } from "@/lib/utils"
+
+
+const variants = cva("inline-flex items-center justify-center rounded w-[182px] h-[254px]", {
+  variants: {
+    type: {
+      default: "",
+      icon: "",
+    },
+    size: {
+      large: "",
+      small: "",
+    },
+  },
+  defaultVariants: {
+  },
+})
+
+
+export interface TagProps extends VariantProps<typeof variants> {
+  className?: string
+  children?: React.ReactNode
+}
+
+export function Tag({ className, children, ...props }: TagProps) {
+  return (
+    <div className={cn(variants(props), className)}>
+      {children}
+    </div>
+  )
+}
+
+export default Tag`}
+          htmlCode={`<div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;padding:24px;font-family:system-ui">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><button style="display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;white-space:nowrap;font-family:'Avenir Next LT Pro', system-ui;cursor:pointer;border:1px solid #0b1641;border-radius:1000px;padding:8px 24px 8px 24px;color:#0b1641;font-size:16px;font-weight:400;min-width:109px;min-height:35px">Analytcs</button><span style="font-size:10px;color:#a1a1aa;font-family:monospace">Type=Default, Size=Large</span></div>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><button style="display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;white-space:nowrap;font-family:'Avenir Next LT Pro', system-ui;cursor:pointer;border:1px solid #0b1641;border-radius:1000px;padding:4px 16px 4px 16px;color:#0b1641;font-size:16px;font-weight:400;min-width:93px;min-height:27px">Analytcs</button><span style="font-size:10px;color:#a1a1aa;font-family:monospace">Type=Default, Size=Small</span></div>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><button style="display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;white-space:nowrap;font-family:'Avenir Next LT Pro', system-ui;cursor:pointer;border:1px solid #0b1641;border-radius:1000px;padding:8px 24px 8px 24px;gap:8px;color:#0b1641;font-size:16px;font-weight:400;min-width:141px;min-height:40px">Analytcs</button><span style="font-size:10px;color:#a1a1aa;font-family:monospace">Type=Icon, Size=Large</span></div>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><button style="display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;white-space:nowrap;font-family:'Avenir Next LT Pro', system-ui;cursor:pointer;border:1px solid #0b1641;border-radius:1000px;padding:4px 16px 4px 16px;gap:8px;color:#0b1641;font-size:16px;font-weight:400;min-width:125px;min-height:32px">Analytcs</button><span style="font-size:10px;color:#a1a1aa;font-family:monospace">Type=Icon, Size=Small</span></div>
+</div>`}
+          cssCode={`:root {
+  --color-primary: #9747ff;
+  --color-secondary: #0b1641;
+  --color-accent-2: #d9d9d9;
+  --color-accent-3: #262626;
+  --radius: 5px;
+}
+
+.root {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-sizing: border-box;
+  width: 182px;
+  height: 254px;
+  border-radius: var(--radius, 5px);
+  font-family: "Avenir Next LT Pro", system-ui, sans-serif;
+  font-size: 16px;
+  overflow: hidden;
+}
+
+.root svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}`}
+          svgCode={`<svg width="182" height="254" viewBox="0 0 182 254" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="0.5" y="0.5" width="181" height="253" rx="4.5" stroke="#9747FF" stroke-dasharray="10 5"/>
+<path d="M53.5 20.5H127.5C136.889 20.5 144.5 28.1112 144.5 37.5C144.5 46.8888 136.889 54.5 127.5 54.5H53.5C44.1112 54.5 36.5 46.8888 36.5 37.5C36.5 28.1112 44.1112 20.5 53.5 20.5Z" stroke="#0B1641"/>
+<path d="M65.1016 31.6719H66.0156L70.8281 43H69.8203L68.5469 39.9453H62.4766L61.2031 43H60.1953L65.1016 31.6719ZM68.2109 39.1094L65.5391 32.6328L62.8125 39.1094H68.2109ZM72.5547 37.2578C72.5547 37.0443 72.5469 36.7708 72.5312 36.4375C72.5208 36.099 72.5052 35.8021 72.4844 35.5469H73.3203C73.3411 35.7604 73.3568 36.0104 73.3672 36.2969C73.3776 36.5833 73.3828 36.8281 73.3828 37.0312H73.4141C73.5234 36.776 73.6693 36.5443 73.8516 36.3359C74.0391 36.1276 74.2526 35.9531 74.4922 35.8125C74.7318 35.6667 74.987 35.5547 75.2578 35.4766C75.5339 35.3932 75.8099 35.3516 76.0859 35.3516C76.5755 35.3516 76.9948 35.4323 77.3438 35.5938C77.6979 35.75 77.987 35.9688 78.2109 36.25C78.4401 36.526 78.6068 36.8542 78.7109 37.2344C78.8151 37.6094 78.8672 38.0156 78.8672 38.4531V43H78.0078V38.7734C78.0078 38.4141 77.974 38.0703 77.9062 37.7422C77.8438 37.4089 77.7318 37.1224 77.5703 36.8828C77.4141 36.6432 77.1979 36.4505 76.9219 36.3047C76.651 36.1589 76.3099 36.0859 75.8984 36.0859C75.5755 36.0859 75.263 36.151 74.9609 36.2812C74.6641 36.4062 74.401 36.6016 74.1719 36.8672C73.9427 37.1276 73.7604 37.4531 73.625 37.8438C73.4948 38.2292 73.4297 38.6849 73.4297 39.2109V43H72.5547V37.2578ZM81.2266 40.9844C81.2266 40.4531 81.3568 40.0234 81.6172 39.6953C81.8776 39.362 82.2214 39.1068 82.6484 38.9297C83.0755 38.7526 83.5573 38.6354 84.0938 38.5781C84.6354 38.5156 85.1875 38.4844 85.75 38.4844H86.5078V38.1484C86.5078 37.4453 86.3229 36.9245 85.9531 36.5859C85.5833 36.2422 85.0625 36.0703 84.3906 36.0703C83.9427 36.0703 83.5286 36.151 83.1484 36.3125C82.7734 36.474 82.4479 36.6875 82.1719 36.9531L81.6875 36.375C82 36.0677 82.3984 35.8203 82.8828 35.6328C83.3672 35.4453 83.8984 35.3516 84.4766 35.3516C84.888 35.3516 85.2682 35.4089 85.6172 35.5234C85.9661 35.6328 86.2682 35.7995 86.5234 36.0234C86.7786 36.2474 86.9766 36.5286 87.1172 36.8672C87.263 37.2005 87.3359 37.5964 87.3359 38.0547V41.3203C87.3359 41.6068 87.3464 41.9062 87.3672 42.2188C87.388 42.526 87.4219 42.7865 87.4688 43H86.6797C86.6484 42.8073 86.6198 42.5807 86.5938 42.3203C86.5677 42.0599 86.5547 41.8281 86.5547 41.625H86.5234C86.2109 42.1667 85.8281 42.5677 85.375 42.8281C84.9219 43.0833 84.3906 43.2109 83.7812 43.2109C83.4948 43.2109 83.1979 43.1693 82.8906 43.0859C82.5885 43.0078 82.3151 42.8776 82.0703 42.6953C81.8255 42.513 81.6224 42.2839 81.4609 42.0078C81.3047 41.7318 81.2266 41.3906 81.2266 40.9844ZM86.5078 39.7812V39.1797H85.9453C85.5078 39.1797 85.0651 39.1979 84.6172 39.2344C84.1693 39.2708 83.7578 39.3516 83.3828 39.4766C83.013 39.5964 82.7083 39.7734 82.4688 40.0078C82.2344 40.2422 82.1172 40.5521 82.1172 40.9375C82.1172 41.224 82.1719 41.4688 82.2812 41.6719C82.3958 41.875 82.5443 42.0365 82.7266 42.1562C82.9089 42.2708 83.1094 42.3542 83.3281 42.4062C83.5469 42.4583 83.7682 42.4844 83.9922 42.4844C84.4193 42.4844 84.7917 42.4089 85.1094 42.2578C85.4323 42.1016 85.6953 41.8984 85.8984 41.6484C86.1016 41.3984 86.2526 41.112 86.3516 40.7891C86.4557 40.4609 86.5078 40.125 86.5078 39.7812ZM90.2578 30.9062H91.1172V43H90.2578V30.9062ZM93.1016 46.7422L93.2188 45.9609C93.4531 46.0443 93.6979 46.0859 93.9531 46.0859C94.349 46.0859 94.6536 45.9583 94.8672 45.7031C95.0807 45.4479 95.2604 45.1224 95.4062 44.7266L96.0469 43.0469L92.9297 35.5469H93.9062L96.5 42.1172L96.5312 42.0859L98.9297 35.5469H99.875L96.1641 45.0781C95.9505 45.625 95.6797 46.0573 95.3516 46.375C95.0286 46.6979 94.5729 46.8594 93.9844 46.8594C93.8333 46.8594 93.6823 46.8464 93.5312 46.8203C93.3854 46.7995 93.2422 46.7734 93.1016 46.7422ZM101.883 41.2109V36.2812H100.312V35.5469H101.867V33.4141H102.75V35.5469H104.875V36.2812H102.75V41C102.75 41.5312 102.859 41.8932 103.078 42.0859C103.297 42.2786 103.581 42.375 103.93 42.375C104.253 42.375 104.557 42.3073 104.844 42.1719L104.891 42.9219C104.708 42.9844 104.521 43.0339 104.328 43.0703C104.141 43.1068 103.935 43.125 103.711 43.125C103.487 43.125 103.266 43.0938 103.047 43.0312C102.828 42.9688 102.633 42.862 102.461 42.7109C102.289 42.5599 102.148 42.362 102.039 42.1172C101.935 41.8724 101.883 41.5703 101.883 41.2109ZM106.133 39.2734C106.133 38.7057 106.227 38.1823 106.414 37.7031C106.602 37.224 106.865 36.8125 107.203 36.4688C107.547 36.1198 107.953 35.8464 108.422 35.6484C108.891 35.4505 109.411 35.3516 109.984 35.3516C110.531 35.3516 111.034 35.4479 111.492 35.6406C111.951 35.8333 112.333 36.1276 112.641 36.5234L112.07 37.0469C111.846 36.7604 111.547 36.5312 111.172 36.3594C110.797 36.1875 110.406 36.1016 110 36.1016C109.552 36.1016 109.143 36.1849 108.773 36.3516C108.409 36.5182 108.096 36.7422 107.836 37.0234C107.576 37.3047 107.375 37.638 107.234 38.0234C107.099 38.4089 107.031 38.8255 107.031 39.2734C107.031 39.7214 107.099 40.138 107.234 40.5234C107.375 40.9036 107.573 41.237 107.828 41.5234C108.083 41.8047 108.391 42.026 108.75 42.1875C109.115 42.3438 109.521 42.4219 109.969 42.4219C110.427 42.4219 110.836 42.3438 111.195 42.1875C111.555 42.026 111.872 41.8073 112.148 41.5312L112.695 42.0234C112.372 42.3984 111.984 42.6901 111.531 42.8984C111.078 43.1068 110.557 43.2109 109.969 43.2109C109.385 43.2109 108.857 43.112 108.383 42.9141C107.914 42.7161 107.51 42.4427 107.172 42.0938C106.839 41.7396 106.581 41.3229 106.398 40.8438C106.221 40.3594 106.133 39.8359 106.133 39.2734ZM113.766 41.7969L114.453 41.3047C114.667 41.6432 114.961 41.9193 115.336 42.1328C115.716 42.3464 116.138 42.4531 116.602 42.4531C116.836 42.4531 117.062 42.4271 117.281 42.375C117.5 42.3229 117.693 42.2396 117.859 42.125C118.031 42.0052 118.169 41.8516 118.273 41.6641C118.383 41.4766 118.438 41.2552 118.438 41C118.438 40.6719 118.331 40.4167 118.117 40.2344C117.904 40.0521 117.635 39.9062 117.312 39.7969C116.995 39.6823 116.646 39.5833 116.266 39.5C115.891 39.4115 115.542 39.2917 115.219 39.1406C114.901 38.9844 114.635 38.776 114.422 38.5156C114.208 38.25 114.102 37.888 114.102 37.4297C114.102 37.0703 114.172 36.7604 114.312 36.5C114.458 36.2344 114.648 36.0182 114.883 35.8516C115.117 35.6797 115.388 35.5547 115.695 35.4766C116.008 35.3932 116.326 35.3516 116.648 35.3516C117.19 35.3516 117.682 35.4609 118.125 35.6797C118.568 35.8984 118.911 36.2109 119.156 36.6172L118.484 37.0938C118.302 36.7865 118.047 36.5391 117.719 36.3516C117.396 36.1641 117.029 36.0703 116.617 36.0703C116.424 36.0703 116.227 36.0964 116.023 36.1484C115.82 36.1953 115.638 36.2734 115.477 36.3828C115.315 36.487 115.185 36.6198 115.086 36.7812C114.987 36.9375 114.938 37.1328 114.938 37.3672C114.938 37.7839 115.094 38.0938 115.406 38.2969C115.719 38.5 116.185 38.6641 116.805 38.7891C117.607 38.9714 118.224 39.224 118.656 39.5469C119.089 39.8646 119.305 40.3281 119.305 40.9375C119.305 41.3333 119.227 41.6719 119.07 41.9531C118.914 42.2344 118.711 42.4688 118.461 42.6562C118.211 42.8438 117.922 42.9792 117.594 43.0625C117.271 43.151 116.94 43.1953 116.602 43.1953C116.023 43.1953 115.484 43.0833 114.984 42.8594C114.49 42.6354 114.083 42.2812 113.766 41.7969Z" fill="#0B1641"/>
+<path d="M49.5 143.5H115.5C122.68 143.5 128.5 149.32 128.5 156.5C128.5 163.68 122.68 169.5 115.5 169.5H49.5C42.3203 169.5 36.5 163.68 36.5 156.5C36.5 149.32 42.3203 143.5 49.5 143.5Z" stroke="#0B1641"/>
+<path d="M57.1016 150.672H58.0156L62.8281 162H61.8203L60.5469 158.945H54.4766L53.2031 162H52.1953L57.1016 150.672ZM60.2109 158.109L57.5391 151.633L54.8125 158.109H60.2109ZM64.5547 156.258C64.5547 156.044 64.5469 155.771 64.5312 155.438C64.5208 155.099 64.5052 154.802 64.4844 154.547H65.3203C65.3411 154.76 65.3568 155.01 65.3672 155.297C65.3776 155.583 65.3828 155.828 65.3828 156.031H65.4141C65.5234 155.776 65.6693 155.544 65.8516 155.336C66.0391 155.128 66.2526 154.953 66.4922 154.812C66.7318 154.667 66.987 154.555 67.2578 154.477C67.5339 154.393 67.8099 154.352 68.0859 154.352C68.5755 154.352 68.9948 154.432 69.3438 154.594C69.6979 154.75 69.987 154.969 70.2109 155.25C70.4401 155.526 70.6068 155.854 70.7109 156.234C70.8151 156.609 70.8672 157.016 70.8672 157.453V162H70.0078V157.773C70.0078 157.414 69.974 157.07 69.9062 156.742C69.8438 156.409 69.7318 156.122 69.5703 155.883C69.4141 155.643 69.1979 155.451 68.9219 155.305C68.651 155.159 68.3099 155.086 67.8984 155.086C67.5755 155.086 67.263 155.151 66.9609 155.281C66.6641 155.406 66.401 155.602 66.1719 155.867C65.9427 156.128 65.7604 156.453 65.625 156.844C65.4948 157.229 65.4297 157.685 65.4297 158.211V162H64.5547V156.258ZM73.2266 159.984C73.2266 159.453 73.3568 159.023 73.6172 158.695C73.8776 158.362 74.2214 158.107 74.6484 157.93C75.0755 157.753 75.5573 157.635 76.0938 157.578C76.6354 157.516 77.1875 157.484 77.75 157.484H78.5078V157.148C78.5078 156.445 78.3229 155.924 77.9531 155.586C77.5833 155.242 77.0625 155.07 76.3906 155.07C75.9427 155.07 75.5286 155.151 75.1484 155.312C74.7734 155.474 74.4479 155.688 74.1719 155.953L73.6875 155.375C74 155.068 74.3984 154.82 74.8828 154.633C75.3672 154.445 75.8984 154.352 76.4766 154.352C76.888 154.352 77.2682 154.409 77.6172 154.523C77.9661 154.633 78.2682 154.799 78.5234 155.023C78.7786 155.247 78.9766 155.529 79.1172 155.867C79.263 156.201 79.3359 156.596 79.3359 157.055V160.32C79.3359 160.607 79.3464 160.906 79.3672 161.219C79.388 161.526 79.4219 161.786 79.4688 162H78.6797C78.6484 161.807 78.6198 161.581 78.5938 161.32C78.5677 161.06 78.5547 160.828 78.5547 160.625H78.5234C78.2109 161.167 77.8281 161.568 77.375 161.828C76.9219 162.083 76.3906 162.211 75.7812 162.211C75.4948 162.211 75.1979 162.169 74.8906 162.086C74.5885 162.008 74.3151 161.878 74.0703 161.695C73.8255 161.513 73.6224 161.284 73.4609 161.008C73.3047 160.732 73.2266 160.391 73.2266 159.984ZM78.5078 158.781V158.18H77.9453C77.5078 158.18 77.0651 158.198 76.6172 158.234C76.1693 158.271 75.7578 158.352 75.3828 158.477C75.013 158.596 74.7083 158.773 74.4688 159.008C74.2344 159.242 74.1172 159.552 74.1172 159.938C74.1172 160.224 74.1719 160.469 74.2812 160.672C74.3958 160.875 74.5443 161.036 74.7266 161.156C74.9089 161.271 75.1094 161.354 75.3281 161.406C75.5469 161.458 75.7682 161.484 75.9922 161.484C76.4193 161.484 76.7917 161.409 77.1094 161.258C77.4323 161.102 77.6953 160.898 77.8984 160.648C78.1016 160.398 78.2526 160.112 78.3516 159.789C78.4557 159.461 78.5078 159.125 78.5078 158.781ZM82.2578 149.906H83.1172V162H82.2578V149.906ZM85.1016 165.742L85.2188 164.961C85.4531 165.044 85.6979 165.086 85.9531 165.086C86.349 165.086 86.6536 164.958 86.8672 164.703C87.0807 164.448 87.2604 164.122 87.4062 163.727L88.0469 162.047L84.9297 154.547H85.9062L88.5 161.117L88.5312 161.086L90.9297 154.547H91.875L88.1641 164.078C87.9505 164.625 87.6797 165.057 87.3516 165.375C87.0286 165.698 86.5729 165.859 85.9844 165.859C85.8333 165.859 85.6823 165.846 85.5312 165.82C85.3854 165.799 85.2422 165.773 85.1016 165.742ZM93.8828 160.211V155.281H92.3125V154.547H93.8672V152.414H94.75V154.547H96.875V155.281H94.75V160C94.75 160.531 94.8594 160.893 95.0781 161.086C95.2969 161.279 95.5807 161.375 95.9297 161.375C96.2526 161.375 96.5573 161.307 96.8438 161.172L96.8906 161.922C96.7083 161.984 96.5208 162.034 96.3281 162.07C96.1406 162.107 95.9349 162.125 95.7109 162.125C95.487 162.125 95.2656 162.094 95.0469 162.031C94.8281 161.969 94.6328 161.862 94.4609 161.711C94.2891 161.56 94.1484 161.362 94.0391 161.117C93.9349 160.872 93.8828 160.57 93.8828 160.211ZM98.1328 158.273C98.1328 157.706 98.2266 157.182 98.4141 156.703C98.6016 156.224 98.8646 155.812 99.2031 155.469C99.5469 155.12 99.9531 154.846 100.422 154.648C100.891 154.451 101.411 154.352 101.984 154.352C102.531 154.352 103.034 154.448 103.492 154.641C103.951 154.833 104.333 155.128 104.641 155.523L104.07 156.047C103.846 155.76 103.547 155.531 103.172 155.359C102.797 155.188 102.406 155.102 102 155.102C101.552 155.102 101.143 155.185 100.773 155.352C100.409 155.518 100.096 155.742 99.8359 156.023C99.5755 156.305 99.375 156.638 99.2344 157.023C99.099 157.409 99.0312 157.826 99.0312 158.273C99.0312 158.721 99.099 159.138 99.2344 159.523C99.375 159.904 99.5729 160.237 99.8281 160.523C100.083 160.805 100.391 161.026 100.75 161.188C101.115 161.344 101.521 161.422 101.969 161.422C102.427 161.422 102.836 161.344 103.195 161.188C103.555 161.026 103.872 160.807 104.148 160.531L104.695 161.023C104.372 161.398 103.984 161.69 103.531 161.898C103.078 162.107 102.557 162.211 101.969 162.211C101.385 162.211 100.857 162.112 100.383 161.914C99.9141 161.716 99.5104 161.443 99.1719 161.094C98.8385 160.74 98.5807 160.323 98.3984 159.844C98.2214 159.359 98.1328 158.836 98.1328 158.273ZM105.766 160.797L106.453 160.305C106.667 160.643 106.961 160.919 107.336 161.133C107.716 161.346 108.138 161.453 108.602 161.453C108.836 161.453 109.062 161.427 109.281 161.375C109.5 161.323 109.693 161.24 109.859 161.125C110.031 161.005 110.169 160.852 110.273 160.664C110.383 160.477 110.438 160.255 110.438 160C110.438 159.672 110.331 159.417 110.117 159.234C109.904 159.052 109.635 158.906 109.312 158.797C108.995 158.682 108.646 158.583 108.266 158.5C107.891 158.411 107.542 158.292 107.219 158.141C106.901 157.984 106.635 157.776 106.422 157.516C106.208 157.25 106.102 156.888 106.102 156.43C106.102 156.07 106.172 155.76 106.312 155.5C106.458 155.234 106.648 155.018 106.883 154.852C107.117 154.68 107.388 154.555 107.695 154.477C108.008 154.393 108.326 154.352 108.648 154.352C109.19 154.352 109.682 154.461 110.125 154.68C110.568 154.898 110.911 155.211 111.156 155.617L110.484 156.094C110.302 155.786 110.047 155.539 109.719 155.352C109.396 155.164 109.029 155.07 108.617 155.07C108.424 155.07 108.227 155.096 108.023 155.148C107.82 155.195 107.638 155.273 107.477 155.383C107.315 155.487 107.185 155.62 107.086 155.781C106.987 155.938 106.938 156.133 106.938 156.367C106.938 156.784 107.094 157.094 107.406 157.297C107.719 157.5 108.185 157.664 108.805 157.789C109.607 157.971 110.224 158.224 110.656 158.547C111.089 158.865 111.305 159.328 111.305 159.938C111.305 160.333 111.227 160.672 111.07 160.953C110.914 161.234 110.711 161.469 110.461 161.656C110.211 161.844 109.922 161.979 109.594 162.062C109.271 162.151 108.94 162.195 108.602 162.195C108.023 162.195 107.484 162.083 106.984 161.859C106.49 161.635 106.083 161.281 105.766 160.797Z" fill="#0B1641"/>
+<path d="M40 79.5H141C151.77 79.5 160.5 88.2304 160.5 99C160.5 109.77 151.77 118.5 141 118.5H40C29.2304 118.5 20.5 109.77 20.5 99C20.5 88.2304 29.2304 79.5 40 79.5Z" stroke="#0B1641"/>
+<path d="M49.1016 93.1719H50.0156L54.8281 104.5H53.8203L52.5469 101.445H46.4766L45.2031 104.5H44.1953L49.1016 93.1719ZM52.2109 100.609L49.5391 94.1328L46.8125 100.609H52.2109ZM56.5547 98.7578C56.5547 98.5443 56.5469 98.2708 56.5312 97.9375C56.5208 97.599 56.5052 97.3021 56.4844 97.0469H57.3203C57.3411 97.2604 57.3568 97.5104 57.3672 97.7969C57.3776 98.0833 57.3828 98.3281 57.3828 98.5312H57.4141C57.5234 98.276 57.6693 98.0443 57.8516 97.8359C58.0391 97.6276 58.2526 97.4531 58.4922 97.3125C58.7318 97.1667 58.987 97.0547 59.2578 96.9766C59.5339 96.8932 59.8099 96.8516 60.0859 96.8516C60.5755 96.8516 60.9948 96.9323 61.3438 97.0938C61.6979 97.25 61.987 97.4688 62.2109 97.75C62.4401 98.026 62.6068 98.3542 62.7109 98.7344C62.8151 99.1094 62.8672 99.5156 62.8672 99.9531V104.5H62.0078V100.273C62.0078 99.9141 61.974 99.5703 61.9062 99.2422C61.8438 98.9089 61.7318 98.6224 61.5703 98.3828C61.4141 98.1432 61.1979 97.9505 60.9219 97.8047C60.651 97.6589 60.3099 97.5859 59.8984 97.5859C59.5755 97.5859 59.263 97.651 58.9609 97.7812C58.6641 97.9062 58.401 98.1016 58.1719 98.3672C57.9427 98.6276 57.7604 98.9531 57.625 99.3438C57.4948 99.7292 57.4297 100.185 57.4297 100.711V104.5H56.5547V98.7578ZM65.2266 102.484C65.2266 101.953 65.3568 101.523 65.6172 101.195C65.8776 100.862 66.2214 100.607 66.6484 100.43C67.0755 100.253 67.5573 100.135 68.0938 100.078C68.6354 100.016 69.1875 99.9844 69.75 99.9844H70.5078V99.6484C70.5078 98.9453 70.3229 98.4245 69.9531 98.0859C69.5833 97.7422 69.0625 97.5703 68.3906 97.5703C67.9427 97.5703 67.5286 97.651 67.1484 97.8125C66.7734 97.974 66.4479 98.1875 66.1719 98.4531L65.6875 97.875C66 97.5677 66.3984 97.3203 66.8828 97.1328C67.3672 96.9453 67.8984 96.8516 68.4766 96.8516C68.888 96.8516 69.2682 96.9089 69.6172 97.0234C69.9661 97.1328 70.2682 97.2995 70.5234 97.5234C70.7786 97.7474 70.9766 98.0286 71.1172 98.3672C71.263 98.7005 71.3359 99.0964 71.3359 99.5547V102.82C71.3359 103.107 71.3464 103.406 71.3672 103.719C71.388 104.026 71.4219 104.286 71.4688 104.5H70.6797C70.6484 104.307 70.6198 104.081 70.5938 103.82C70.5677 103.56 70.5547 103.328 70.5547 103.125H70.5234C70.2109 103.667 69.8281 104.068 69.375 104.328C68.9219 104.583 68.3906 104.711 67.7812 104.711C67.4948 104.711 67.1979 104.669 66.8906 104.586C66.5885 104.508 66.3151 104.378 66.0703 104.195C65.8255 104.013 65.6224 103.784 65.4609 103.508C65.3047 103.232 65.2266 102.891 65.2266 102.484ZM70.5078 101.281V100.68H69.9453C69.5078 100.68 69.0651 100.698 68.6172 100.734C68.1693 100.771 67.7578 100.852 67.3828 100.977C67.013 101.096 66.7083 101.273 66.4688 101.508C66.2344 101.742 66.1172 102.052 66.1172 102.438C66.1172 102.724 66.1719 102.969 66.2812 103.172C66.3958 103.375 66.5443 103.536 66.7266 103.656C66.9089 103.771 67.1094 103.854 67.3281 103.906C67.5469 103.958 67.7682 103.984 67.9922 103.984C68.4193 103.984 68.7917 103.909 69.1094 103.758C69.4323 103.602 69.6953 103.398 69.8984 103.148C70.1016 102.898 70.2526 102.612 70.3516 102.289C70.4557 101.961 70.5078 101.625 70.5078 101.281ZM74.2578 92.4062H75.1172V104.5H74.2578V92.4062ZM77.1016 108.242L77.2188 107.461C77.4531 107.544 77.6979 107.586 77.9531 107.586C78.349 107.586 78.6536 107.458 78.8672 107.203C79.0807 106.948 79.2604 106.622 79.4062 106.227L80.0469 104.547L76.9297 97.0469H77.9062L80.5 103.617L80.5312 103.586L82.9297 97.0469H83.875L80.1641 106.578C79.9505 107.125 79.6797 107.557 79.3516 107.875C79.0286 108.198 78.5729 108.359 77.9844 108.359C77.8333 108.359 77.6823 108.346 77.5312 108.32C77.3854 108.299 77.2422 108.273 77.1016 108.242ZM85.8828 102.711V97.7812H84.3125V97.0469H85.8672V94.9141H86.75V97.0469H88.875V97.7812H86.75V102.5C86.75 103.031 86.8594 103.393 87.0781 103.586C87.2969 103.779 87.5807 103.875 87.9297 103.875C88.2526 103.875 88.5573 103.807 88.8438 103.672L88.8906 104.422C88.7083 104.484 88.5208 104.534 88.3281 104.57C88.1406 104.607 87.9349 104.625 87.7109 104.625C87.487 104.625 87.2656 104.594 87.0469 104.531C86.8281 104.469 86.6328 104.362 86.4609 104.211C86.2891 104.06 86.1484 103.862 86.0391 103.617C85.9349 103.372 85.8828 103.07 85.8828 102.711ZM90.1328 100.773C90.1328 100.206 90.2266 99.6823 90.4141 99.2031C90.6016 98.724 90.8646 98.3125 91.2031 97.9688C91.5469 97.6198 91.9531 97.3464 92.4219 97.1484C92.8906 96.9505 93.4115 96.8516 93.9844 96.8516C94.5312 96.8516 95.0339 96.9479 95.4922 97.1406C95.9505 97.3333 96.3333 97.6276 96.6406 98.0234L96.0703 98.5469C95.8464 98.2604 95.5469 98.0312 95.1719 97.8594C94.7969 97.6875 94.4062 97.6016 94 97.6016C93.5521 97.6016 93.1432 97.6849 92.7734 97.8516C92.4089 98.0182 92.0964 98.2422 91.8359 98.5234C91.5755 98.8047 91.375 99.138 91.2344 99.5234C91.099 99.9089 91.0312 100.326 91.0312 100.773C91.0312 101.221 91.099 101.638 91.2344 102.023C91.375 102.404 91.5729 102.737 91.8281 103.023C92.0833 103.305 92.3906 103.526 92.75 103.688C93.1146 103.844 93.5208 103.922 93.9688 103.922C94.4271 103.922 94.8359 103.844 95.1953 103.688C95.5547 103.526 95.8724 103.307 96.1484 103.031L96.6953 103.523C96.3724 103.898 95.9844 104.19 95.5312 104.398C95.0781 104.607 94.5573 104.711 93.9688 104.711C93.3854 104.711 92.8568 104.612 92.3828 104.414C91.9141 104.216 91.5104 103.943 91.1719 103.594C90.8385 103.24 90.5807 102.823 90.3984 102.344C90.2214 101.859 90.1328 101.336 90.1328 100.773ZM97.7656 103.297L98.4531 102.805C98.6667 103.143 98.9609 103.419 99.3359 103.633C99.7161 103.846 100.138 103.953 100.602 103.953C100.836 103.953 101.062 103.927 101.281 103.875C101.5 103.823 101.693 103.74 101.859 103.625C102.031 103.505 102.169 103.352 102.273 103.164C102.383 102.977 102.438 102.755 102.438 102.5C102.438 102.172 102.331 101.917 102.117 101.734C101.904 101.552 101.635 101.406 101.312 101.297C100.995 101.182 100.646 101.083 100.266 101C99.8906 100.911 99.5417 100.792 99.2188 100.641C98.901 100.484 98.6354 100.276 98.4219 100.016C98.2083 99.75 98.1016 99.388 98.1016 98.9297C98.1016 98.5703 98.1719 98.2604 98.3125 98C98.4583 97.7344 98.6484 97.5182 98.8828 97.3516C99.1172 97.1797 99.388 97.0547 99.6953 96.9766C100.008 96.8932 100.326 96.8516 100.648 96.8516C101.19 96.8516 101.682 96.9609 102.125 97.1797C102.568 97.3984 102.911 97.7109 103.156 98.1172L102.484 98.5938C102.302 98.2865 102.047 98.0391 101.719 97.8516C101.396 97.6641 101.029 97.5703 100.617 97.5703C100.424 97.5703 100.227 97.5964 100.023 97.6484C99.8203 97.6953 99.638 97.7734 99.4766 97.8828C99.3151 97.987 99.1849 98.1198 99.0859 98.2812C98.987 98.4375 98.9375 98.6328 98.9375 98.8672C98.9375 99.2839 99.0938 99.5938 99.4062 99.7969C99.7188 100 100.185 100.164 100.805 100.289C101.607 100.471 102.224 100.724 102.656 101.047C103.089 101.365 103.305 101.828 103.305 102.438C103.305 102.833 103.227 103.172 103.07 103.453C102.914 103.734 102.711 103.969 102.461 104.156C102.211 104.344 101.922 104.479 101.594 104.562C101.271 104.651 100.94 104.695 100.602 104.695C100.023 104.695 99.4844 104.583 98.9844 104.359C98.4896 104.135 98.0833 103.781 97.7656 103.297Z" fill="#0B1641"/>
+<mask id="mask0_70_1478" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="113" y="87" width="24" height="24">
+<rect x="113" y="87" width="24" height="24" fill="#D9D9D9"/>
+</mask>
+<g mask="url(#mask0_70_1478)">
+<path d="M116.25 107.75V106.106L117.75 104.606V107.75H116.25ZM120.25 107.75V102.106L121.75 100.606V107.75H120.25ZM124.25 107.75V100.606L125.75 102.131V107.75H124.25ZM128.25 107.75V102.131L129.75 100.631V107.75H128.25ZM132.25 107.75V98.1058L133.75 96.6058V107.75H132.25ZM116.25 102.219V100.106L123 93.3558L127 97.3558L133.75 90.6058V92.7193L127 99.4693L123 95.4693L116.25 102.219Z" fill="#262626"/>
+</g>
+<path d="M36 194.5H129C137.56 194.5 144.5 201.44 144.5 210C144.5 218.56 137.56 225.5 129 225.5H36C27.4396 225.5 20.5 218.56 20.5 210C20.5 201.44 27.4396 194.5 36 194.5Z" stroke="#0B1641"/>
+<path d="M41.1016 204.172H42.0156L46.8281 215.5H45.8203L44.5469 212.445H38.4766L37.2031 215.5H36.1953L41.1016 204.172ZM44.2109 211.609L41.5391 205.133L38.8125 211.609H44.2109ZM48.5547 209.758C48.5547 209.544 48.5469 209.271 48.5312 208.938C48.5208 208.599 48.5052 208.302 48.4844 208.047H49.3203C49.3411 208.26 49.3568 208.51 49.3672 208.797C49.3776 209.083 49.3828 209.328 49.3828 209.531H49.4141C49.5234 209.276 49.6693 209.044 49.8516 208.836C50.0391 208.628 50.2526 208.453 50.4922 208.312C50.7318 208.167 50.987 208.055 51.2578 207.977C51.5339 207.893 51.8099 207.852 52.0859 207.852C52.5755 207.852 52.9948 207.932 53.3438 208.094C53.6979 208.25 53.987 208.469 54.2109 208.75C54.4401 209.026 54.6068 209.354 54.7109 209.734C54.8151 210.109 54.8672 210.516 54.8672 210.953V215.5H54.0078V211.273C54.0078 210.914 53.974 210.57 53.9062 210.242C53.8438 209.909 53.7318 209.622 53.5703 209.383C53.4141 209.143 53.1979 208.951 52.9219 208.805C52.651 208.659 52.3099 208.586 51.8984 208.586C51.5755 208.586 51.263 208.651 50.9609 208.781C50.6641 208.906 50.401 209.102 50.1719 209.367C49.9427 209.628 49.7604 209.953 49.625 210.344C49.4948 210.729 49.4297 211.185 49.4297 211.711V215.5H48.5547V209.758ZM57.2266 213.484C57.2266 212.953 57.3568 212.523 57.6172 212.195C57.8776 211.862 58.2214 211.607 58.6484 211.43C59.0755 211.253 59.5573 211.135 60.0938 211.078C60.6354 211.016 61.1875 210.984 61.75 210.984H62.5078V210.648C62.5078 209.945 62.3229 209.424 61.9531 209.086C61.5833 208.742 61.0625 208.57 60.3906 208.57C59.9427 208.57 59.5286 208.651 59.1484 208.812C58.7734 208.974 58.4479 209.188 58.1719 209.453L57.6875 208.875C58 208.568 58.3984 208.32 58.8828 208.133C59.3672 207.945 59.8984 207.852 60.4766 207.852C60.888 207.852 61.2682 207.909 61.6172 208.023C61.9661 208.133 62.2682 208.299 62.5234 208.523C62.7786 208.747 62.9766 209.029 63.1172 209.367C63.263 209.701 63.3359 210.096 63.3359 210.555V213.82C63.3359 214.107 63.3464 214.406 63.3672 214.719C63.388 215.026 63.4219 215.286 63.4688 215.5H62.6797C62.6484 215.307 62.6198 215.081 62.5938 214.82C62.5677 214.56 62.5547 214.328 62.5547 214.125H62.5234C62.2109 214.667 61.8281 215.068 61.375 215.328C60.9219 215.583 60.3906 215.711 59.7812 215.711C59.4948 215.711 59.1979 215.669 58.8906 215.586C58.5885 215.508 58.3151 215.378 58.0703 215.195C57.8255 215.013 57.6224 214.784 57.4609 214.508C57.3047 214.232 57.2266 213.891 57.2266 213.484ZM62.5078 212.281V211.68H61.9453C61.5078 211.68 61.0651 211.698 60.6172 211.734C60.1693 211.771 59.7578 211.852 59.3828 211.977C59.013 212.096 58.7083 212.273 58.4688 212.508C58.2344 212.742 58.1172 213.052 58.1172 213.438C58.1172 213.724 58.1719 213.969 58.2812 214.172C58.3958 214.375 58.5443 214.536 58.7266 214.656C58.9089 214.771 59.1094 214.854 59.3281 214.906C59.5469 214.958 59.7682 214.984 59.9922 214.984C60.4193 214.984 60.7917 214.909 61.1094 214.758C61.4323 214.602 61.6953 214.398 61.8984 214.148C62.1016 213.898 62.2526 213.612 62.3516 213.289C62.4557 212.961 62.5078 212.625 62.5078 212.281ZM66.2578 203.406H67.1172V215.5H66.2578V203.406ZM69.1016 219.242L69.2188 218.461C69.4531 218.544 69.6979 218.586 69.9531 218.586C70.349 218.586 70.6536 218.458 70.8672 218.203C71.0807 217.948 71.2604 217.622 71.4062 217.227L72.0469 215.547L68.9297 208.047H69.9062L72.5 214.617L72.5312 214.586L74.9297 208.047H75.875L72.1641 217.578C71.9505 218.125 71.6797 218.557 71.3516 218.875C71.0286 219.198 70.5729 219.359 69.9844 219.359C69.8333 219.359 69.6823 219.346 69.5312 219.32C69.3854 219.299 69.2422 219.273 69.1016 219.242ZM77.8828 213.711V208.781H76.3125V208.047H77.8672V205.914H78.75V208.047H80.875V208.781H78.75V213.5C78.75 214.031 78.8594 214.393 79.0781 214.586C79.2969 214.779 79.5807 214.875 79.9297 214.875C80.2526 214.875 80.5573 214.807 80.8438 214.672L80.8906 215.422C80.7083 215.484 80.5208 215.534 80.3281 215.57C80.1406 215.607 79.9349 215.625 79.7109 215.625C79.487 215.625 79.2656 215.594 79.0469 215.531C78.8281 215.469 78.6328 215.362 78.4609 215.211C78.2891 215.06 78.1484 214.862 78.0391 214.617C77.9349 214.372 77.8828 214.07 77.8828 213.711ZM82.1328 211.773C82.1328 211.206 82.2266 210.682 82.4141 210.203C82.6016 209.724 82.8646 209.312 83.2031 208.969C83.5469 208.62 83.9531 208.346 84.4219 208.148C84.8906 207.951 85.4115 207.852 85.9844 207.852C86.5312 207.852 87.0339 207.948 87.4922 208.141C87.9505 208.333 88.3333 208.628 88.6406 209.023L88.0703 209.547C87.8464 209.26 87.5469 209.031 87.1719 208.859C86.7969 208.688 86.4062 208.602 86 208.602C85.5521 208.602 85.1432 208.685 84.7734 208.852C84.4089 209.018 84.0964 209.242 83.8359 209.523C83.5755 209.805 83.375 210.138 83.2344 210.523C83.099 210.909 83.0312 211.326 83.0312 211.773C83.0312 212.221 83.099 212.638 83.2344 213.023C83.375 213.404 83.5729 213.737 83.8281 214.023C84.0833 214.305 84.3906 214.526 84.75 214.688C85.1146 214.844 85.5208 214.922 85.9688 214.922C86.4271 214.922 86.8359 214.844 87.1953 214.688C87.5547 214.526 87.8724 214.307 88.1484 214.031L88.6953 214.523C88.3724 214.898 87.9844 215.19 87.5312 215.398C87.0781 215.607 86.5573 215.711 85.9688 215.711C85.3854 215.711 84.8568 215.612 84.3828 215.414C83.9141 215.216 83.5104 214.943 83.1719 214.594C82.8385 214.24 82.5807 213.823 82.3984 213.344C82.2214 212.859 82.1328 212.336 82.1328 211.773ZM89.7656 214.297L90.4531 213.805C90.6667 214.143 90.9609 214.419 91.3359 214.633C91.7161 214.846 92.138 214.953 92.6016 214.953C92.8359 214.953 93.0625 214.927 93.2812 214.875C93.5 214.823 93.6927 214.74 93.8594 214.625C94.0312 214.505 94.1693 214.352 94.2734 214.164C94.3828 213.977 94.4375 213.755 94.4375 213.5C94.4375 213.172 94.3307 212.917 94.1172 212.734C93.9036 212.552 93.6354 212.406 93.3125 212.297C92.9948 212.182 92.6458 212.083 92.2656 212C91.8906 211.911 91.5417 211.792 91.2188 211.641C90.901 211.484 90.6354 211.276 90.4219 211.016C90.2083 210.75 90.1016 210.388 90.1016 209.93C90.1016 209.57 90.1719 209.26 90.3125 209C90.4583 208.734 90.6484 208.518 90.8828 208.352C91.1172 208.18 91.388 208.055 91.6953 207.977C92.0078 207.893 92.3255 207.852 92.6484 207.852C93.1901 207.852 93.6823 207.961 94.125 208.18C94.5677 208.398 94.9115 208.711 95.1562 209.117L94.4844 209.594C94.3021 209.286 94.0469 209.039 93.7188 208.852C93.3958 208.664 93.0286 208.57 92.6172 208.57C92.4245 208.57 92.2266 208.596 92.0234 208.648C91.8203 208.695 91.638 208.773 91.4766 208.883C91.3151 208.987 91.1849 209.12 91.0859 209.281C90.987 209.438 90.9375 209.633 90.9375 209.867C90.9375 210.284 91.0938 210.594 91.4062 210.797C91.7188 211 92.1849 211.164 92.8047 211.289C93.6068 211.471 94.224 211.724 94.6562 212.047C95.0885 212.365 95.3047 212.828 95.3047 213.438C95.3047 213.833 95.2266 214.172 95.0703 214.453C94.9141 214.734 94.7109 214.969 94.4609 215.156C94.2109 215.344 93.9219 215.479 93.5938 215.562C93.2708 215.651 92.9401 215.695 92.6016 215.695C92.0234 215.695 91.4844 215.583 90.9844 215.359C90.4896 215.135 90.0833 214.781 89.7656 214.297Z" fill="#0B1641"/>
+<mask id="mask1_70_1478" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="105" y="198" width="24" height="24">
+<rect x="105" y="198" width="24" height="24" fill="#D9D9D9"/>
+</mask>
+<g mask="url(#mask1_70_1478)">
+<path d="M108.25 218.75V217.106L109.75 215.606V218.75H108.25ZM112.25 218.75V213.106L113.75 211.606V218.75H112.25ZM116.25 218.75V211.606L117.75 213.131V218.75H116.25ZM120.25 218.75V213.131L121.75 211.631V218.75H120.25ZM124.25 218.75V209.106L125.75 207.606V218.75H124.25ZM108.25 213.219V211.106L115 204.356L119 208.356L125.75 201.606V203.719L119 210.469L115 206.469L108.25 213.219Z" fill="#262626"/>
+</g>
+</svg>
+`}
+          aiCode={`// @ts-nocheck
+import * as React from "react"
+
+export interface TagProps {
+  typeVariant?: "Default" | "Icon"
+  sizeVariant?: "Large" | "Small"
+  className?: string
+  children?: React.ReactNode
+}
+
+const Tag = React.forwardRef<HTMLDivElement, TagProps>(
+  ({ typeVariant = "Default", sizeVariant = "Large", className, children, typeVariant, sizeVariant, ...props }, ref) => {
+    return (
+      <span
+      ref={ref}
+      className={className}
+      style={{ display: "inline-flex", alignItems: "center", padding: "2px 8px", borderRadius: "5px", background: "#9747ff", color: "#ffffff", fontSize: "11px", fontWeight: 600, fontFamily: "Avenir Next LT Pro" }}
+      {...props}
+    >
+      {children ?? "Tag"}
+    </span>
+    );
+  }
+)
+Tag.displayName = "Tag"
+
+export { Tag }
+export default Tag`}
+          tokens={{
+  "colors": [
+    "#9747ff",
+    "#0b1641",
+    "#d9d9d9",
+    "#262626"
+  ],
+  "typography": [
+    {
+      "fontFamily": "Avenir Next LT Pro",
+      "fontSize": 16,
+      "fontWeight": "Light"
+    },
+    {
+      "fontFamily": "Avenir Next LT Pro",
+      "fontSize": 16,
+      "fontWeight": "Light"
+    },
+    {
+      "fontFamily": "Avenir Next LT Pro",
+      "fontSize": 16,
+      "fontWeight": "Light"
+    },
+    {
+      "fontFamily": "Avenir Next LT Pro",
+      "fontSize": 16,
+      "fontWeight": "Light"
+    }
+  ],
+  "spacing": [
+    "8px",
+    "24px",
+    "4px",
+    "16px"
+  ],
+  "borderRadius": [
+    "5px",
+    "1000px"
+  ],
+  "shadows": []
+}}
+          variantProperties={[
+  {
+    "name": "Type",
+    "values": [
+      "Default",
+      "Icon"
+    ]
+  },
+  {
+    "name": "Size",
+    "values": [
+      "Large",
+      "Small"
+    ]
+  }
+]}
+          variantStyles={[{"name":"Type=Default, Size=Large","width":109,"height":35,"background":null,"border":"1px solid #0b1641","borderRadius":"1000px","padding":"8px 24px 8px 24px","gap":null,"shadow":null,"opacity":1,"text":"Analytcs","textColor":"#0b1641","fontFamily":"Avenir Next LT Pro","fontSize":16,"fontWeight":400},{"name":"Type=Default, Size=Small","width":93,"height":27,"background":null,"border":"1px solid #0b1641","borderRadius":"1000px","padding":"4px 16px 4px 16px","gap":null,"shadow":null,"opacity":1,"text":"Analytcs","textColor":"#0b1641","fontFamily":"Avenir Next LT Pro","fontSize":16,"fontWeight":400},{"name":"Type=Icon, Size=Large","width":141,"height":40,"background":null,"border":"1px solid #0b1641","borderRadius":"1000px","padding":"8px 24px 8px 24px","gap":"8px","shadow":null,"opacity":1,"text":"Analytcs","textColor":"#0b1641","fontFamily":"Avenir Next LT Pro","fontSize":16,"fontWeight":400},{"name":"Type=Icon, Size=Small","width":125,"height":32,"background":null,"border":"1px solid #0b1641","borderRadius":"1000px","padding":"4px 16px 4px 16px","gap":"8px","shadow":null,"opacity":1,"text":"Analytcs","textColor":"#0b1641","fontFamily":"Avenir Next LT Pro","fontSize":16,"fontWeight":400}]}
+          anatomy={{
+  "name": "Type=Default, Size=Large",
+  "type": "COMPONENT",
+  "visible": true,
+  "children": [
+    {
+      "name": "Text",
+      "type": "TEXT",
+      "visible": true,
+      "children": []
+    }
+  ]
+}}
+          a11y={[
+  {
+    "role": "text",
+    "note": "Texto visível — será lido por leitores de tela"
+  },
+  {
+    "role": "img",
+    "note": "Ícone decorativo — usar aria-hidden=\"true\""
+  }
+]}
+        />
+      )}
       {activeSection === "Toast" && (
         <ComponentDoc
           key="Toast"
@@ -977,7 +1260,7 @@ const Toast = React.forwardRef<HTMLDivElement, ToastProps>(
   ({ className, children, title, ...props }, ref) => {
     return (
       <div ref={ref} className={className} role="alert" style={{ display: "flex", alignItems: "flex-start", gap: "10px", padding: "12px 14px", borderRadius: "5px", background: "#eff6ff", border: "1px solid #bfdbfe", fontFamily: "Avenir Next LT Pro" }} {...props}>
-      <span style={{ fontSize: "14px", color: "#1e40af", flexShrink: 0, marginTop: "1px" }}>ℹ</span>
+      <span style={{ fontSize: "14px", color: "#1e40af", flexShrink: 0, marginTop: "1px" }}>â¹</span>
       <div>
         {title && <div style={{ fontSize: "13px", fontWeight: 600, color: "#1e40af", marginBottom: "2px" }}>{title}</div>}
         <div style={{ fontSize: "12px", color: "#1e40af", opacity: 0.8 }}>{children}</div>
@@ -1024,9 +1307,9 @@ export function Toast({ className, children, ...props }: ToastProps) {
 
 export default Toast`}
           htmlCode={`<div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;padding:24px;font-family:system-ui">
-  <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><button style="display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;white-space:nowrap;font-family:'Avenir Next LT Pro', system-ui;cursor:pointer;background:#366d2b;border:none;border-radius:8px;padding:12px 12px 12px 12px;gap:40px;color:#ffffff;font-size:16px;font-weight:400;min-width:280px;min-height:66px">Título da mensagem</button><span style="font-size:10px;color:#a1a1aa;font-family:monospace">State=Sucess</span></div>
-  <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><button style="display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;white-space:nowrap;font-family:'Avenir Next LT Pro', system-ui;cursor:pointer;background:#e7ae03;border:none;border-radius:8px;padding:12px 12px 12px 12px;gap:40px;color:#262626;font-size:16px;font-weight:400;min-width:280px;min-height:66px">Título da mensagem</button><span style="font-size:10px;color:#a1a1aa;font-family:monospace">State=Alert</span></div>
-  <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><button style="display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;white-space:nowrap;font-family:'Avenir Next LT Pro', system-ui;cursor:pointer;background:#da0202;border:none;border-radius:8px;padding:12px 12px 12px 12px;gap:40px;color:#ffffff;font-size:16px;font-weight:400;min-width:280px;min-height:66px">Título da mensagem</button><span style="font-size:10px;color:#a1a1aa;font-family:monospace">State=Error</span></div>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><button style="display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;white-space:nowrap;font-family:'Avenir Next LT Pro', system-ui;cursor:pointer;background:#366d2b;border:none;border-radius:8px;padding:12px 12px 12px 12px;gap:40px;color:#ffffff;font-size:16px;font-weight:400;min-width:280px;min-height:66px">TÃ­tulo da mensagem</button><span style="font-size:10px;color:#a1a1aa;font-family:monospace">State=Sucess</span></div>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><button style="display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;white-space:nowrap;font-family:'Avenir Next LT Pro', system-ui;cursor:pointer;background:#e7ae03;border:none;border-radius:8px;padding:12px 12px 12px 12px;gap:40px;color:#262626;font-size:16px;font-weight:400;min-width:280px;min-height:66px">TÃ­tulo da mensagem</button><span style="font-size:10px;color:#a1a1aa;font-family:monospace">State=Alert</span></div>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><button style="display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;white-space:nowrap;font-family:'Avenir Next LT Pro', system-ui;cursor:pointer;background:#da0202;border:none;border-radius:8px;padding:12px 12px 12px 12px;gap:40px;color:#ffffff;font-size:16px;font-weight:400;min-width:280px;min-height:66px">TÃ­tulo da mensagem</button><span style="font-size:10px;color:#a1a1aa;font-family:monospace">State=Error</span></div>
 </div>`}
           cssCode={`:root {
   --color-primary: #9747ff;
@@ -1121,7 +1404,7 @@ const Toast = React.forwardRef<HTMLDivElement, ToastProps>(
   ({ className, children, title, ...props }, ref) => {
     return (
       <div ref={ref} className={className} role="alert" style={{ display: "flex", alignItems: "flex-start", gap: "10px", padding: "12px 14px", borderRadius: "5px", background: "#eff6ff", border: "1px solid #bfdbfe", fontFamily: "Avenir Next LT Pro" }} {...props}>
-      <span style={{ fontSize: "14px", color: "#1e40af", flexShrink: 0, marginTop: "1px" }}>ℹ</span>
+      <span style={{ fontSize: "14px", color: "#1e40af", flexShrink: 0, marginTop: "1px" }}>â¹</span>
       <div>
         {title && <div style={{ fontSize: "13px", fontWeight: 600, color: "#1e40af", marginBottom: "2px" }}>{title}</div>}
         <div style={{ fontSize: "12px", color: "#1e40af", opacity: 0.8 }}>{children}</div>
@@ -1233,13 +1516,13 @@ export default Toast`}
           "visible": true,
           "children": [
             {
-              "name": "Título da mensagem",
+              "name": "TÃ­tulo da mensagem",
               "type": "TEXT",
               "visible": true,
               "children": []
             },
             {
-              "name": "Subtítulo da mensagem aqui",
+              "name": "SubtÃ­tulo da mensagem aqui",
               "type": "TEXT",
               "visible": true,
               "children": []
@@ -1272,7 +1555,7 @@ export default Toast`}
           a11y={[
   {
     "role": "text",
-    "note": "Texto visível — será lido por leitores de tela"
+    "note": "Texto visÃ­vel â serÃ¡ lido por leitores de tela"
   }
 ]}
         />
@@ -1284,7 +1567,7 @@ export default Toast`}
           description=""
           figmaUrl="https://figma.com/file/undefined?node-id=6-13"
           status="stable"
-          category="âªï¸  Buttons"
+          category="Ã¢ÂÂªÃ¯Â¸Â  Buttons"
           version={componentMeta["Button"]?.version}
           lastUpdated={componentMeta["Button"]?.lastUpdated}
           darkMode={darkMode}
@@ -1720,11 +2003,11 @@ export default Button`}
           a11y={[
   {
     "role": "button",
-    "note": "Interativo â verificar texto acessÃ­vel e estado desabilitado"
+    "note": "Interativo Ã¢ÂÂ verificar texto acessÃÂ­vel e estado desabilitado"
   },
   {
     "role": "text",
-    "note": "Texto visÃ­vel â serÃ¡ lido por leitores de tela"
+    "note": "Texto visÃÂ­vel Ã¢ÂÂ serÃÂ¡ lido por leitores de tela"
   }
 ]}
         />
@@ -2175,11 +2458,11 @@ export default Breadchumb`}
           a11y={[
   {
     "role": "text",
-    "note": "Texto visÃÂÃÂÃÂÃÂ­vel ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ serÃÂÃÂÃÂÃÂ¡ lido por leitores de tela"
+    "note": "Texto visÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ­vel ÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ serÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¡ lido por leitores de tela"
   },
   {
     "role": "img",
-    "note": "ÃÂÃÂÃÂÃÂcone decorativo ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ usar aria-hidden=\"true\""
+    "note": "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂcone decorativo ÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ usar aria-hidden=\"true\""
   }
 ]}
         />
@@ -2711,19 +2994,19 @@ export default Dropdown`}
           a11y={[
   {
     "role": "textbox",
-    "note": "Campo de entrada ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ requer aria-label ou <label> associado"
+    "note": "Campo de entrada ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ requer aria-label ou <label> associado"
   },
   {
     "role": "text",
-    "note": "Texto visÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ­vel ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ serÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¡ lido por leitores de tela"
+    "note": "Texto visÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ­vel ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ serÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¡ lido por leitores de tela"
   },
   {
     "role": "img",
-    "note": "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂcone decorativo ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ usar aria-hidden=\"true\""
+    "note": "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂcone decorativo ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ usar aria-hidden=\"true\""
   },
   {
     "role": "list",
-    "note": "Lista ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ usar <ul>/<li> ou role=\"list\""
+    "note": "Lista ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ usar <ul>/<li> ou role=\"list\""
   }
 ]}
         />
@@ -2806,7 +3089,7 @@ export default Accordion`}
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#71717a" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
   </div>
   <div style="padding:12px 16px;background:#fafafa;border-bottom:1px solid #e4e4e7">
-    <p style="font-size:13px;color:#71717a;margin:0;line-height:1.5">ConteÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂºdo expandido.</p>
+    <p style="font-size:13px;color:#71717a;margin:0;line-height:1.5">ConteÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂºdo expandido.</p>
   </div>
   <div style="padding:14px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;background:#fff">
     <span style="font-size:16px;font-weight:500;color:#18181b">Item 2</span>
@@ -2971,11 +3254,11 @@ export default Accordion`}
           a11y={[
   {
     "role": "text",
-    "note": "Texto visÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ­vel ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ serÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¡ lido por leitores de tela"
+    "note": "Texto visÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ­vel ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ serÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¡ lido por leitores de tela"
   },
   {
     "role": "img",
-    "note": "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂcone decorativo ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ usar aria-hidden=\"true\""
+    "note": "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂcone decorativo ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ usar aria-hidden=\"true\""
   }
 ]}
         />
@@ -3212,7 +3495,7 @@ export default Control`}
           a11y={[
   {
     "role": "img",
-    "note": "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂcone decorativo ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ usar aria-hidden=\"true\""
+    "note": "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂcone decorativo ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ usar aria-hidden=\"true\""
   }
 ]}
         />
@@ -3429,7 +3712,7 @@ export default Checkbox`}
           a11y={[
   {
     "role": "checkbox",
-    "note": "Estado ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ requer aria-checked"
+    "note": "Estado ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ requer aria-checked"
   }
 ]}
         />

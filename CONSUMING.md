@@ -25,10 +25,10 @@ npm install @jasonpereirax/gauge-design-system
 ## 3. Usar
 
 ```tsx
-import { Toast } from '@jasonpereirax/gauge-design-system'
+import { Tag } from '@jasonpereirax/gauge-design-system'
 
 export default function App() {
-  return <Toast />
+  return <Tag />
 }
 ```
 
