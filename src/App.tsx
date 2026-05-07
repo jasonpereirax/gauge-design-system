@@ -15,7 +15,7 @@ type A11yHint = { role: string; note: string }
 type Status = "stable" | "beta" | "deprecated" | "wip" | "experimental"
 
 interface ComponentDocProps {
-  name: string; description: string; figmaUrl: string; status: Status; category: string
+  name: string; description: string; figmaUrl: string; status: Status; category: string; darkMode?: boolean
   version?: string; lastUpdated?: string
   width: number; height: number
   reactCode: string; tailwindCode: string; htmlCode: string; cssCode: string
@@ -55,16 +55,18 @@ function CodeBlock({ code, language }: { code: string; language: string }) {
   )
 }
 
-function ComponentPreview({ htmlCode, cssCode, svgCode, width, height, overrideHtml }: any) {
+function ComponentPreview({ htmlCode, cssCode, svgCode, width, height, overrideHtml, darkMode }: any) {
   const [bg, setBg] = React.useState("checker")
   const [zoom, setZoom] = React.useState(1)
   const checker = { backgroundImage: ["linear-gradient(45deg,#e5e7eb 25%,transparent 25%)","linear-gradient(-45deg,#e5e7eb 25%,transparent 25%)","linear-gradient(45deg,transparent 75%,#e5e7eb 75%)","linear-gradient(-45deg,transparent 75%,#e5e7eb 75%)"].join(","), backgroundSize: "16px 16px", backgroundPosition: "0 0,0 8px,8px -8px,-8px 0", backgroundColor: "#f9fafb" }
-  const bgMap: any = { white: { background: "#ffffff" }, checker, dark: { background: "#09090b" } }
-  // Always prefer generated htmlCode over svgCode (which is a Figma screenshot)
+  const checkerDark = { backgroundImage: ["linear-gradient(45deg,#27272a 25%,transparent 25%)","linear-gradient(-45deg,#27272a 25%,transparent 25%)","linear-gradient(45deg,transparent 75%,#27272a 75%)","linear-gradient(-45deg,transparent 75%,#27272a 75%)"].join(","), backgroundSize: "16px 16px", backgroundPosition: "0 0,0 8px,8px -8px,-8px 0", backgroundColor: "#18181b" }
+  const bgMap: any = { white: { background: "#ffffff" }, checker: darkMode ? checkerDark : checker, dark: { background: "#09090b" } }
   const visual = overrideHtml || (htmlCode && htmlCode.trim() ? htmlCode : (svgCode || ""))
+  // Inject dark mode class and media query into iframe
+  const darkCSS = darkMode ? "html{color-scheme:dark}body{background:#09090b;color:#f4f4f5}" : ""
   const baseCSS = "*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html,body{width:100%;height:100%}body{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;font-family:system-ui,sans-serif;background:transparent}"
   const h = Math.max(height * zoom + 80, 180)
-  const buildDoc = () => `<!DOCTYPE html><html><head><meta charset=UTF-8><style>${baseCSS}${cssCode||""}</style></head><body>${visual}</body></html>`
+  const buildDoc = () => `<!DOCTYPE html><html class="${darkMode?"dark":""}"><head><meta charset=UTF-8><style>${baseCSS}${darkCSS}${cssCode||""}</style></head><body>${visual}</body></html>`
   const bgLabels: any = { white: "Branco", checker: "Grade", dark: "Escuro" }
   return (
     <div style={{ border: "1px solid #e4e4e7", borderRadius: "10px", overflow: "hidden" }}>
@@ -79,45 +81,82 @@ function ComponentPreview({ htmlCode, cssCode, svgCode, width, height, overrideH
         <span style={{ marginLeft:"auto", fontSize:"11px", fontFamily:"monospace", color:"#a1a1aa" }}>{width}×{height}px</span>
       </div>
       <div style={{ minHeight: h+"px", ...bgMap[bg] }}>
-        <iframe key={`${zoom}-${bg}-${overrideHtml||""}`} srcDoc={buildDoc()} style={{ width:"100%", height:h+"px", border:"none", display:"block" }} sandbox="allow-scripts" title="Preview" />
+        <iframe key={`${zoom}-${bg}-${darkMode}-${overrideHtml||""}`} srcDoc={buildDoc()} style={{ width:"100%", height:h+"px", border:"none", display:"block" }} sandbox="allow-scripts" title="Preview" />
       </div>
     </div>
   )
 }
 
-function Playground({ htmlCode, cssCode, svgCode, width, height, variantProperties }: any) {
+function Playground({ htmlCode, cssCode, svgCode, width, height, variantProperties, reactCode, tailwindCode }: any) {
   const [selections, setSelections] = useState<Record<string,string>>(() => {
     const init: Record<string,string> = {}
-    variantProperties.forEach((p: VariantProp) => { init[p.name] = p.values[0] || "" })
+    ;(variantProperties||[]).forEach((p: VariantProp) => { init[p.name] = p.values[0] || "" })
     return init
   })
+  const [codeTab, setCodeTab] = useState<"tailwind"|"react">("tailwind")
+  const [copied, setCopied] = useState(false)
   const setVal = (name: string, val: string) => setSelections(s => ({...s, [name]: val}))
+
+  // Build code snippet with current prop values injected
+  const buildCodeSnippet = (base: string) => {
+    if (!base) return ""
+    let code = base
+    Object.entries(selections).forEach(([k, v]) => {
+      // Replace variant prop occurrences in the code
+      const propLower = k.toLowerCase()
+      code = code.replace(new RegExp(propLower + `=["'](\\w+)["']`, "g"), `${propLower}="${v}"`,)
+      code = code.replace(new RegExp(`${propLower} = ["'](\\w+)["']`, "g"), `${propLower} = "${v}"`,)
+    })
+    return code
+  }
+
+  const currentCode = codeTab === "tailwind" ? buildCodeSnippet(tailwindCode) : buildCodeSnippet(reactCode)
+  const propsStr = Object.entries(selections).map(([k,v]) => `${k}="${v}"`).join(" ")
+
+  const copyCode = () => { navigator.clipboard.writeText(currentCode); setCopied(true); setTimeout(()=>setCopied(false),2000) }
+
   if (!variantProperties || variantProperties.length === 0) return (
     <div style={{ display:"flex", flexDirection:"column", gap:"16px" }}>
-      <div style={{ padding:"20px", background:"#fafafa", borderRadius:"10px", border:"1px solid #e4e4e7", fontSize:"13px", color:"#71717a" }}>Este componente não tem variantes — o preview abaixo é o estado padrão.</div>
-      <ComponentPreview htmlCode={htmlCode} cssCode={cssCode} svgCode={svgCode} width={width} height={height} />
+      <div style={{ padding:"16px", background:"#fafafa", borderRadius:"10px", border:"1px solid #e4e4e7", fontSize:"13px", color:"#71717a" }}>
+        Este componente não tem variantes — preview do estado padrão.
+      </div>
+      <ComponentPreview htmlCode={htmlCode} cssCode={cssCode} svgCode={svgCode} width={width} height={height} darkMode={darkMode} />
     </div>
   )
   return (
-    <div style={{ display:"flex", flexDirection:"column", gap:"20px" }}>
-      <div style={{ display:"flex", flexWrap:"wrap", gap:"16px", padding:"16px", background:"#fafafa", borderRadius:"10px", border:"1px solid #e4e4e7" }}>
+    <div style={{ display:"flex", flexDirection:"column", gap:"16px" }}>
+      <div style={{ display:"flex", flexWrap:"wrap", gap:"16px", padding:"14px 16px", background:"#fafafa", borderRadius:"10px", border:"1px solid #e4e4e7" }}>
         {variantProperties.map((prop: VariantProp) => (
           <div key={prop.name}>
             <div style={{ fontSize:"11px", fontWeight:600, color:"#71717a", textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:"6px" }}>{prop.name}</div>
             <div style={{ display:"flex", gap:"4px", flexWrap:"wrap" }}>
               {prop.values.map((v: string) => (
                 <button key={v} onClick={() => setVal(prop.name, v)}
-                  style={{ fontSize:"12px", padding:"4px 10px", borderRadius:"6px", border: selections[prop.name]===v?"1.5px solid #18181b":"1px solid #e4e4e7", background:selections[prop.name]===v?"#18181b":"#fff", color:selections[prop.name]===v?"#fff":"#52525b", cursor:"pointer", fontFamily:"monospace" }}>{v}</button>
+                  style={{ fontSize:"12px", padding:"4px 10px", borderRadius:"6px", border: selections[prop.name]===v?"1.5px solid #18181b":"1px solid #e4e4e7", background:selections[prop.name]===v?"#18181b":"#fff", color:selections[prop.name]===v?"#fff":"#52525b", cursor:"pointer", fontFamily:"monospace" }}>{v}
+                </button>
               ))}
             </div>
           </div>
         ))}
       </div>
-      <div>
-        <div style={{ fontSize:"11px", color:"#a1a1aa", marginBottom:"8px", fontFamily:"monospace" }}>
-          {Object.entries(selections).map(([k,v]) => `${k}="${v}"`).join("  ")}
+      <div style={{ fontSize:"11px", fontFamily:"monospace", color:"#a1a1aa", padding:"0 2px" }}>
+        &lt;{(reactCode||"Component").match(/const (w+)/)?.[1]||"Component"} {propsStr} /&gt;
+      </div>
+      <ComponentPreview htmlCode={htmlCode} cssCode={cssCode} svgCode={svgCode} width={width} height={height} darkMode={darkMode} />
+      <div style={{ border:"1px solid #e4e4e7", borderRadius:"10px", overflow:"hidden" }}>
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", borderBottom:"1px solid #e4e4e7", background:"#fafafa", padding:"0 14px" }}>
+          <div style={{ display:"flex" }}>
+            {(["tailwind","react"] as const).filter(t => t==="tailwind"?!!tailwindCode:!!reactCode).map(t => (
+              <button key={t} onClick={()=>setCodeTab(t)} style={{ padding:"8px 12px", fontSize:"12px", fontWeight:codeTab===t?600:400, color:codeTab===t?"#18181b":"#71717a", background:"none", border:"none", borderBottom:codeTab===t?"2px solid #18181b":"2px solid transparent", cursor:"pointer", marginBottom:"-1px" }}>{t}</button>
+            ))}
+          </div>
+          <button onClick={copyCode} style={{ fontSize:"11px", color:copied?"#16a34a":"#71717a", background:copied?"#f0fdf4":"transparent", border:"none", cursor:"pointer", padding:"4px 8px", borderRadius:"5px" }}>
+            {copied ? "✓ Copiado!" : "Copiar"}
+          </button>
         </div>
-        <ComponentPreview htmlCode={htmlCode} cssCode={cssCode} svgCode={svgCode} width={width} height={height} />
+        <pre style={{ margin:0, padding:"16px", overflowX:"auto", background:"#0d1117", fontSize:"12px", lineHeight:"1.6", maxHeight:"320px" }}>
+          <code style={{ fontFamily:"ui-monospace,monospace", color:"#e6edf3", whiteSpace:"pre" }}>{currentCode}</code>
+        </pre>
       </div>
     </div>
   )
@@ -228,7 +267,7 @@ function A11yTable({ a11y }: { a11y: A11yHint[] }) {
   )
 }
 
-function ComponentDoc({ name,description,figmaUrl,status,category,version,lastUpdated,width,height,reactCode,tailwindCode,htmlCode,cssCode,svgCode,aiCode,tokens,variantProperties,anatomy,a11y }: ComponentDocProps) {
+function ComponentDoc({ name,description,figmaUrl,status,category,version,lastUpdated,darkMode,width,height,reactCode,tailwindCode,htmlCode,cssCode,svgCode,aiCode,tokens,variantProperties,anatomy,a11y }: ComponentDocProps) {
   const [docTab,setDocTab] = useState<DocTab>("overview")
   const [codeTab,setCodeTab] = useState<CodeTab>("tailwind")
   const [hoveredNode,setHoveredNode] = useState<number|null>(null)
@@ -285,7 +324,7 @@ function ComponentDoc({ name,description,figmaUrl,status,category,version,lastUp
       <div style={{ paddingTop:"24px" }}>
         {docTab==="overview"&&(
           <div style={{ display:"flex",flexDirection:"column",gap:"24px" }}>
-            <ComponentPreview htmlCode={htmlCode} cssCode={cssCode} svgCode={svgCode} width={width} height={height} />
+            <ComponentPreview htmlCode={htmlCode} cssCode={cssCode} svgCode={svgCode} width={width} height={height} darkMode={darkMode} />
             {variantProperties&&variantProperties.length>0&&(
               <div>
                 <div style={{ fontSize:"12px",fontWeight:600,color:"#71717a",textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"10px" }}>Variantes</div>
@@ -319,13 +358,13 @@ function ComponentDoc({ name,description,figmaUrl,status,category,version,lastUp
             </div>
           </div>
         )}
-        {docTab==="playground"&&<Playground htmlCode={htmlCode} cssCode={cssCode} svgCode={svgCode} width={width} height={height} variantProperties={variantProperties} />}
+        {docTab==="playground"&&<Playground htmlCode={htmlCode} cssCode={cssCode} svgCode={svgCode} width={width} height={height} variantProperties={variantProperties} reactCode={reactCode} tailwindCode={tailwindCode} />}
         {docTab==="variants"&&(
           <div style={{ display:"flex",flexDirection:"column",gap:"24px" }}>
             {!variantProperties||variantProperties.length===0?(
               <div style={{ display:"flex",flexDirection:"column",gap:"12px" }}>
                 <p style={{ margin:0,fontSize:"13px",color:"#71717a" }}>Componente sem variantes — renderização do estado padrão.</p>
-                <ComponentPreview htmlCode={htmlCode} cssCode={cssCode} svgCode={svgCode} width={width} height={height} />
+                <ComponentPreview htmlCode={htmlCode} cssCode={cssCode} svgCode={svgCode} width={width} height={height} darkMode={darkMode} />
               </div>
             ):variantProperties.map((prop:VariantProp,pi:number)=>(
               <div key={pi}>
@@ -737,6 +776,61 @@ class ErrorBoundary extends React.Component<{children:any},{error:any}> {
   }
 }
 
+function CommandMenu({ open, onClose, onSelect }: { open: boolean; onClose: ()=>void; onSelect: (id:string)=>void }) {
+  const [q, setQ] = useState("")
+  const ref = React.useRef<HTMLInputElement>(null)
+  const staticItems = [
+    { id:"installation", label:"Instalação", category:"Geral", icon:"◈" },
+    { id:"tokens", label:"Design Tokens", category:"Geral", icon:"◈" },
+    { id:"insights", label:"Insights", category:"Geral", icon:"◈" },
+  ]
+  const allItems = [...staticItems, ...navItems.map(n => ({ id:n.id, label:n.label, category:n.category, icon:"◇" }))]
+  const filtered = q.trim() ? allItems.filter(i => (i.label+i.category).toLowerCase().includes(q.toLowerCase())) : allItems
+  const [cursor, setCursor] = useState(0)
+
+  useEffect(() => { if (open) { setTimeout(()=>ref.current?.focus(),50); setQ(""); setCursor(0) } }, [open])
+
+  const handleKey = (e: React.KeyboardEvent) => {
+    if (e.key==="ArrowDown") { e.preventDefault(); setCursor(c=>Math.min(c+1,filtered.length-1)) }
+    if (e.key==="ArrowUp") { e.preventDefault(); setCursor(c=>Math.max(c-1,0)) }
+    if (e.key==="Enter" && filtered[cursor]) { onSelect(filtered[cursor].id); onClose() }
+    if (e.key==="Escape") onClose()
+  }
+
+  if (!open) return null
+  return (
+    <div onClick={onClose} style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.4)", zIndex:1000, display:"flex", alignItems:"flex-start", justifyContent:"center", paddingTop:"20vh" }}>
+      <div onClick={e=>e.stopPropagation()} style={{ width:"100%", maxWidth:"520px", background:"#fff", borderRadius:"12px", boxShadow:"0 24px 64px rgba(0,0,0,0.2)", overflow:"hidden", border:"1px solid #e4e4e7" }}>
+        <div style={{ display:"flex", alignItems:"center", gap:"10px", padding:"12px 16px", borderBottom:"1px solid #e4e4e7" }}>
+          <svg width="16" height="16" fill="none" stroke="#a1a1aa" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input ref={ref} value={q} onChange={e=>{ setQ(e.target.value); setCursor(0) }} onKeyDown={handleKey}
+            placeholder="Buscar componentes..." style={{ flex:1, border:"none", outline:"none", fontSize:"14px", color:"#18181b", background:"transparent" }} />
+          <kbd style={{ fontSize:"10px", background:"#f4f4f5", border:"1px solid #e4e4e7", borderRadius:"4px", padding:"2px 5px", color:"#71717a" }}>esc</kbd>
+        </div>
+        <div style={{ maxHeight:"320px", overflowY:"auto" }}>
+          {filtered.length === 0 && <div style={{ padding:"24px", textAlign:"center", fontSize:"13px", color:"#a1a1aa" }}>Nenhum resultado para "{q}"</div>}
+          {filtered.map((item, i) => (
+            <button key={item.id} onClick={()=>{ onSelect(item.id); onClose() }}
+              style={{ width:"100%", display:"flex", alignItems:"center", gap:"10px", padding:"9px 16px", background:i===cursor?"#f4f4f5":"transparent", border:"none", cursor:"pointer", textAlign:"left" }}
+              onMouseEnter={()=>setCursor(i)}>
+              <span style={{ fontSize:"11px", color:"#a1a1aa", width:"14px" }}>{item.icon}</span>
+              <span style={{ fontSize:"13px", color:"#18181b", flex:1 }}>{item.label}</span>
+              <span style={{ fontSize:"11px", color:"#a1a1aa", background:"#f4f4f5", padding:"1px 6px", borderRadius:"4px" }}>{item.category}</span>
+            </button>
+          ))}
+        </div>
+        <div style={{ padding:"8px 16px", borderTop:"1px solid #f4f4f5", display:"flex", gap:"12px" }}>
+          {[["↑↓","navegar"],["↵","selecionar"],["esc","fechar"]].map(([k,l])=>(
+            <span key={k} style={{ fontSize:"11px", color:"#a1a1aa", display:"flex", alignItems:"center", gap:"4px" }}>
+              <kbd style={{ background:"#f4f4f5", border:"1px solid #e4e4e7", borderRadius:"3px", padding:"1px 4px" }}>{k}</kbd>{l}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function App() {
   const getInitialSection = () => {
     const hash = window.location.hash.replace("#","")
@@ -750,7 +844,17 @@ export default function App() {
   const [darkMode,setDarkMode] = useState(false)
   const [sidebarOpen,setSidebarOpen] = useState(true)
   const [search,setSearch] = useState("")
+  const [cmdOpen,setCmdOpen] = useState(false)
   const [componentMeta,setComponentMeta] = useState<Record<string,{version?:string;lastUpdated?:string}>>({})
+
+  // ⌘K / Ctrl+K listener
+  useEffect(()=>{
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey||e.ctrlKey) && e.key==="k") { e.preventDefault(); setCmdOpen(o=>!o) }
+    }
+    window.addEventListener("keydown", handler)
+    return () => window.removeEventListener("keydown", handler)
+  },[])
 
   // Load versions from components.json at runtime
   useEffect(()=>{
@@ -825,14 +929,17 @@ export default function App() {
           </div>
         </aside>
         <div style={{ flex:1,overflow:"auto" }}>
+          <CommandMenu open={cmdOpen} onClose={()=>setCmdOpen(false)} onSelect={id=>{ navigate(id) }} />
           <header style={{ borderBottom:"1px solid #e4e4e7",padding:"8px 20px",display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,background:"rgba(255,255,255,0.95)",backdropFilter:"blur(8px)",zIndex:10 }}>
             <button onClick={()=>setSidebarOpen(!sidebarOpen)} style={{ padding:"6px",borderRadius:"6px",border:"none",background:"transparent",cursor:"pointer",display:"flex" }}>
               <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
             </button>
+            <button onClick={()=>setCmdOpen(true)} style={{ display:"flex",alignItems:"center",gap:"8px",padding:"5px 12px",borderRadius:"7px",border:"1px solid #e4e4e7",background:"#fafafa",cursor:"pointer",fontSize:"13px",color:"#71717a" }}>
+              <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              Buscar...
+              <kbd style={{ fontSize:"10px",background:"#f4f4f5",border:"1px solid #e4e4e7",borderRadius:"4px",padding:"1px 5px",marginLeft:"4px" }}>⌘K</kbd>
+            </button>
             <div style={{ display:"flex",alignItems:"center",gap:"8px" }}>
-              <span style={{ fontSize:"13px",color:"#a1a1aa" }}>
-                {activeSection==="installation"?"Instalação":activeSection==="tokens"?"Design Tokens":activeSection==="insights"?"Insights":navItems.find(i=>i.id===activeSection)?.label||""}
-              </span>
               <button onClick={()=>setDarkMode(!darkMode)} style={{ padding:"6px",borderRadius:"6px",border:"none",background:"transparent",cursor:"pointer",fontSize:"14px" }}>{darkMode?"☀️":"🌙"}</button>
             </div>
           </header>
@@ -851,6 +958,7 @@ export default function App() {
           category="↪︎  Buttons"
           version={componentMeta["Button"]?.version}
           lastUpdated={componentMeta["Button"]?.lastUpdated}
+          darkMode={darkMode}
           width={471}
           height={240}
           reactCode={`// @ts-nocheck
@@ -1738,11 +1846,11 @@ export default Breadchumb`}
           a11y={[
   {
     "role": "text",
-    "note": "Texto visÃÂ­vel Ã¢ÂÂ serÃÂ¡ lido por leitores de tela"
+    "note": "Texto visÃÂÃÂ­vel ÃÂ¢ÃÂÃÂ serÃÂÃÂ¡ lido por leitores de tela"
   },
   {
     "role": "img",
-    "note": "ÃÂcone decorativo Ã¢ÂÂ usar aria-hidden=\"true\""
+    "note": "ÃÂÃÂcone decorativo ÃÂ¢ÃÂÃÂ usar aria-hidden=\"true\""
   }
 ]}
         />
@@ -2274,19 +2382,19 @@ export default Dropdown`}
           a11y={[
   {
     "role": "textbox",
-    "note": "Campo de entrada ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ requer aria-label ou <label> associado"
+    "note": "Campo de entrada ÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ requer aria-label ou <label> associado"
   },
   {
     "role": "text",
-    "note": "Texto visÃÂÃÂÃÂÃÂ­vel ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ serÃÂÃÂÃÂÃÂ¡ lido por leitores de tela"
+    "note": "Texto visÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ­vel ÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ serÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¡ lido por leitores de tela"
   },
   {
     "role": "img",
-    "note": "ÃÂÃÂÃÂÃÂcone decorativo ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ usar aria-hidden=\"true\""
+    "note": "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂcone decorativo ÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ usar aria-hidden=\"true\""
   },
   {
     "role": "list",
-    "note": "Lista ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ usar <ul>/<li> ou role=\"list\""
+    "note": "Lista ÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ usar <ul>/<li> ou role=\"list\""
   }
 ]}
         />
@@ -2369,7 +2477,7 @@ export default Accordion`}
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#71717a" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
   </div>
   <div style="padding:12px 16px;background:#fafafa;border-bottom:1px solid #e4e4e7">
-    <p style="font-size:13px;color:#71717a;margin:0;line-height:1.5">ConteÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂºdo expandido.</p>
+    <p style="font-size:13px;color:#71717a;margin:0;line-height:1.5">ConteÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂºdo expandido.</p>
   </div>
   <div style="padding:14px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;background:#fff">
     <span style="font-size:16px;font-weight:500;color:#18181b">Item 2</span>
@@ -2534,11 +2642,11 @@ export default Accordion`}
           a11y={[
   {
     "role": "text",
-    "note": "Texto visÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ­vel ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ serÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¡ lido por leitores de tela"
+    "note": "Texto visÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ­vel ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ serÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¡ lido por leitores de tela"
   },
   {
     "role": "img",
-    "note": "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂcone decorativo ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ usar aria-hidden=\"true\""
+    "note": "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂcone decorativo ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ usar aria-hidden=\"true\""
   }
 ]}
         />
@@ -2775,7 +2883,7 @@ export default Control`}
           a11y={[
   {
     "role": "img",
-    "note": "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂcone decorativo ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ usar aria-hidden=\"true\""
+    "note": "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂcone decorativo ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ usar aria-hidden=\"true\""
   }
 ]}
         />
@@ -2992,7 +3100,7 @@ export default Checkbox`}
           a11y={[
   {
     "role": "checkbox",
-    "note": "Estado ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ requer aria-checked"
+    "note": "Estado ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ requer aria-checked"
   }
 ]}
         />

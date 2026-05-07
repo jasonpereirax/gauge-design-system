@@ -19,7 +19,7 @@ jobs:
         with:
           node-version: '20'
           registry-url: 'https://npm.pkg.github.com'
-          scope: '@your-username'
+          scope: '@jasonpereirax'
       - run: npm install --legacy-peer-deps
       - run: npm run build:lib
       - name: Bump patch version
