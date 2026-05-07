@@ -4,7 +4,7 @@ Gerado automaticamente via [Design System Publisher Pro](https://github.com/) a 
 
 ## Componentes (1)
 
-- `Header` — Header
+- `Tab` — Tab
 
 ## Instalação
 
@@ -16,7 +16,7 @@ npm run dev
 ## Uso
 
 ```tsx
-import { Header } from "@/components"
+import { Tab } from "@/components"
 ```
 
 ## Estrutura
@@ -24,15 +24,15 @@ import { Header } from "@/components"
 ```
 src/
   components/
-    Header/
-      Header.tsx         # React
-      Header.tailwind.tsx # Tailwind
-      Header.ai.tsx       # AI-generated (se disponível)
-      Header.module.css   # CSS Module
+    Tab/
+      Tab.tsx         # React
+      Tab.tailwind.tsx # Tailwind
+      Tab.ai.tsx       # AI-generated (se disponível)
+      Tab.module.css   # CSS Module
   App.tsx     # Docs site
   main.tsx
 ```
 
 ---
 
-*Gerado em: 2026-05-07T20:36:27.055Z*
+*Gerado em: 2026-05-07T20:57:04.778Z*

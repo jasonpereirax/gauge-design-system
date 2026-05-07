@@ -25,10 +25,10 @@ npm install @jasonpereirax/gauge-design-system
 ## 3. Usar
 
 ```tsx
-import { Header } from '@jasonpereirax/gauge-design-system'
+import { Tab } from '@jasonpereirax/gauge-design-system'
 
 export default function App() {
-  return <Header />
+  return <Tab />
 }
 ```
 
