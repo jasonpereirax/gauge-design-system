@@ -4,7 +4,7 @@ Gerado automaticamente via [Design System Publisher Pro](https://github.com/) a 
 
 ## Componentes (1)
 
-- `Button2` — Button 2
+- `BusinessRules` — Business Rules
 
 ## Instalação
 
@@ -16,7 +16,7 @@ npm run dev
 ## Uso
 
 ```tsx
-import { Button2 } from "@/components"
+import { BusinessRules } from "@/components"
 ```
 
 ## Estrutura
@@ -24,15 +24,15 @@ import { Button2 } from "@/components"
 ```
 src/
   components/
-    Button2/
-      Button2.tsx         # React
-      Button2.tailwind.tsx # Tailwind
-      Button2.ai.tsx       # AI-generated (se disponível)
-      Button2.module.css   # CSS Module
+    BusinessRules/
+      BusinessRules.tsx         # React
+      BusinessRules.tailwind.tsx # Tailwind
+      BusinessRules.ai.tsx       # AI-generated (se disponível)
+      BusinessRules.module.css   # CSS Module
   App.tsx     # Docs site
   main.tsx
 ```
 
 ---
 
-*Gerado em: 2026-05-14T14:14:48.632Z*
+*Gerado em: 2026-05-14T19:39:19.673Z*
