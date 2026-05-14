@@ -4,7 +4,7 @@ Gerado automaticamente via [Design System Publisher Pro](https://github.com/) a 
 
 ## Componentes (1)
 
-- `Tab` — Tab
+- `Button2` — Button 2
 
 ## Instalação
 
@@ -16,7 +16,7 @@ npm run dev
 ## Uso
 
 ```tsx
-import { Tab } from "@/components"
+import { Button2 } from "@/components"
 ```
 
 ## Estrutura
@@ -24,15 +24,15 @@ import { Tab } from "@/components"
 ```
 src/
   components/
-    Tab/
-      Tab.tsx         # React
-      Tab.tailwind.tsx # Tailwind
-      Tab.ai.tsx       # AI-generated (se disponível)
-      Tab.module.css   # CSS Module
+    Button2/
+      Button2.tsx         # React
+      Button2.tailwind.tsx # Tailwind
+      Button2.ai.tsx       # AI-generated (se disponível)
+      Button2.module.css   # CSS Module
   App.tsx     # Docs site
   main.tsx
 ```
 
 ---
 
-*Gerado em: 2026-05-07T20:57:04.778Z*
+*Gerado em: 2026-05-14T14:14:48.632Z*

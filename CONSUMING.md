@@ -25,10 +25,10 @@ npm install @jasonpereirax/gauge-design-system
 ## 3. Usar
 
 ```tsx
-import { Tab } from '@jasonpereirax/gauge-design-system'
+import { Button2 } from '@jasonpereirax/gauge-design-system'
 
 export default function App() {
-  return <Tab />
+  return <Button2 />
 }
 ```
 
