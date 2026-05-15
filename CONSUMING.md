@@ -25,10 +25,10 @@ npm install @jasonpereirax/gauge-design-system
 ## 3. Usar
 
 ```tsx
-import { Card } from '@jasonpereirax/gauge-design-system'
+import { Accordion } from '@jasonpereirax/gauge-design-system'
 
 export default function App() {
-  return <Card />
+  return <Accordion />
 }
 ```
 

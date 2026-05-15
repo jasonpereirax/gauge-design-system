@@ -4,7 +4,7 @@ Gerado automaticamente via [Design System Publisher Pro](https://github.com/) a 
 
 ## Componentes (1)
 
-- `Card` — Card
+- `Accordion` — Accordion
 
 ## Instalação
 
@@ -16,7 +16,7 @@ npm run dev
 ## Uso
 
 ```tsx
-import { Card } from "@/components"
+import { Accordion } from "@/components"
 ```
 
 ## Estrutura
@@ -24,15 +24,15 @@ import { Card } from "@/components"
 ```
 src/
   components/
-    Card/
-      Card.tsx         # React
-      Card.tailwind.tsx # Tailwind
-      Card.ai.tsx       # AI-generated (se disponível)
-      Card.module.css   # CSS Module
+    Accordion/
+      Accordion.tsx         # React
+      Accordion.tailwind.tsx # Tailwind
+      Accordion.ai.tsx       # AI-generated (se disponível)
+      Accordion.module.css   # CSS Module
   App.tsx     # Docs site
   main.tsx
 ```
 
 ---
 
-*Gerado em: 2026-05-15T17:06:47.841Z*
+*Gerado em: 2026-05-15T17:17:57.758Z*
