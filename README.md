@@ -4,7 +4,7 @@ Gerado automaticamente via [Design System Publisher Pro](https://github.com/) a 
 
 ## Componentes (1)
 
-- `BusinessRules` — Business Rules
+- `Card` — Card
 
 ## Instalação
 
@@ -16,7 +16,7 @@ npm run dev
 ## Uso
 
 ```tsx
-import { BusinessRules } from "@/components"
+import { Card } from "@/components"
 ```
 
 ## Estrutura
@@ -24,15 +24,15 @@ import { BusinessRules } from "@/components"
 ```
 src/
   components/
-    BusinessRules/
-      BusinessRules.tsx         # React
-      BusinessRules.tailwind.tsx # Tailwind
-      BusinessRules.ai.tsx       # AI-generated (se disponível)
-      BusinessRules.module.css   # CSS Module
+    Card/
+      Card.tsx         # React
+      Card.tailwind.tsx # Tailwind
+      Card.ai.tsx       # AI-generated (se disponível)
+      Card.module.css   # CSS Module
   App.tsx     # Docs site
   main.tsx
 ```
 
 ---
 
-*Gerado em: 2026-05-14T19:39:19.673Z*
+*Gerado em: 2026-05-15T16:33:58.224Z*
